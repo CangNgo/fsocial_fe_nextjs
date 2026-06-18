@@ -1,1 +1,0 @@
-export { AdminComplaintPanel } from "./AdminComplaintPanel";

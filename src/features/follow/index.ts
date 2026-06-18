@@ -1,1 +1,1 @@
-export { FollowFeature } from "./components/FollowFeature";
+export { FollowFeature } from "./components/shared/follow-feature";

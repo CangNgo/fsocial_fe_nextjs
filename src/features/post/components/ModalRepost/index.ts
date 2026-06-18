@@ -1,1 +1,0 @@
-export { ModalRepost } from "./ModalRepost";

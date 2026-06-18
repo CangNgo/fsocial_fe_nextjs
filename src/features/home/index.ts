@@ -1,1 +1,1 @@
-export { HomeFeature } from "./components/HomeFeature";
+export { HomeFeature } from "./components/shared/home-feature";

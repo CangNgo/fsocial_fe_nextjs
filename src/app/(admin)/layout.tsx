@@ -1,11 +1,11 @@
 "use client";
 import { jwtDecode } from "jwt-decode";
 import { useEffect } from "react";
-import { AdminSidebar } from "@/components/organisms/AdminSidebar";
-import { GlobalPopup } from "@/components/organisms/GlobalPopup";
-import { getAdminProfile } from "@/lib/api/admin/adminProfileApi";
-import { adminStore } from "@/store/adminStore";
-import { getCookie } from "@/utils/cookie";
+import { getAdminProfile } from "@/features/admin/api/admin-profile-api";
+import { AdminSidebar } from "@/shared/components/organisms/admin-sidebar";
+import { GlobalPopup } from "@/shared/components/organisms/global-popup";
+import { adminStore } from "@/shared/stores/admin-store";
+import { getCookie } from "@/shared/utils/cookie";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const { setUser } = adminStore();

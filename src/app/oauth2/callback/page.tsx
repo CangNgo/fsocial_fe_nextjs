@@ -1,8 +1,8 @@
 "use client";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect } from "react";
-import { validRefreshTokenStore } from "@/store/validRefreshTokenStore";
-import { setCookie } from "@/utils/cookie";
+import { validRefreshTokenStore } from "@/shared/stores/valid-refresh-token-store";
+import { setCookie } from "@/shared/utils/cookie";
 
 function OAuth2CallbackInner() {
   const router = useRouter();

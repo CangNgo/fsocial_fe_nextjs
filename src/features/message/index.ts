@@ -1,1 +1,1 @@
-export { MessageFeature } from "./components/MessageFeature";
+export { MessageFeature } from "./components/shared/message-feature";

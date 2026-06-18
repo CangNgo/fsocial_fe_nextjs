@@ -1,1 +1,1 @@
-export { PostFeature } from "./components/PostFeature";
+export { PostFeature } from "./components/shared/post-feature";

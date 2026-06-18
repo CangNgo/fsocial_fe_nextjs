@@ -2,7 +2,7 @@
 import dynamic from "next/dynamic";
 
 const ProfileFeature = dynamic(
-  () => import("@/features/profile/ProfileFeature").then((m) => ({ default: m.ProfileFeature })),
+  () => import("@/features/profile").then((m) => ({ default: m.ProfileFeature })),
   { ssr: false },
 );
 

@@ -1,3 +1,3 @@
-export { ForgotPasswordForm } from "./components/ForgotPasswordForm";
-export { LoginForm } from "./components/LoginForm";
-export { SignupForm } from "./components/SignupForm";
+export { ForgotPasswordForm } from "./components/forms/forgot-password-form";
+export { LoginForm } from "./components/forms/login-form";
+export { SignupForm } from "./components/forms/signup-form";

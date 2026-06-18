@@ -1,1 +1,1 @@
-export { SearchFeature } from "./components/SearchFeature";
+export { SearchFeature } from "./components/shared/search-feature";

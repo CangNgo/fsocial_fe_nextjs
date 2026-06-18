@@ -1,3 +1,3 @@
-export { AccountBasicForm } from "./components/AccountBasicForm";
-export { AccountLoginForm } from "./components/AccountLoginForm";
-export { AccountPrivacyForm } from "./components/AccountPrivacyForm";
+export { AccountBasicForm } from "./components/forms/account-basic-form";
+export { AccountLoginForm } from "./components/forms/account-login-form";
+export { AccountPrivacyForm } from "./components/forms/account-privacy-form";
