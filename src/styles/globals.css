@@ -1,0 +1,514 @@
+@import "tailwindcss";
+
+/* ====================================================================
+   SHADCN + CUSTOM THEME — Tailwind 4 @theme inline
+   ==================================================================== */
+
+@theme inline {
+  /* Shadcn/ui core color utilities */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--shadcn-primary);
+  --color-primary-foreground: var(--shadcn-primary-foreground);
+  --color-secondary: var(--shadcn-secondary);
+  --color-secondary-foreground: var(--shadcn-secondary-foreground);
+  --color-muted: var(--shadcn-muted);
+  --color-muted-foreground: var(--shadcn-muted-foreground);
+  --color-accent: var(--shadcn-accent);
+  --color-accent-foreground: var(--shadcn-accent-foreground);
+  --color-destructive: var(--shadcn-destructive);
+  --color-border: var(--border-clr);
+  --color-input: var(--border-field);
+  --color-ring: var(--primary-clr);
+
+  /* Custom brand color utilities */
+  --color-brand: var(--primary-clr);
+  --color-primary-text: var(--text-primary-clr);
+  --color-txtWhite: var(--text-white);
+  --color-txt-white: var(--text-white);
+  --color-logo: var(--logo-clr);
+  --color-gray: var(--gray-clr);
+  --color-gray-light: var(--gray-light-clr);
+  --color-gray-2light: var(--gray-2light-clr);
+  --color-gray-3light: var(--gray-3light-clr);
+  --color-field: var(--border-field);
+  --color-hover: var(--border-hover-clr);
+  --color-outline: var(--border-outline);
+
+  /* Background image — enables bg-primary-gradient utility */
+  --background-image-primary-gradient: var(--primary-gradient-clr);
+
+  /* Border radius */
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  /* Font */
+  --font-sans: "Roboto", sans-serif;
+
+  /* Animations */
+  --animate-caret-blink: caret-blink 1.25s ease-out infinite;
+}
+
+/* ====================================================================
+   CSS VARIABLES — Light & Dark mode
+   ==================================================================== */
+
+@layer base {
+  :root {
+    /* Shadcn/ui — OKLCH values */
+    --background: oklch(1 0 0);
+    --foreground: oklch(0.141 0.005 285.82);
+    --card: oklch(1 0 0);
+    --card-foreground: oklch(0.141 0.005 285.82);
+    --popover: oklch(1 0 0);
+    --popover-foreground: oklch(0.141 0.005 285.82);
+    --shadcn-primary: var(--primary-clr);
+    --shadcn-primary-foreground: var(--text-white);
+    --shadcn-secondary: oklch(0.967 0.001 286.375);
+    --shadcn-secondary-foreground: oklch(0.21 0.006 285.885);
+    --shadcn-muted: oklch(0.967 0.001 286.375);
+    --shadcn-muted-foreground: oklch(0.552 0.016 285.938);
+    --shadcn-accent: oklch(0.967 0.001 286.375);
+    --shadcn-accent-foreground: oklch(0.21 0.006 285.885);
+    --shadcn-destructive: oklch(0.577 0.245 27.325);
+
+    /* Brand */
+    --logo-clr: var(--primary-clr);
+    --primary-clr: hsl(23, 90%, 52%);
+    --primary-hover-clr: hsl(23, 80%, 47%);
+    --primary-active-clr: hsl(23, 80%, 44%);
+    --primary-ghost-clr: hsl(22, 70%, 95%);
+    --primary-gradient-start: hsl(31, 100%, 50%);
+    --primary-gradient-end: hsl(21, 100%, 50%);
+    --primary-gradient-clr: linear-gradient(
+      to bottom right,
+      var(--primary-gradient-start),
+      var(--primary-gradient-end)
+    );
+
+    /* Secondary */
+    --secondary-clr: hsl(0, 0%, 96%);
+    --secondary-hover-clr: hsl(0, 0%, 86%);
+    --secondary-active-clr: hsl(0, 0%, 82%);
+
+    /* Backgrounds */
+    --lower-background-clr: hsl(220, 16%, 96%);
+    --background-clr: #ffffff;
+    --muted-clr: hsl(0, 0%, 92%);
+
+    /* Grays */
+    --gray-clr: hsl(0, 0%, 45%);
+    --gray-light-clr: #adadad;
+    --gray-2light-clr: hsl(0, 0%, 90%);
+    --gray-3light-clr: hsl(0, 0%, 96%);
+
+    /* Borders */
+    --border-field: hsl(0, 0%, 78%);
+    --border-outline: hsl(0, 0%, 86%);
+    --border-clr: hsl(0, 0%, 92%);
+    --border-hover-clr: hsl(0, 0%, 28%);
+    --shadow-clr: hsla(0, 0%, 91%, 1);
+
+    /* Text */
+    --text-white: hsl(0, 0%, 96%);
+    --text-primary-clr: #404040;
+    --text-secondary-clr: hsl(0, 0%, 96%);
+
+    /* Chart */
+    --orange-chart-clr: var(--primary-clr);
+    --blue-chart-clr: #6488ff;
+    --green-chart-clr: #39c900;
+
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    /* Shadcn dark */
+    --background: oklch(0.141 0.005 285.82);
+    --foreground: oklch(0.985 0 0);
+    --card: oklch(0.141 0.005 285.82);
+    --card-foreground: oklch(0.985 0 0);
+    --popover: oklch(0.141 0.005 285.82);
+    --popover-foreground: oklch(0.985 0 0);
+    --shadcn-primary: var(--primary-clr);
+    --shadcn-primary-foreground: var(--text-white);
+    --shadcn-secondary: oklch(0.269 0.007 285.875);
+    --shadcn-secondary-foreground: oklch(0.985 0 0);
+    --shadcn-muted: oklch(0.269 0.007 285.875);
+    --shadcn-muted-foreground: oklch(0.705 0.015 286.067);
+    --shadcn-accent: oklch(0.269 0.007 285.875);
+    --shadcn-accent-foreground: oklch(0.985 0 0);
+    --shadcn-destructive: oklch(0.396 0.141 25.723);
+
+    /* Custom dark overrides */
+    --logo-clr: var(--text-primary-clr);
+    --primary-ghost-clr: hsl(22, 70%, 5%);
+    --secondary-clr: hsl(0, 0%, 18%);
+    --secondary-hover-clr: hsl(0, 0%, 24%);
+    --secondary-active-clr: hsl(0, 0%, 50%);
+    --lower-background-clr: hsl(220, 14%, 2%);
+    --background-clr: hsl(0, 0%, 0%);
+    --muted-clr: hsl(0, 0%, 10%);
+    --gray-clr: hsl(0, 0%, 60%);
+    --gray-light-clr: #4d4d4d;
+    --gray-2light-clr: hsl(0, 0%, 25%);
+    --gray-3light-clr: hsl(0, 0%, 12%);
+    --border-field: hsl(0, 0%, 22%);
+    --border-outline: hsl(0, 0%, 22%);
+    --border-clr: hsl(0, 0%, 14%);
+    --border-hover-clr: hsl(0, 0%, 80%);
+    --shadow-clr: hsla(0, 0%, 12%, 1);
+    --text-primary-clr: hsl(0, 0%, 96%);
+    --text-secondary-clr: hsl(0, 0%, 25%);
+  }
+
+  * {
+    border-color: var(--border-clr);
+  }
+
+  body {
+    background-color: var(--background-clr);
+    color: var(--text-primary-clr);
+    font-family: "Roboto", sans-serif;
+  }
+
+  /* Scrollbar */
+  .scrollable-div {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .scrollable-div::-webkit-scrollbar {
+    display: none;
+  }
+  ::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--background-clr);
+    border-radius: 10px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--gray-light-clr);
+    border-radius: 10px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--gray-clr);
+  }
+  @media (min-width: 1025px) {
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+  }
+  ::-ms-reveal {
+    display: none;
+  }
+
+  /* Custom checkbox */
+  input[type="checkbox"] {
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--gray-light-clr);
+    cursor: pointer;
+    border-radius: 4px;
+    background: transparent;
+    position: relative;
+  }
+  input[type="checkbox"]:checked {
+    border-color: var(--primary-clr);
+    background-color: var(--primary-clr);
+  }
+  input[type="checkbox"]:checked::after {
+    content: "";
+    position: absolute;
+    left: 5px;
+    top: 2px;
+    width: 6px;
+    height: 10px;
+    border: 2px solid white;
+    border-top: none;
+    border-left: none;
+    transform: rotate(45deg);
+  }
+  input::placeholder {
+    color: var(--gray-light-clr);
+  }
+  input[type="radio"] {
+    accent-color: var(--primary-clr);
+  }
+  img {
+    -webkit-user-drag: none;
+  }
+
+  @keyframes caret-blink {
+    0%,
+    70%,
+    100% {
+      opacity: 1;
+    }
+    20%,
+    50% {
+      opacity: 0;
+    }
+  }
+  @keyframes shake {
+    25% {
+      transform: translateX(2px);
+    }
+    75% {
+      transform: translateX(-2px);
+    }
+    100% {
+      transform: translateX(0);
+    }
+  }
+}
+
+/* ====================================================================
+   CUSTOM COMPONENT CLASSES
+   ==================================================================== */
+
+@layer components {
+  .btn-primary {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    border-radius: 0.25rem;
+    outline: none;
+    background-image: var(--primary-gradient-clr);
+    color: var(--text-white);
+    background-size: 100% 100%;
+    transition: all 0.2s;
+    cursor: pointer;
+  }
+  .btn-primary:hover {
+    opacity: 0.92;
+  }
+  .btn-primary:active {
+    filter: brightness(0.9);
+  }
+
+  .btn-secondary {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    border-radius: 0.25rem;
+    outline: none;
+    background-color: var(--secondary-clr);
+    color: var(--text-primary-clr);
+    transition: all 0.15s;
+    cursor: pointer;
+  }
+  .btn-secondary:hover {
+    background-color: var(--secondary-hover-clr);
+  }
+  .btn-secondary:active {
+    background-color: var(--secondary-active-clr);
+  }
+
+  .btn-transparent {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    border-radius: 0.25rem;
+    outline: none;
+    color: var(--text-primary-clr);
+    background-color: transparent;
+    transition: all 0.15s;
+    cursor: pointer;
+  }
+  .btn-transparent:hover {
+    background-color: var(--gray-3light-clr);
+  }
+  .btn-transparent:active {
+    background-color: var(--gray-2light-clr);
+  }
+
+  .btn-outline {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    border-radius: 0.25rem;
+    border: 1px solid var(--border-outline);
+    outline: none;
+    color: var(--text-primary-clr);
+    background-color: transparent;
+    transition: all 0.15s;
+    cursor: pointer;
+  }
+  .btn-outline:hover {
+    background-color: var(--gray-3light-clr);
+  }
+  .btn-outline:active {
+    background-color: var(--gray-2light-clr);
+  }
+
+  .btn-ghost {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    border-radius: 0.25rem;
+    background-color: var(--primary-ghost-clr);
+    color: var(--primary-clr);
+    transition: all 0.15s;
+    cursor: pointer;
+  }
+  .btn-ghost:hover {
+    background-image: var(--primary-gradient-clr);
+    color: var(--text-white);
+  }
+
+  .disable-btn {
+    pointer-events: none;
+    opacity: 0.8;
+  }
+
+  .text-primary-gradient {
+    color: transparent;
+    background-image: var(--primary-gradient-clr);
+    background-clip: text;
+    -webkit-background-clip: text;
+  }
+
+  .custom-input {
+    padding: 0.875rem 2.5rem 0.875rem 0.875rem;
+    width: 100%;
+    background-color: transparent;
+    border: 1px solid var(--border-field);
+    outline: none;
+    border-radius: 0.25rem;
+    transition: border-color 0.1s;
+  }
+  @media (min-width: 768px) {
+    .custom-input {
+      padding: 0.75rem 2.5rem 0.75rem 0.75rem;
+    }
+  }
+  .custom-input:hover,
+  .custom-input:focus {
+    border-color: var(--border-hover-clr);
+  }
+  .custom-input.custom-input-error {
+    border-color: #ef4444;
+    animation: shake 0.2s linear;
+  }
+  .custom-input.custom-input-error:hover,
+  .custom-input.custom-input-error:focus {
+    border-color: #ef4444;
+  }
+
+  .border-bottom-faded {
+    position: relative;
+  }
+  .border-bottom-faded::before {
+    transition: all 0.2s;
+    content: "";
+    position: absolute;
+    bottom: -5px;
+    width: 100%;
+    border-bottom: 3px solid transparent;
+    border-image-slice: 1;
+    border-image-source: linear-gradient(
+      to right,
+      transparent 10%,
+      var(--primary-gradient-start),
+      var(--primary-gradient-end),
+      transparent 90%
+    );
+  }
+
+  .fs-xs {
+    font-size: clamp(0.65rem, 1.5vw, 0.75rem);
+  }
+  .fs-sm {
+    font-size: clamp(0.75rem, 1.8vw, 0.875rem);
+  }
+}
+
+/* ====================================================================
+   SVG COLOR UTILITIES — Explicit declarations for Icon.tsx SVG classes
+   ==================================================================== */
+@layer utilities {
+  .fill-logo {
+    fill: var(--logo-clr);
+  }
+  .fill-primary-text {
+    fill: var(--text-primary-clr);
+  }
+  .fill-background {
+    fill: var(--background-clr);
+  }
+  .fill-secondary-text {
+    fill: var(--text-secondary-clr);
+  }
+  .fill-txtWhite {
+    fill: var(--text-white);
+  }
+  .fill-gray {
+    fill: var(--gray-clr);
+  }
+
+  .stroke-primary-text {
+    stroke: var(--text-primary-clr);
+  }
+  .stroke-background {
+    stroke: var(--background-clr);
+  }
+  .stroke-txtWhite {
+    stroke: var(--text-white);
+  }
+  .stroke-gray {
+    stroke: var(--gray-clr);
+  }
+
+  .bg-primary-text {
+    background-color: var(--text-primary-clr);
+  }
+  .text-primary-text {
+    color: var(--text-primary-clr);
+  }
+  .text-txtWhite {
+    color: var(--text-white);
+  }
+  .text-gray {
+    color: var(--gray-clr);
+  }
+  .text-gray-light {
+    color: var(--gray-light-clr);
+  }
+
+  .border-field {
+    border-color: var(--border-field);
+  }
+  .hover\:border-hover:hover {
+    border-color: var(--border-hover-clr);
+  }
+  .focus\:border-hover:focus {
+    border-color: var(--border-hover-clr);
+  }
+
+  .shadow-y {
+    box-shadow:
+      0px -1px 2px var(--shadow-clr),
+      0 1px 2px var(--shadow-clr);
+  }
+  .shadow-b {
+    box-shadow: 0 1px 2px var(--shadow-clr);
+  }
+  .shadow-r {
+    box-shadow: 1px 0 2px var(--shadow-clr);
+  }
+}

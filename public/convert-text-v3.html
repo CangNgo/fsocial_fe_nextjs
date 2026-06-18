@@ -1,0 +1,701 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PDF Text Fixer</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #e5e7eb 0%, #e5e7eb 100%);
+        min-height: 100vh;
+        min-width: 100vh;
+        padding: 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 16px;
+      }
+
+      .container {
+        background: #ffffff;
+        border-radius: 20px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        max-width: 90%;
+        width: 90%;
+        padding: 20px 40px 40px 40px;
+        height: 93vh;
+      }
+
+      h1 {
+        color: #667eea;
+        text-align: center;
+        margin-bottom: 10px;
+        font-size: 2em;
+      }
+
+      .subtitle {
+        text-align: center;
+        color: #666;
+        margin-bottom: 30px;
+        font-size: 0.95em;
+      }
+
+      .text-areas {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin-bottom: 20px;
+        height: 60vh;
+      }
+
+      .text-box {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .text-box label {
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .icon {
+        width: 20px;
+        height: 20px;
+      }
+
+      textarea {
+        width: 100%;
+        height: 100%;
+        padding: 15px;
+        border: 2px solid #e0e0e0;
+        border-radius: 10px;
+        font-size: 14px;
+        font-family: "Courier New", monospace;
+        resize: vertical;
+        transition: border-color 0.3s;
+        font-size: 18px;
+      }
+
+      textarea:focus {
+        outline: none;
+        border-color: #667eea;
+      }
+
+      #inputText {
+        background-color: #fff5f5;
+      }
+
+      #outputText {
+        background-color: #f0f9ff;
+      }
+
+      #outputTextDiv {
+        width: 100%;
+        height: 100%;
+        padding: 15px;
+        border: 2px solid #e0e0e0;
+        border-radius: 10px;
+        font-size: 14px;
+        font-family: "Courier New", monospace;
+        resize: vertical;
+        transition: border-color 0.3s;
+        font-size: 18px;
+        background-color: #f0f9ff;
+        overflow-y: auto;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+      }
+
+      #outputTextDiv:focus {
+        outline: none;
+        border-color: #667eea;
+      }
+
+      .highlight-duplicate {
+        background-color: #fef08a;
+        padding: 2px 4px;
+        border-radius: 3px;
+        font-weight: 600;
+      }
+
+      .buttons {
+        display: flex;
+        gap: 15px;
+        justify-content: right;
+        flex-wrap: wrap;
+      }
+
+      button {
+        padding: 18px 40px;
+        border: none;
+        border-radius: 8px;
+        font-size: 18px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .btn-clear {
+        background-color: #fcabff;
+        color: #1088eb;
+      }
+
+      .btn-clear:hover {
+        background-color: #ed0df5;
+        color: #042744;
+      }
+
+      .btn-copy {
+        background-color: #10b981;
+        color: white;
+      }
+
+      .btn-copy:hover {
+        background-color: #059669;
+      }
+
+      .stats {
+        margin-top: 20px;
+        padding: 15px;
+        background-color: #f9fafb;
+        border-radius: 10px;
+        text-align: center;
+        color: #666;
+        font-size: 14px;
+      }
+
+      .notification {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 15px 25px;
+        background-color: #10b981;
+        color: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        opacity: 0;
+        transform: translateY(-100px);
+        transition: all 0.3s;
+        z-index: 1000;
+      }
+
+      .notification-error {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 15px 25px;
+        background-color: #ef4444;
+        color: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        opacity: 0;
+        transform: translateY(-100px);
+        transition: all 0.3s;
+        z-index: 1000;
+      }
+      .notification-success {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 15px 25px;
+        background-color: #22c55e;
+        color: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        opacity: 0;
+        transform: translateY(-100px);
+        transition: all 0.3s;
+        z-index: 1000;
+      }
+
+      .badge-0 {
+        background-color: #eab308;
+      }
+      .badge-1 {
+        background-color: #22c55e;
+      }
+      .badge-2 {
+        background-color: #3b82f6;
+      }
+      .badge-3 {
+        background-color: #ec4899;
+      }
+      .badge-4 {
+        background-color: #a855f7;
+      }
+      .badge-5 {
+        background-color: #f97316;
+      }
+      .badge-6 {
+        background-color: #ef4444;
+      }
+      .badge-7 {
+        background-color: #06b6d4;
+      }
+      .badge-8 {
+        background-color: #6366f1;
+      }
+      .badge-9 {
+        background-color: #84cc16;
+      }
+
+      @media (max-width: 768px) {
+        .text-areas {
+          grid-template-columns: 1fr;
+        }
+
+        .container {
+          padding: 20px;
+        }
+
+        h1 {
+          font-size: 1.5em;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>CANG NGÔ</h1>
+      <p class="subtitle">
+        Nếu gặp vấn đề xin hãy ghi chú lại, hết giờ làm hãy gửi cho tôi: Cang
+        Ngô
+      </p>
+
+      <div class="text-areas">
+        <div class="text-box">
+          <label for="inputText">
+            <svg
+              class="icon"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
+              ></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+            </svg>
+            Dữ liệu vào
+          </label>
+          <textarea
+            id="inputText"
+            placeholder="Hãy cho vào đây"
+            oninput="convertText()"
+            ondblclick="clearAll()"
+          ></textarea>
+        </div>
+
+        <div class="text-box">
+          <label for="outputText">
+            <svg
+              class="icon"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+            Dữ liệu sau chỉnh sửa
+          </label>
+          <div
+            id="outputTextDiv"
+            contenteditable="true"
+            placeholder="Công cụ đang trong quá trình thử nghiệm, xin hãy kiểm tra kết quả"
+            ondblclick="copyOutput(event)"
+          ></div>
+          <textarea id="outputText" style="display: none"></textarea>
+        </div>
+      </div>
+
+      <div class="buttons">
+        <button class="btn-clear" onclick="lowerkey()">Chữ thường</button>
+        <button class="btn-copy" onclick="(e) => duplicateText(e.t)">
+          Tìm chuỗi trùng lặp
+        </button>
+      </div>
+    </div>
+    <script>
+      const minlength = 10;
+      const specialCharacters = ["!","@","#","$","%","^","&","*","=","+","|","~","<",">","|","]","[","{","}",
+      ];
+      document
+        .getElementById("inputText")
+        .addEventListener("paste", function () {
+          setTimeout(convertText, 100);
+        });
+
+      document
+        .getElementById("inputText")
+        .addEventListener("keydown", function (e) {
+          if (e.ctrlKey && e.key === "Enter") {
+            convertText();
+          }
+        });
+
+      function removeKeyword(text) {
+        for (let i = 0; i < specialCharacters.length; i++) {
+          text = text.replace(specialCharacters[i], "");
+        }
+        return text;
+      }
+
+      function fixDuplicateText(text) {
+        text = removeKeyword(text);
+
+        if (!text || text.trim() === "") {
+          return "";
+        }
+
+        text = text.replace(/[\r\n]+/g, " ");
+
+        text = text.replace(/\s+/g, " ").trim();
+
+        const words = text.split(/(\s+)/);
+        const result = [];
+        let i = 0;
+
+        while (i < words.length) {
+          let currentWord = words[i];
+
+          // Loại bỏ các ký tự đặc biệt không được phép
+          // Chỉ giữ lại: chữ cái (bao gồm tiếng Việt), số, khoảng trắng, và các ký tự: -_(),./\?
+          // \u00C0-\u024F: bao gồm các ký tự tiếng Việt có dấu (à, á, ả, ã, ạ, ă, â, đ, ê, ô, ơ, ư, etc.)
+          // Regex: [^a-zA-Z0-9\u00C0-\u024F\s\-_(),./\\?] nghĩa là loại bỏ tất cả trừ các ký tự được phép
+
+          if (currentWord === "2020") {
+            result.push(currentWord);
+            i++;
+            continue;
+          }
+
+          if (/^\s+$/.test(currentWord)) {
+            result.push(currentWord);
+            i++;
+            continue;
+          }
+
+          if (currentWord.includes("/") || currentWord.includes("-")) {
+            result.push(currentWord.toUpperCase());
+            i++;
+            continue;
+          }
+
+          let foundDuplicate = false;
+
+          for (let len = 1; len <= Math.floor(currentWord.length / 2); len++) {
+            const firstHalf = currentWord.substring(0, len);
+            const secondHalf = currentWord.substring(len, len * 2);
+
+            if (
+              firstHalf.toLowerCase() === secondHalf.toLowerCase() &&
+              currentWord.length === len * 2
+            ) {
+              result.push(firstHalf);
+              foundDuplicate = true;
+              break;
+            }
+          }
+
+          if (!foundDuplicate) {
+            result.push(currentWord);
+          }
+
+          i++;
+        }
+
+        return result.join("");
+      }
+
+      function convertText() {
+        const input = document.getElementById("inputText").value;
+        // Trim 2 đầu của input trước khi xử lý
+        const trimmedInput = input.trim();
+        let output = fixDuplicateText(trimmedInput);
+        // Trim 2 đầu của output trước khi highlight
+        output = output.trim();
+        const duplicate = duplicateText(trimmedInput);
+        const renderedDuplicate = renderDuplicateText(
+          output,
+          Array.from(duplicate.values())
+        );
+        document.getElementById("outputTextDiv").innerHTML = renderedDuplicate;
+        document.getElementById("outputText").value = output;
+      }
+
+      function copyOutput(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        const content = document.getElementById("outputTextDiv");
+        if (!content.textContent) {
+          return;
+        }
+
+        navigator.clipboard
+          .writeText(content.textContent)
+          .then(() => {
+            showNotification("Đã copy!");
+          })
+          .catch(() => {
+            showNotification("Không thể copy!");
+          });
+      }
+
+      function showNotification(message) {
+        const notification = document.createElement("div");
+        notification.className = "notification";
+        notification.textContent = message;
+        document.body.appendChild(notification);
+
+        setTimeout(() => {
+          notification.style.opacity = "1";
+          notification.style.transform = "translateY(0)";
+        }, 10);
+
+        setTimeout(() => {
+          notification.style.opacity = "0";
+          notification.style.transform = "translateY(-100px)";
+          setTimeout(() => notification.remove(), 300);
+        }, 2000);
+      }
+
+      function lowerkey() {
+        const input = document.getElementById("inputText").value;
+        var output = fixDuplicateText(input);
+        const result = fixDuplicateText(output);
+
+        document.getElementById("outputTextDiv").textContent = result;
+        document.getElementById("outputText").value = result;
+      }
+
+      // function slitText(output) {
+      //   const firstOutput = output.charAt(0).toUpperCase();
+      //   const secondOutput = output.substring(1);
+      //   const result = [];
+      //   result.push(firstOutput);
+
+      //   // Tách text thành các từ và khoảng trắng
+      //   const words = secondOutput.split(/(\s+)/);
+
+      //   for (let i = 0; i < words.length; i++) {
+      //     const word = words[i];
+
+      //     // Giữ nguyên khoảng trắng
+      //     if (/^\s+$/.test(word)) {
+      //       result.push(word);
+      //       continue;
+      //     }
+
+      //     // Kiểm tra xem từ có chứa / hoặc - không
+      //     let contains = false;
+      //     for (let j = 0; j < word.length; j++) {
+      //       if (word[j] === "/" || word[j] === "-") {
+      //         contains = true;
+      //         break;
+      //       }
+      //     }
+
+      //     // Nếu chứa / hoặc - thì không chuyển thành chữ thường
+      //     if (contains) {
+      //       result.push(word);
+      //     } else {
+      //       result.push(word.toLowerCase());
+      //     }
+      //   }
+      //   return result.join("");
+      // }
+
+      function clearAll() {
+        document.getElementById("inputText").value = "";
+        const input = document.getElementById("inputText");
+        input.focus();
+        document.getElementById("outputTextDiv").innerHTML = "";
+        document.getElementById("outputText").value = "";
+        showNotification("Đã xóa tất cả!");
+      }
+
+      function duplicateText(inputText) {
+        const textLower = inputText.toLowerCase();
+        const minLength = minlength;
+        const found = new Map();
+        const maxLength = textLower.length;
+        const originalText = inputText;
+
+        for (let len = maxLength; len >= minLength; len--) {
+          for (let i = 0; i <= maxLength - len; i++) {
+            const subStringLower = textLower.substring(i, i + len);
+            const subStringOriginal = originalText.substring(i, i + len);
+
+            if (subStringLower.trim().length < minLength) {
+              continue;
+            }
+
+            // Bỏ qua nếu chỉ là khoảng trắng
+            if (subStringLower.trim() === "") {
+              continue;
+            }
+
+            let isPartOfLonger = false;
+            for (let [existingStr] of found) {
+              if (
+                existingStr.includes(subStringLower) &&
+                existingStr.length > subStringLower.length
+              ) {
+                isPartOfLonger = true;
+                break;
+              }
+            }
+
+            if (isPartOfLonger) {
+              continue;
+            }
+
+            const secondPos = textLower.indexOf(subStringLower, i + 1);
+
+            if (secondPos !== -1) {
+              let count = 2;
+              let pos = secondPos;
+              const positions = [i, secondPos];
+
+              while (
+                (pos = textLower.indexOf(subStringLower, pos + 1)) !== -1
+              ) {
+                count++;
+                positions.push(pos);
+              }
+
+              if (!found.has(subStringLower)) {
+                found.set(subStringLower, {
+                  text: subStringOriginal, // Dùng text gốc với đúng case
+                  length: len,
+                  count: count,
+                  positions: positions,
+                });
+              }
+            }
+          }
+        }
+        return found;
+      }
+
+      (function () {
+        const protectedContent = {
+          h1: "CANG NGÔ",
+          subtitle:
+            "Nếu gặp vấn đề xin hãy ghi chú lại, hết giờ làm hãy gửi cho tôi: Cang Ngô",
+        };
+
+        function restoreContent() {
+          const h1El = document.querySelector("h1");
+          const subtitleEl = document.querySelector(".subtitle");
+
+          if (h1El && h1El.textContent.trim() !== protectedContent.h1) {
+            h1El.textContent = protectedContent.h1;
+          }
+
+          if (
+            subtitleEl &&
+            subtitleEl.textContent.trim() !== protectedContent.subtitle
+          ) {
+            subtitleEl.textContent = protectedContent.subtitle;
+          }
+        }
+
+        // Kiểm tra và khôi phục ngay khi DOM ready
+        if (document.readyState === "loading") {
+          document.addEventListener("DOMContentLoaded", restoreContent);
+        } else {
+          restoreContent();
+        }
+
+        // Kiểm tra định kỳ mỗi 500ms
+        setInterval(restoreContent, 500);
+
+        // Kiểm tra khi có thay đổi trong DOM
+        const observer = new MutationObserver(function (mutations) {
+          mutations.forEach(function (mutation) {
+            if (
+              mutation.type === "childList" ||
+              mutation.type === "characterData"
+            ) {
+              restoreContent();
+            }
+          });
+        });
+
+        // Quan sát thay đổi trong container
+        const container = document.querySelector(".container");
+        if (container) {
+          observer.observe(container, {
+            childList: true,
+            subtree: true,
+            characterData: true,
+          });
+        }
+      })();
+
+      function renderDuplicateText(text, duplicate) {
+        if (!duplicate || duplicate.length === 0) {
+          return text;
+        }
+
+        const textLower = text.toLowerCase();
+        const duplicateArray = Array.from(duplicate.values());
+
+        // Tạo mảng để đánh dấu các vị trí cần highlight [start, end, badgeIndex]
+        const highlightRanges = [];
+
+        // Mỗi duplicate item sẽ có một màu riêng
+        duplicateArray.forEach((item, badgeIndex) => {
+          const searchText = item.text.toLowerCase();
+          const matchLength = searchText.length;
+
+          // Tìm tất cả các vị trí xuất hiện của chuỗi trùng lặp
+          let index = textLower.indexOf(searchText);
+
+          while (index !== -1) {
+            highlightRanges.push([index, index + matchLength, badgeIndex]);
+            index = textLower.indexOf(searchText, index + 1);
+          }
+        });
+
+        highlightRanges.sort((a, b) => a[0] - b[0]);
+
+        let result = "";
+        let lastIndex = 0;
+
+        highlightRanges.forEach((range) => {
+          const [start, end, badgeIndex] = range;
+
+          // Thêm text trước range
+          result += text.substring(lastIndex, start);
+
+          const matchText = text.substring(start, end);
+          const badgeClass = `badge-${badgeIndex % 10}`;
+          result += `<span class="${badgeClass}">${matchText}</span>`;
+          lastIndex = end;
+        });
+
+        // Thêm phần còn lại
+        result += text.substring(lastIndex);
+        return result;
+      }
+    </script>
+  </body>
+</html>
