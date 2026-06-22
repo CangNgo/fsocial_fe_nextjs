@@ -1,0 +1,843 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tìm Đoạn Văn Trùng Lặp</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          "Helvetica Neue", Arial, sans-serif;
+        background: linear-gradient(135deg, #eff6ff 0%, #e0e7ff 100%);
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+      }
+
+      .header {
+        background: linear-gradient(135deg, #2563eb 0%, #4f46e5 100%);
+        padding: 40px;
+        color: white;
+      }
+
+      .header h1 {
+        font-size: 36px;
+        font-weight: bold;
+        margin-bottom: 10px;
+      }
+
+      .header p {
+        color: #bfdbfe;
+        font-size: 16px;
+      }
+
+      .input-section {
+        padding: 40px;
+      }
+
+      label {
+        display: block;
+        font-size: 14px;
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 8px;
+      }
+
+      textarea {
+        width: 100%;
+        height: 200px;
+        padding: 12px;
+        border: 2px solid #d1d5db;
+        border-radius: 8px;
+        font-size: 14px;
+        font-family: inherit;
+        resize: none;
+        transition: border-color 0.3s;
+      }
+
+      textarea:focus {
+        outline: none;
+        border-color: #2563eb;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+      }
+
+      .controls {
+        display: flex;
+        gap: 16px;
+        margin-top: 20px;
+        flex-wrap: wrap;
+      }
+
+      .input-group {
+        flex: 1;
+        min-width: 200px;
+      }
+
+      input[type="number"] {
+        width: 100%;
+        padding: 12px;
+        border: 2px solid #d1d5db;
+        border-radius: 8px;
+        font-size: 14px;
+        transition: border-color 0.3s;
+      }
+
+      input[type="number"]:focus {
+        outline: none;
+        border-color: #2563eb;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+      }
+
+      .btn {
+        padding: 12px 32px;
+        background: linear-gradient(135deg, #2563eb 0%, #4f46e5 100%);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        align-self: flex-end;
+      }
+
+      .btn:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(37, 99, 235, 0.3);
+      }
+
+      .btn:disabled {
+        background: #9ca3af;
+        cursor: not-allowed;
+      }
+
+      .alert {
+        display: none;
+        margin-top: 16px;
+        padding: 12px;
+        background: #dbeafe;
+        border-radius: 8px;
+        color: #1e40af;
+        font-size: 14px;
+      }
+
+      .alert.show {
+        display: block;
+      }
+
+      .highlight-section {
+        display: none;
+        padding: 40px;
+        background: #f9fafb;
+        border-top: 1px solid #e5e7eb;
+      }
+
+      .highlight-section.show {
+        display: block;
+      }
+
+      .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        gap: 16px;
+      }
+
+      .section-header h2 {
+        font-size: 24px;
+        font-weight: bold;
+        color: #1f2937;
+      }
+
+      .view-controls {
+        display: flex;
+        gap: 8px;
+      }
+
+      .view-btn {
+        padding: 8px 16px;
+        border: none;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s;
+        background: #e5e7eb;
+        color: #374151;
+      }
+
+      .view-btn.active {
+        background: #2563eb;
+        color: white;
+      }
+
+      .highlight-box {
+        background: white;
+        border: 2px solid #e5e7eb;
+        border-radius: 8px;
+        padding: 24px;
+        max-height: 400px;
+        overflow-y: auto;
+        font-family: "Courier New", monospace;
+        font-size: 14px;
+        line-height: 1.8;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+
+      .highlight {
+        font-weight: bold;
+        padding: 2px 4px;
+        border-radius: 4px;
+        border-bottom: 2px solid;
+      }
+
+      .color-legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 16px;
+      }
+
+      .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+        color: #6b7280;
+      }
+
+      .legend-color {
+        width: 24px;
+        height: 24px;
+        border-radius: 4px;
+        border: 2px solid;
+      }
+
+      .results-section {
+        display: none;
+        padding: 40px;
+        border-top: 1px solid #e5e7eb;
+      }
+
+      .results-section.show {
+        display: block;
+      }
+
+      .results-section h2 {
+        font-size: 24px;
+        font-weight: bold;
+        color: #1f2937;
+        margin-bottom: 24px;
+      }
+
+      .result-card {
+        background: #f9fafb;
+        border: 2px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 24px;
+        margin-bottom: 16px;
+        cursor: pointer;
+        transition: all 0.3s;
+      }
+
+      .result-card:hover {
+        border-color: #d1d5db;
+      }
+
+      .result-card.active {
+        border-color: #9ca3af;
+      }
+
+      .result-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 16px;
+        margin-bottom: 16px;
+      }
+
+      .result-info {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+      }
+
+      .badge {
+        padding: 6px 12px;
+        border-radius: 20px;
+        color: white;
+        font-weight: bold;
+        font-size: 12px;
+      }
+
+      .stat {
+        font-size: 13px;
+        color: #374151;
+      }
+
+      .stat-value {
+        font-weight: 600;
+      }
+
+      .result-actions {
+        display: flex;
+        gap: 8px;
+      }
+
+      .action-btn {
+        padding: 8px 16px;
+        background: white;
+        border: 2px solid #d1d5db;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .action-btn:hover {
+        border-color: #2563eb;
+        background: #eff6ff;
+      }
+
+      .result-text {
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        padding: 16px;
+        font-family: "Courier New", monospace;
+        font-size: 13px;
+        line-height: 1.6;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+
+      .result-positions {
+        margin-top: 16px;
+        font-size: 13px;
+        color: #6b7280;
+      }
+
+      .position-badge {
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-family: "Courier New", monospace;
+        margin: 0 4px;
+      }
+
+      .empty-state {
+        display: block;
+        text-align: center;
+        padding: 80px 20px;
+        color: #9ca3af;
+      }
+
+      .empty-state.hide {
+        display: none;
+      }
+
+      .empty-state svg {
+        width: 64px;
+        height: 64px;
+        margin: 0 auto 16px;
+        opacity: 0.5;
+      }
+
+      /* Color classes */
+      .color-0 {
+        background-color: #fde047;
+        border-color: #eab308;
+      }
+      .color-1 {
+        background-color: #86efac;
+        border-color: #22c55e;
+      }
+      .color-2 {
+        background-color: #93c5fd;
+        border-color: #3b82f6;
+      }
+      .color-3 {
+        background-color: #f9a8d4;
+        border-color: #ec4899;
+      }
+      .color-4 {
+        background-color: #d8b4fe;
+        border-color: #a855f7;
+      }
+      .color-5 {
+        background-color: #fdba74;
+        border-color: #f97316;
+      }
+      .color-6 {
+        background-color: #fca5a5;
+        border-color: #ef4444;
+      }
+      .color-7 {
+        background-color: #67e8f9;
+        border-color: #06b6d4;
+      }
+      .color-8 {
+        background-color: #a5b4fc;
+        border-color: #6366f1;
+      }
+      .color-9 {
+        background-color: #bef264;
+        border-color: #84cc16;
+      }
+
+      .badge-0 {
+        background-color: #eab308;
+      }
+      .badge-1 {
+        background-color: #22c55e;
+      }
+      .badge-2 {
+        background-color: #3b82f6;
+      }
+      .badge-3 {
+        background-color: #ec4899;
+      }
+      .badge-4 {
+        background-color: #a855f7;
+      }
+      .badge-5 {
+        background-color: #f97316;
+      }
+      .badge-6 {
+        background-color: #ef4444;
+      }
+      .badge-7 {
+        background-color: #06b6d4;
+      }
+      .badge-8 {
+        background-color: #6366f1;
+      }
+      .badge-9 {
+        background-color: #84cc16;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <!-- Header -->
+      <div class="header">
+        <h1>🔍 Tìm Đoạn Văn Trùng Lặp</h1>
+        <p>Nhập văn bản bất kỳ để tìm và highlight các đoạn trùng lặp</p>
+      </div>
+
+      <!-- Input Section -->
+      <div class="input-section">
+        <div>
+          <label for="textInput">Nhập văn bản cần kiểm tra:</label>
+          <textarea
+            id="textInput"
+            placeholder="Dán văn bản của bạn vào đây..."
+          ></textarea>
+        </div>
+
+        <div class="controls">
+          <div class="input-group">
+            <label for="minLength">Độ dài tối thiểu (ký tự):</label>
+            <input type="number" id="minLength" value="15" min="5" max="100" />
+          </div>
+          <button class="btn" id="searchBtn">Tìm kiếm</button>
+        </div>
+
+        <div class="alert" id="alert"></div>
+      </div>
+
+      <!-- Highlight Section -->
+      <div class="highlight-section" id="highlightSection">
+        <div class="section-header">
+          <h2>Văn bản với highlight</h2>
+          <div class="view-controls">
+            <button class="view-btn active" id="viewAllBtn">Tất cả</button>
+          </div>
+        </div>
+        <div class="highlight-box" id="highlightBox"></div>
+        <div class="color-legend" id="colorLegend"></div>
+      </div>
+
+      <!-- Results Section -->
+      <div class="results-section" id="resultsSection">
+        <h2>Chi tiết các đoạn trùng lặp</h2>
+        <div id="resultsList"></div>
+      </div>
+
+      <!-- Empty State -->
+      <div class="empty-state" id="emptyState">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+          />
+        </svg>
+        <p style="font-size: 18px">Nhập văn bản để bắt đầu tìm kiếm</p>
+      </div>
+    </div>
+
+    <script>
+      // Biến toàn cục
+      let results = [];
+      let selectedIndex = null;
+      let currentText = "";
+
+      // Lấy các element
+      const textInput = document.getElementById("textInput");
+      const minLengthInput = document.getElementById("minLength");
+      const searchBtn = document.getElementById("searchBtn");
+      const alert = document.getElementById("alert");
+      const highlightSection = document.getElementById("highlightSection");
+      const resultsSection = document.getElementById("resultsSection");
+      const emptyState = document.getElementById("emptyState");
+      const highlightBox = document.getElementById("highlightBox");
+      const colorLegend = document.getElementById("colorLegend");
+      const resultsList = document.getElementById("resultsList");
+      const viewAllBtn = document.getElementById("viewAllBtn");
+
+      // Hàm tìm chuỗi trùng lặp - CORE ALGORITHM
+      function findDuplicates(text, minLength) {
+        const textLower = text.toLowerCase();
+        const found = new Map();
+        const maxLength = Math.min(textLower.length, 200);
+
+        // Duyệt từ độ dài lớn đến nhỏ
+        for (let len = maxLength; len >= minLength; len--) {
+          // Duyệt qua tất cả vị trí
+          for (let i = 0; i <= textLower.length - len; i++) {
+            const substring = textLower.substring(i, i + len);
+
+            // Bỏ qua nếu toàn khoảng trắng
+            if (substring.trim().length < minLength) continue;
+
+            // Kiểm tra xem có phải chuỗi con của chuỗi dài hơn không
+            let isPartOfLonger = false;
+            for (let [existingStr] of found) {
+              if (
+                existingStr.includes(substring) &&
+                existingStr.length > substring.length
+              ) {
+                isPartOfLonger = true;
+                break;
+              }
+            }
+
+            if (isPartOfLonger) continue;
+
+            // Tìm vị trí xuất hiện lần thứ 2
+            const secondPos = textLower.indexOf(substring, i + 1);
+
+            if (secondPos !== -1) {
+              // Đếm tổng số lần xuất hiện
+              let count = 2;
+              let pos = secondPos;
+              const positions = [i, secondPos];
+
+              while ((pos = textLower.indexOf(substring, pos + 1)) !== -1) {
+                count++;
+                positions.push(pos);
+              }
+
+              // Lấy văn bản gốc
+              const originalText = text.substring(i, i + len);
+
+              if (!found.has(substring)) {
+                found.set(substring, {
+                  text: originalText,
+                  length: len,
+                  count: count,
+                  positions: positions,
+                });
+              }
+            }
+          }
+        }
+
+        console.log("Found: ", found);
+
+        // Chuyển thành mảng và sắp xếp
+        return Array.from(found.values())
+          .sort((a, b) => {
+            if (b.length !== a.length) return b.length - a.length;
+            return b.count - a.count;
+          })
+          .slice(0, 20);
+      }
+
+      // Hàm highlight tất cả các đoạn trùng lặp
+      function highlightAllDuplicates(text, results) {
+        if (results.length === 0) return text;
+
+        const highlights = [];
+        results.forEach((result, idx) => {
+          result.positions.forEach((pos) => {
+            highlights.push({
+              start: pos,
+              end: pos + result.length,
+              colorIndex: idx % 10,
+            });
+          });
+        });
+
+        highlights.sort((a, b) => a.start - b.start);
+
+        // Loại bỏ chồng chéo
+        const filtered = [];
+        highlights.forEach((highlight) => {
+          const overlaps = filtered.some(
+            (existing) =>
+              (highlight.start >= existing.start &&
+                highlight.start < existing.end) ||
+              (highlight.end > existing.start &&
+                highlight.end <= existing.end) ||
+              (highlight.start <= existing.start &&
+                highlight.end >= existing.end)
+          );
+
+          if (!overlaps) {
+            filtered.push(highlight);
+          }
+        });
+
+        filtered.sort((a, b) => a.start - b.start);
+
+        let html = "";
+        let lastIndex = 0;
+
+        filtered.forEach((highlight) => {
+          if (highlight.start > lastIndex) {
+            html += escapeHtml(text.substring(lastIndex, highlight.start));
+          }
+
+          html += `<span class="highlight color-${highlight.colorIndex}">${escapeHtml(text.substring(highlight.start, highlight.end))}</span>`;
+          lastIndex = highlight.end;
+        });
+
+        if (lastIndex < text.length) {
+          html += escapeHtml(text.substring(lastIndex));
+        }
+
+        return html;
+      }
+
+      // Hàm highlight một đoạn cụ thể
+      function highlightSingleDuplicate(text, result, colorIndex) {
+        const highlights = result.positions.map((pos) => ({
+          start: pos,
+          end: pos + result.length,
+          colorIndex: colorIndex,
+        }));
+
+        highlights.sort((a, b) => a.start - b.start);
+
+        let html = "";
+        let lastIndex = 0;
+
+        highlights.forEach((highlight) => {
+          if (highlight.start > lastIndex) {
+            html += escapeHtml(text.substring(lastIndex, highlight.start));
+          }
+
+          html += `<span class="highlight color-${highlight.colorIndex}">${escapeHtml(text.substring(highlight.start, highlight.end))}</span>`;
+          lastIndex = highlight.end;
+        });
+
+        if (lastIndex < text.length) {
+          html += escapeHtml(text.substring(lastIndex));
+        }
+
+        return html;
+      }
+
+      // Hàm escape HTML
+      function escapeHtml(text) {
+        const div = document.createElement("div");
+        div.textContent = text;
+        return div.innerHTML;
+      }
+
+      // Hàm render highlight
+      function renderHighlight() {
+        if (selectedIndex === null) {
+          highlightBox.innerHTML = highlightAllDuplicates(currentText, results);
+        } else {
+          highlightBox.innerHTML = highlightSingleDuplicate(
+            currentText,
+            results[selectedIndex],
+            selectedIndex % 10
+          );
+        }
+      }
+
+      // Hàm render color legend
+      function renderColorLegend() {
+        let html = "";
+        results.slice(0, 10).forEach((result, idx) => {
+          html += `
+                    <div class="legend-item">
+                        <div class="legend-color color-${idx % 10}"></div>
+                        <span>Đoạn ${idx + 1} (${result.count} lần)</span>
+                    </div>
+                `;
+        });
+        colorLegend.innerHTML = html;
+      }
+
+      // Hàm render kết quả
+      function renderResults() {
+        let html = "";
+        results.forEach((result, idx) => {
+          const positions = result.positions
+            .map(
+              (pos) =>
+                `<span class="position-badge color-${idx % 10}">${pos}</span>`
+            )
+            .join("");
+
+          html += `
+                    <div class="result-card ${selectedIndex === idx ? "active color-" + (idx % 10) : ""}" data-index="${idx}">
+                        <div class="result-header">
+                            <div class="result-info">
+                                <span class="badge badge-${idx % 10}">#${idx + 1}</span>
+                                <div>
+                                    <div class="stat">Độ dài: <span class="stat-value" style="color: #2563eb">${result.length}</span> ký tự</div>
+                                    <div class="stat">Xuất hiện: <span class="stat-value" style="color: #ef4444">${result.count}</span> lần</div>
+                                </div>
+                            </div>
+                            <div class="result-actions">
+                                <button class="action-btn view-btn-card" data-index="${idx}">
+                                    👁️ ${selectedIndex === idx ? "Ẩn" : "Xem"}
+                                </button>
+                                <button class="action-btn copy-btn" data-text="${escapeHtml(result.text)}">
+                                    📋 Sao chép
+                                </button>
+                            </div>
+                        </div>
+                        <div class="result-text">${escapeHtml(result.text)}</div>
+                        <div class="result-positions">
+                            <span style="font-weight: 600">Vị trí xuất hiện:</span> ${positions}
+                        </div>
+                    </div>
+                `;
+        });
+        resultsList.innerHTML = html;
+
+        // Gán sự kiện cho các nút
+        document.querySelectorAll(".result-card").forEach((card) => {
+          card.addEventListener("click", function (e) {
+            if (!e.target.closest(".action-btn")) {
+              const index = parseInt(this.dataset.index);
+              selectedIndex = selectedIndex === index ? null : index;
+              renderHighlight();
+              renderResults();
+            }
+          });
+        });
+
+        document.querySelectorAll(".view-btn-card").forEach((btn) => {
+          btn.addEventListener("click", function (e) {
+            e.stopPropagation();
+            const index = parseInt(this.dataset.index);
+            selectedIndex = selectedIndex === index ? null : index;
+            renderHighlight();
+            renderResults();
+          });
+        });
+
+        document.querySelectorAll(".copy-btn").forEach((btn) => {
+          btn.addEventListener("click", function (e) {
+            e.stopPropagation();
+            const text = this.dataset.text;
+            navigator.clipboard.writeText(text);
+            this.textContent = "✓ Đã sao chép";
+            setTimeout(() => {
+              this.textContent = "📋 Sao chép";
+            }, 2000);
+          });
+        });
+      }
+
+      //
+      // Sự kiện tìm kiếm
+      searchBtn.addEventListener("click", function () {
+        const text = textInput.value;
+        const minLength = parseInt(minLengthInput.value) || 15;
+
+        if (!text.trim()) {
+          return;
+        }
+
+        searchBtn.textContent = "Đang tìm...";
+        searchBtn.disabled = true;
+
+        setTimeout(() => {
+          currentText = text;
+          results = findDuplicates(text, minLength);
+          console.log(results);
+          selectedIndex = null;
+
+          if (results.length > 0) {
+            alert.textContent = `🎉 Tìm thấy ${results.length} đoạn văn trùng lặp`;
+            alert.classList.add("show");
+            highlightSection.classList.add("show");
+            resultsSection.classList.add("show");
+            emptyState.classList.add("hide");
+
+            renderHighlight();
+            renderColorLegend();
+            renderResults();
+          } else {
+            alert.textContent = "❌ Không tìm thấy đoạn văn trùng lặp";
+            alert.classList.add("show");
+            highlightSection.classList.remove("show");
+            resultsSection.classList.remove("show");
+          }
+
+          searchBtn.textContent = "Tìm kiếm";
+          searchBtn.disabled = false;
+        }, 100);
+      });
+
+      // Sự kiện view all
+      viewAllBtn.addEventListener("click", function () {
+        selectedIndex = null;
+        renderHighlight();
+        renderResults();
+      });
+
+      // Ẩn empty state khi có text
+      textInput.addEventListener("input", function () {
+        if (this.value.trim()) {
+          emptyState.classList.add("hide");
+        } else if (!highlightSection.classList.contains("show")) {
+          emptyState.classList.remove("hide");
+        }
+      });
+    </script>
+  </body>
+</html>

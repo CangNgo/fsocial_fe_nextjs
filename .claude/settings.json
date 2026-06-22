@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pnpm lint *)",
+      "Bash(echo \"EXIT_CODE=$?\")",
+      "Bash(rm -f lintout.txt)",
+      "Bash(pnpm exec *)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:3000/login)"
+    ]
+  }
+}
