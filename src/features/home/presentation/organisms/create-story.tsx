@@ -4,7 +4,7 @@ import { getInitialsFromDisplayName } from "@/shared/utils/combine-name";
 
 export default function CreateStory() {
   const user = ownerAccountStore((state) => state.user);
-  return <>
+  return (
     <div className="flex">
       <Avatar className="size-9 ">
         <AvatarImage src={user?.avatar ?? undefined} />
@@ -13,6 +13,5 @@ export default function CreateStory() {
         </AvatarFallback>
       </Avatar>
       <input type="text" />
-    </div>
-  </>
+    </div>)
 }
