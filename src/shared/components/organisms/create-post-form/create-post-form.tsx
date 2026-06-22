@@ -15,11 +15,11 @@ import {
   LoadingIcon,
   PencilChangeImageIcon,
   UploadDecorIcon,
-} from "@/shared/components/atoms/icon";
+} from "@/shared/components/atoms/icon/icon";
 import { Input } from "@/shared/components/atoms/input";
-import { TextBox } from "@/shared/components/atoms/jumping-input";
-import type { ProcessedMedia } from "@/shared/components/molecules/media-grid";
-import { MediaGrid } from "@/shared/components/molecules/media-grid";
+import { TextBox } from "@/shared/components/atoms/jumping-input/jumping-input";
+import type { ProcessedMedia } from "@/shared/components/molecules/media-grid/media-grid";
+import { MediaGrid } from "@/shared/components/molecules/media-grid/media-grid";
 import { cn } from "@/shared/lib/utils";
 import { ownerAccountStore } from "@/shared/stores/owner-account-store";
 import { usePopupStore } from "@/shared/stores/popup-store";

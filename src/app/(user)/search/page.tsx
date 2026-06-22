@@ -2,7 +2,7 @@
 import dynamic from "next/dynamic";
 
 const SearchFeature = dynamic(
-  () => import("@/features/search").then((m) => ({ default: m.SearchFeature })),
+  () => import("@/features/search/presentation/pages/search-feature"),
   { ssr: false },
 );
 

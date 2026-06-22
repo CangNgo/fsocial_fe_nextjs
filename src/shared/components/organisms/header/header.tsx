@@ -3,9 +3,9 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@/shared/components/atoms/button";
-import { Bell, HamburgerIcon, LogoNoBG } from "@/shared/components/atoms/icon";
+import { Bell, HamburgerIcon, LogoNoBG } from "@/shared/components/atoms/icon/icon";
 import { Popover, PopoverContent, PopoverTrigger } from "@/shared/components/atoms/popover";
-import { NavMoreMenu } from "@/shared/components/organisms/nav-more-menu";
+import { NavMoreMenu } from "@/shared/components/organisms/nav-more-menu/nav-more-menu";
 import { useNotificationStore } from "@/shared/stores/notification-store";
 import { popupNotificationtStore } from "@/shared/stores/popup-store";
 

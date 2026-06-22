@@ -2,8 +2,8 @@
 import { jwtDecode } from "jwt-decode";
 import { useEffect } from "react";
 import { getAdminProfile } from "@/features/admin/api/admin-profile-api";
-import { AdminSidebar } from "@/shared/components/organisms/admin-sidebar";
-import { GlobalPopup } from "@/shared/components/organisms/global-popup";
+import { AdminSidebar } from "@/shared/components/organisms/admin-sidebar/admin-sidebar";
+import { GlobalPopup } from "@/shared/components/organisms/global-popup/global-popup";
 import { adminStore } from "@/shared/stores/admin-store";
 import { getCookie } from "@/shared/utils/cookie";
 

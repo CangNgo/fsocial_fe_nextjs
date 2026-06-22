@@ -14,7 +14,7 @@ import {
   HomeNavIcon,
   LogoNoBG,
   MessageNavIcon,
-} from "@/shared/components/atoms/icon";
+} from "@/shared/components/atoms/icon/icon";
 import { Popover, PopoverContent, PopoverTrigger } from "@/shared/components/atoms/popover";
 import { cn } from "@/shared/lib/utils";
 import { useMessageStore } from "@/shared/stores/message-store";
@@ -24,12 +24,12 @@ import { popupNotificationtStore, usePopupStore } from "@/shared/stores/popup-st
 import { getInitialsFromDisplayName } from "@/shared/utils/combine-name";
 
 const NavMoreMenu = dynamic(
-  () => import("@/shared/components/organisms/nav-more-menu").then((m) => m.NavMoreMenu),
+  () => import("@/shared/components/organisms/nav-more-menu/nav-more-menu").then((m) => m.NavMoreMenu),
   { ssr: false },
 );
 const CreatePostForm = dynamic(
   () =>
-    import("@/shared/components/organisms/create-post-form")
+    import("@/shared/components/organisms/create-post-form/create-post-form")
       .then((m) => m.CreatePostForm)
       .catch(() => () => null),
   { ssr: false },

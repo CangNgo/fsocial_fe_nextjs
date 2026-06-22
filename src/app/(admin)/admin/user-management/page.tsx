@@ -2,7 +2,7 @@
 import dynamic from "next/dynamic";
 
 const AdminUserTable = dynamic(
-  () => import("@/features/admin").then((m) => ({ default: m.AdminUserTable })),
+  () => import("@/features/admin/presentation/pages/admin-user-table"),
   { ssr: false },
 );
 

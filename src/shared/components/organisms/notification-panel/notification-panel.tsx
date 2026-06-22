@@ -166,7 +166,7 @@ const Noti = ({ notification }: NotiProps) => {
   );
 };
 
-export function NotificationPanel() {
+export default function NotificationPanel() {
   const pathname = usePathname();
   const isNotificationSlide = regexInMessage.test(pathname) || regexInSetting.test(pathname);
 

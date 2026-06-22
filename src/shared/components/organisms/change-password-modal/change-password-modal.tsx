@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { changePassword } from "@/features/auth/api/change-password-api";
 import { Button } from "@/shared/components/atoms/button";
-import { LoadingIcon } from "@/shared/components/atoms/icon";
+import { LoadingIcon } from "@/shared/components/atoms/icon/icon";
 import { Input } from "@/shared/components/atoms/input";
 import { regexPassword } from "@/shared/config/regex";
 import { cn } from "@/shared/lib/utils";

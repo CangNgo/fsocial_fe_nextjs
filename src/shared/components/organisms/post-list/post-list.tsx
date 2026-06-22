@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { Virtuoso } from "react-virtuoso";
 import { Skeleton } from "@/shared/components/atoms/skeleton";
-import { PostCard } from "@/shared/components/organisms/post-card";
+import { PostCard } from "@/shared/components/organisms/post-card/post-card";
 import { cn } from "@/shared/lib/utils";
 
 interface PostListProps {

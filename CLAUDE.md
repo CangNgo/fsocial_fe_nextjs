@@ -1,304 +1,218 @@
-# CLAUDE.md
+# Next.js Web App — AI Agent Rules
 
-File này cung cấp hướng dẫn cho Claude Code (claude.ai/code) khi làm việc với mã nguồn trong repository này.
+Hướng dẫn cho Claude Code khi làm việc trong repo này. App web feature-modular, Next.js 16 App Router.
 
-@AGENTS.md
+> **Next.js 16:** repo dùng `src/proxy.ts` — KHÔNG phải `middleware.ts` (Next 16 đổi tên Middleware → Proxy; API giữ nguyên). Với API Next.js chưa chắc chắn, đọc `node_modules/next/dist/docs/` thay vì kiến thức huấn luyện cũ — bản này có breaking changes.
 
-> **Lưu ý về Next.js 16**: Repo này dùng `proxy.ts` (không phải `middleware.ts`) — trong Next 16, Middleware đã được đổi tên thành Proxy. Mục đích/API giữ nguyên, chỉ đổi tên file/quy ước. Trước khi dùng bất kỳ API Next.js nào chưa chắc chắn, hãy kiểm tra `node_modules/next/dist/docs/` thay vì dựa vào kiến thức huấn luyện cũ, vì phiên bản này có breaking changes so với Next.js cũ.
+---
 
-## Cấu trúc thư mục dự án
+## Tech Stack
+
+### Core
+
+- **Framework:** Next.js 16 (App Router, Turbopack), TypeScript (strict)
+- **Proxy/Auth gate:** `src/proxy.ts` — redirect theo auth/role (JWT cookie)
+- **Server state:** TanStack Query v5
+- **Client state:** Zustand
+- **UI:** shadcn/ui (style `new-york`, base `zinc`, RSC + TS) + Tailwind CSS v4
+- **HTTP:** axios — instance duy nhất + lớp `apiService` (không-throw)
+- **Realtime:** STOMP (`@stomp/stompjs`) cho notification/message
+- **Lint/format:** Biome (KHÔNG dùng ESLint/Prettier), config `biome.json`
+
+### External Integrations
+
+- **Auth:** JWT access/refresh-token qua cookie, tự refresh khi 401
+- **OAuth:** Google OAuth (`oauth2/` callback)
+
+---
+
+## Commands
+
+```bash
+pnpm dev          # dev server (turbopack), port 3002
+pnpm build        # build production
+pnpm start        # chạy bản build production
+pnpm check        # biome lint + format --write ./src  (ưu tiên cái này)
+pnpm lint:fix     # biome lint --write ./src
+pnpm type-check   # tsc --noEmit
+pnpm analyze      # ANALYZE=true next build (bundle size)
+pnpm dlx shadcn@latest add <name>   # thêm UI primitive vào shared/components/ui
+```
+
+Chưa có test runner. Pre-commit (Husky + lint-staged) chạy `biome check`; commit message theo Conventional Commits (commitlint).
+
+---
+
+## Project Structure
 
 ```
 src/
-├── app/                  # Next.js App Router — chỉ chứa route, page phải mỏng (thin)
-│   ├── (auth)/           # route group: login, signup, forgot-password (chỉ guest)
-│   ├── (user)/           # route group: home, follow, message, post/[id], profile, search, setting
-│   ├── (admin)/          # route group: /admin/* — trang quản trị
-│   ├── oauth2/           # route callback cho Google OAuth
-│   ├── layout.tsx        # layout gốc — font, metadata, mount <Providers>
-│   └── page.tsx          # entry của route "/"
-├── proxy.ts              # Next 16 Proxy (thay cho middleware.ts) — redirect theo auth/role
-├── features/             # mỗi feature một folder — đơn vị triển khai tính năng
-│   └── <feature>/        # admin, auth, follow, home, message, post, profile, search, setting
-│       ├── index.ts      # barrel — re-export component public của feature
-│       └── components/<Name>/<Name>.tsx + index.ts   # client component thuộc feature
-├── components/           # UI dùng chung, phân lớp theo atomic design (dựa trên shadcn/ui)
-│   ├── atoms/            # primitive của shadcn + vài atom tự viết (Icon, JumpingInput)
-│   ├── molecules/        # tổ hợp nhỏ (SearchBar, DataTable, MediaGrid, TabPanel...)
-│   ├── organisms/         # UI tổ hợp phức tạp, gắn với layout/global state
-│   │                      # (Header, Sidebar, AdminSidebar, PostCard, PostList,
-│   │                      #  NotificationPanel, GlobalPopup, ExpiredDialog, CreatePostForm...)
-│   ├── templates/         # tổ hợp layout lớn ở cấp trang
-│   ├── Providers.tsx      # cây provider toàn cục (QueryClient, Theme, GoogleOAuth, Toaster)
-│   └── ThemeProvider.tsx  # context theme sáng/tối, dựa trên themeStore
-├── hooks/
-│   ├── queries/           # hook useQuery/useInfiniteQuery của React Query
-│   └── mutations/         # hook useMutation của React Query
-├── lib/
-│   ├── api/               # axios instance + các module API theo domain
-│   │   ├── axiosInstance.ts   # axios instance duy nhất, gắn token + tự refresh khi 401
-│   │   ├── apiService.ts      # helper apiGet/apiPost/apiPut/apiPatch/apiDelete (không throw)
-│   │   ├── tokenManager.ts    # refreshToken() — gọi endpoint refresh, cập nhật cookie
-│   │   └── <domain>/*Api.ts   # admin/, auth/, messages/, notifications/, posts/, user/
-│   ├── queryClient.ts      # getQueryClient() — factory singleton/per-request + default options
-│   ├── queryKeys.ts        # nơi tập trung toàn bộ query key của React Query
-│   └── utils.ts            # cn() — helper ghép class (clsx + tailwind-merge)
-├── store/                 # Zustand store, mỗi store phụ trách một mối quan tâm riêng
-│   │                       # (mỗi store export cả hook và một reference thuần)
-│   ├── ownerAccountStore.ts      # user đang đăng nhập (set từ JWT + gọi API profile)
-│   ├── adminStore.ts             # profile admin đang đăng nhập
-│   ├── notificationStore.ts      # thông báo + kết nối WebSocket (STOMP)
-│   ├── messageStore.ts           # cuộc trò chuyện/tin nhắn + kết nối WebSocket (STOMP)
-│   ├── themeStore.ts             # theme sáng/tối, lưu vào localStorage
-│   ├── validRefreshTokenStore.ts # theo dõi refresh-token còn hợp lệ (điều khiển ExpiredDialog)
-│   └── popupStore.ts             # state popup/dialog toàn cục
-├── config/                # cấu hình tĩnh, không nhạy cảm
-│   ├── routes.ts                 # map/hàm tạo route có type — dùng thay cho hardcode string
-│   ├── adminNavRoute.tsx          # định nghĩa menu sidebar admin
-│   ├── settingNavRoute.tsx        # định nghĩa menu trang setting
-│   ├── userProfileOptions.tsx     # các option trong menu dropdown profile
-│   ├── globalVariables.ts         # hằng số dùng chung toàn app
-│   └── regex.ts                   # các regex dùng chung (validate, v.v.)
-├── types/                 # type domain dùng chung — post.ts, user.ts, message.ts, api.ts,
-│   └── enums/                     # attachments.ts, và các enum toàn cục
-├── utils/                 # hàm helper thuần nhỏ (cookie, format ngày giờ,
-│                          # chuẩn hóa tiếng Việt, xử lý media, v.v.)
-└── styles/
-    ├── globals.css         # entry Tailwind v4 + định nghĩa biến CSS theme
-    ├── modules/            # các *.module.scss cho style theo component
-    └── nav.module.scss
-
-public/
-├── decor/                 # SVG trang trí dùng ở màn hình auth/onboarding
-├── logo/                  # asset logo thương hiệu
-└── temp/                  # ảnh/avatar placeholder dùng tạm trong quá trình dev
+├── app/                      # CHỈ routing — page mỏng, chỉ render một feature component
+│   ├── (auth)/ (user)/ (admin)/   # route groups; quyền truy cập do proxy.ts thực thi
+│   ├── oauth2/               # callback Google OAuth
+│   └── layout.tsx            # mount <Providers> từ @/shared
+├── proxy.ts                  # Next 16 Proxy
+│
+├── features/<feature>/       # admin, auth, follow, home, message, post, profile, search, setting
+│   ├── components/           # atomic design TRONG feature: atoms|molecules|organisms
+│   │   └── <Name>/<Name>.tsx + index.ts
+│   ├── api/<x>Api.ts         # gọi apiService — KHÔNG gọi axios trực tiếp
+│   ├── hooks/queries|mutations/   # React Query hook của feature
+│   ├── store/                # Zustand store riêng feature (vd message, notification)
+│   ├── types/  utils/        # type & helper riêng feature
+│   └── index.ts              # ⭐ barrel — public API của feature
+│
+└── shared/                   # tái sử dụng ở ≥2 feature
+    ├── components/
+    │   ├── ui/               # shadcn primitive (atoms) — CLI cài vào đây
+    │   ├── molecules/ organisms/ templates/
+    │   ├── Providers.tsx     # QueryClient → Theme → GoogleOAuth → {children} + Toaster
+    │   └── ThemeProvider.tsx
+    ├── api/                  # axiosInstance, apiService, tokenManager
+    ├── lib/                  # queryClient (factory), utils (cn())
+    ├── hooks/  store/        # hook generic; store phiên + UI toàn cục
+    ├── config/               # routes.ts, *NavRoute.tsx, globalVariables.ts, regex.ts
+    ├── types/  utils/        # type domain & helper thuần dùng chung
 ```
 
-Nguyên tắc đặt code theo từng folder:
-- **`app/`** phải luôn mỏng — page chỉ render một feature component, không chứa business logic.
-- **`features/`** là nơi chứa UI và logic riêng của từng tính năng; nếu một phần UI/logic được dùng lại ở nhiều feature, hãy chuyển nó lên `components/`.
-- **`components/`** chỉ chứa UI tái sử dụng, không gắn với feature cụ thể (atoms → molecules → organisms → templates, độ phức tạp tổ hợp tăng dần).
-- **`lib/api/`** là nơi duy nhất được gọi trực tiếp `axios`/instance `API` — feature và component chỉ gọi các hàm export từ đây, không gọi axios trực tiếp.
-- **`store/`** dùng cho state toàn cục/dùng chung giữa nhiều component; state cục bộ của riêng một component nên giữ ở trong component đó.
+| Folder | Vai trò |
+| --- | --- |
+| `app/` | Routing thuần. Page mỏng, KHÔNG business logic. |
+| `features/<x>/` | UI + logic riêng một tính năng. Tự sở hữu api/hooks/store/types/utils/components. |
+| `shared/` | Dùng lại ở ≥2 feature. Hạ tầng (axios, queryClient, store phiên) sống ở đây. |
+| `shared/store/` | `ownerAccountStore`, `adminStore`, `themeStore`, `popupStore`, `validRefreshTokenStore` (vì axios interceptor phụ thuộc, mà `shared` không được import `features`). |
 
-## Các lệnh thường dùng
+---
 
-```bash
-pnpm dev          # chạy dev server (turbopack), cổng mặc định 3002 theo NEXT_PUBLIC_APP_URL
-pnpm build        # build production
-pnpm start         # chạy bản build production
-pnpm lint          # biome lint ./src
-pnpm lint:fix      # biome lint --write ./src
-pnpm format        # biome format --write ./src
-pnpm check         # biome check --write ./src (lint + format)
-pnpm type-check    # tsc --noEmit
-pnpm analyze       # ANALYZE=true next build (phân tích bundle size)
+## Dependency Rules (immutable)
+
+- Chiều phụ thuộc MỘT chiều: `app → features → shared`.
+- Feature KHÔNG import internals của feature khác → cái gì dùng chung đẩy lên `shared/`.
+- `shared/` KHÔNG BAO GIỜ import từ `features/`.
+- Luôn dùng alias `@/`; cấm path tương đối sâu (`../../../`).
+
+---
+
+## Conventions
+
+### API
+
+- Mọi call qua `apiGet/apiPost/apiPut/apiPatch/apiDelete` ở `@/shared/api/apiService`. KHÔNG import `axios`/instance ngoài `shared/api`.
+- apiService **KHÔNG BAO GIỜ throw** — lỗi trả `error.response.data` hoặc `fallback`/`null`. Coi `null`/falsy là lỗi; KHÔNG bọc try/catch.
+- File API trong feature: `features/<x>/api/<x>Api.ts`, đặt tên `getX/createX/updateX/deleteX`.
+
+### State
+
+- **Server state → React Query.** Hook ở `features/<x>/hooks/`. QueryClient factory ở `@/shared/lib/queryClient` (staleTime 5', gcTime 10', retry 2, `refetchOnWindowFocus` false). Query key colocate trong feature.
+- **Client/global state → Zustand.** Store gắn 1 feature → trong feature; store phiên + UI toàn cục → `shared/store/`. Mỗi store export kép: hook `useXStore` + reference thuần `xStore` (dùng ngoài React). Luôn select slice tối thiểu, không subscribe cả store.
+
+### UI
+
+- Server Component mặc định; thêm `"use client"` chỉ khi cần state/effect/handler.
+- Primitive shadcn cài qua CLI vào `shared/components/ui`. Ghép class bằng `cn()` (`@/shared/lib/utils`).
+- Tailwind v4 + biến CSS theme (`themeStore`/`ThemeProvider`); SCSS module cho style cục bộ; SVG import như component (`@svgr`).
+
+### Code style (mọi nơi)
+
+- Commit: `<type>(<scope>): <subject>` — Conventional Commits, subject viết thường.
+- Types: `feat | fix | refactor | style | test | docs | chore | perf | ci | revert`.
+- KHÔNG magic number — tách ra hằng số có tên (`shared/config`).
+- KHÔNG dùng `any` — dùng `unknown` + type guard hoặc generic.
+- Route: dùng `ROUTES.X()` (`@/shared/config/routes`) thay hardcode path string.
+
+---
+
+## Examples
+
+### Thêm feature mới (vd `bookmark`)
+
 ```
-
-Repo hiện chưa cấu hình test runner (không có script test, không có dependency framework test nào).
-
-Biome là linter/formatter (không dùng ESLint/Prettier), config tại `biome.json`. Pre-commit hook chạy `lint-staged` qua Husky (`.husky/pre-commit`): chạy `biome check --write` trên các file `.ts/.tsx` đã stage, và `biome format --write` trên `.json/.css/.md`. Commit message được kiểm tra bởi commitlint (`commitlint.config.js`, theo chuẩn conventional commits) qua `.husky/commit-msg`.
-
-## Kiến trúc tổng thể
-
-### Luồng request / xác thực (auth)
-
-- `src/proxy.ts` là Next 16 Proxy (đặt ở root, thay cho `middleware.ts` cũ). Nó đọc cookie `access-token`/`refresh-token`, decode JWT (`jwt-decode`) để lấy `scope` (role), và redirect dựa trên ba nhóm path: `GUEST_ONLY_PATHS` (login/signup/forgot-password), `ADMIN_PREFIX` (`/admin`), và `USER_PATHS`. Người dùng chưa đăng nhập truy cập path được bảo vệ sẽ bị redirect về `/login`; admin không vào được path của user và ngược lại.
-- Mọi API call đều đi qua một axios instance duy nhất: `src/lib/api/axiosInstance.ts`. Nó tự gắn `Authorization: Bearer <access-token>` từ cookie cho mọi request trừ `PUBLIC_ENDPOINTS`, và khi gặp lỗi 401 sẽ tự động refresh token (`/post/auth/refresh-token`) với hàng đợi request trong lúc refresh đang chạy, sau đó retry lại request gốc một lần; nếu refresh thất bại sẽ dispatch event `auth:expired` trên `window` (được `ExpiredDialog` lắng nghe).
-- `src/lib/api/apiService.ts` bọc axios instance bằng các helper `apiGet/apiPost/apiPut/apiPatch/apiDelete`. Các helper này **không bao giờ throw** — khi lỗi sẽ trả về `error.response.data` hoặc giá trị `fallback` do người gọi truyền vào (hoặc `null`). Khi gọi các hàm này, hãy coi giá trị trả về `null`/falsy là trường hợp lỗi, thay vì dùng try/catch.
-- Các module API theo domain nằm ở `src/lib/api/<domain>/*Api.ts` (ví dụ `posts/postsApi.ts`, `auth/loginApi.ts`, `admin/adminProfileApi.ts`) — là các hàm mỏng gọi `apiGet/apiPost/...` với một path cụ thể và trả về data.
-
-#### Ví dụ: tạo một service GET API mới
-
-Giả sử cần thêm API lấy danh sách bookmark của user, tạo file `src/lib/api/posts/bookmarkApi.ts`:
-
-```ts
-import { apiGet } from "../apiService";
-
-export const getBookmarks = async (userId: string, page = 0): Promise<unknown> => {
-  return apiGet(`/post/bookmark?userId=${userId}&page=${page}`);
-};
+src/features/bookmark/
+├── api/bookmarkApi.ts
+├── hooks/queries/useBookmarks.ts
+├── components/BookmarkList/BookmarkList.tsx + index.ts
+└── index.ts          # export { BookmarkList } from "./components/BookmarkList";
 ```
-
-#### Ví dụ: tạo một service POST API mới
-
-Thêm vào cùng file (hoặc file domain phù hợp) một hàm POST:
-
-```ts
-import { apiPost } from "../apiService";
-
-export const addBookmark = async (postId: string): Promise<unknown> => {
-  return apiPost("/post/bookmark", { postId });
-};
-```
-
-Quy tắc khi viết service API:
-- Luôn import helper từ `../apiService` (hoặc `@/lib/api/apiService`), không import `axios`/`API` trực tiếp.
-- Trả kiểu `Promise<unknown>` (hoặc kiểu domain cụ thể từ `src/types/` nếu đã có) — không tự `try/catch` trong service, để `apiService` xử lý lỗi.
-- Đặt file theo domain trong `src/lib/api/<domain>/`, đặt tên hàm theo verb + danh từ (`getX`, `createX`, `updateX`, `deleteX`).
-
-### Route groups (`src/app`)
-
-Ba route group song song, mỗi group có layout và quy tắc truy cập riêng do `proxy.ts` thực thi:
-- `(auth)` — login/signup/forgot-password, layout một cột căn giữa, chỉ dành cho guest.
-- `(user)` — app chính (`/home`, `/follow`, `/message`, `/post/[id]`, `/profile`, `/search`, `/setting`). Layout (`src/app/(user)/layout.tsx`) là client component, khi mount sẽ decode cookie access-token, set profile vào `ownerAccountStore`, mở kết nối WebSocket cho notification/message, và render `Sidebar` + `Header` + `GlobalPopup` + `ExpiredDialog` (hiện khi không còn refresh-token hợp lệ) bao quanh `{children}`. `NotificationPanel` được lazy-load qua `next/dynamic` với `ssr: false`.
-- `(admin)` — trang quản trị (`/admin/*`), có `AdminLayout` + `AdminSidebar` riêng, load profile admin vào `adminStore`.
-
-Các page trong các group này thường mỏng — chỉ render một feature component từ `src/features/<name>`.
-
-### Tổ chức theo feature (`src/features`)
-
-`src/features/<feature>/` (admin, auth, follow, home, message, post, profile, search, setting) là đơn vị triển khai tính năng. Quy ước:
-- `index.ts` re-export component public, ví dụ `export { PostFeature } from "./components/PostFeature";`.
-- `components/<ComponentName>/<ComponentName>.tsx` + `index.ts` (barrel) — mỗi component/modal có folder riêng.
-- Feature component là client component (`"use client"`) tự quản lý state/effect cục bộ và gọi trực tiếp hàm từ `src/lib/api/...` (một số feature dùng `useState`/`useEffect` thuần, số khác dùng hook React Query ở `src/hooks/queries|mutations` — kiểm tra các component cùng feature để theo đúng pattern đang dùng).
-
-#### Ví dụ: thêm một feature mới
-
-Giả sử thêm feature "bookmark" (trang danh sách bài đã lưu):
-
-1. Tạo `src/features/bookmark/components/BookmarkFeature/BookmarkFeature.tsx`:
 
 ```tsx
+// src/app/(user)/bookmark/page.tsx — page mỏng
+import { BookmarkList } from "@/features/bookmark";
+export default function Page() { return <BookmarkList />; }
+```
+
+### API service (không-throw)
+
+```ts
+// src/features/bookmark/api/bookmarkApi.ts
+import { apiGet, apiPost } from "@/shared/api/apiService";
+
+export const getBookmarks = (userId: string, page = 0) =>
+  apiGet(`/post/bookmark?userId=${userId}&page=${page}`);
+
+export const addBookmark = (postId: string) =>
+  apiPost("/post/bookmark", { postId });
+
+// Gọi: const res = await getBookmarks(id); if (!res) { /* xử lý lỗi */ }
+```
+
+### Query hook (key colocate trong feature)
+
+```ts
+// src/features/bookmark/hooks/queries/useBookmarks.ts
 "use client";
-import { useEffect, useState } from "react";
-import { ownerAccountStore } from "@/store/ownerAccountStore";
-import { getBookmarks } from "@/lib/api/posts/bookmarkApi";
+import { useQuery } from "@tanstack/react-query";
+import { getBookmarks } from "../../api/bookmarkApi";
 
-export function BookmarkFeature() {
-  const user = ownerAccountStore((state) => state.user);
-  const [bookmarks, setBookmarks] = useState<unknown[]>([]);
+export const bookmarkKeys = { list: (id: string) => ["bookmarks", id] as const };
 
-  useEffect(() => {
-    if (!user?.userId) return;
-    getBookmarks(user.userId).then((resp) => {
-      const data = (resp as { data?: unknown[] })?.data ?? [];
-      setBookmarks(data);
-    });
-  }, [user?.userId]);
-
-  return (
-    <div className="bg-background flex flex-grow transition">
-      {/* render danh sách bookmarks */}
-    </div>
-  );
+export function useBookmarks(userId: string) {
+  return useQuery({
+    queryKey: bookmarkKeys.list(userId),
+    queryFn: () => getBookmarks(userId),
+    enabled: !!userId,
+  });
 }
 ```
 
-2. Tạo barrel `src/features/bookmark/components/BookmarkFeature/index.ts`:
+### Zustand store (export kép)
 
 ```ts
-export { BookmarkFeature } from "./BookmarkFeature";
+// src/features/bookmark/store/bookmarkStore.ts
+import { create } from "zustand";
+
+interface BookmarkState { ids: string[]; add: (id: string) => void; }
+
+export const useBookmarkStore = create<BookmarkState>()((set) => ({
+  ids: [],
+  add: (id) => set((s) => ({ ids: [...s.ids, id] })),
+}));
+
+export const bookmarkStore = useBookmarkStore;  // dùng ngoài React (vd interceptor)
 ```
 
-3. Tạo barrel của feature `src/features/bookmark/index.ts`:
+---
 
-```ts
-export { BookmarkFeature } from "./components/BookmarkFeature";
-```
+## Agent Skills
 
-4. Render từ page tương ứng, ví dụ `src/app/(user)/bookmark/page.tsx`:
+Skills định nghĩa ở `.claude/skills/`. Đọc và áp dụng tự động theo ngữ cảnh — không cần chờ gọi `/command`. Đọc file skill im lặng trước khi trả lời, không thông báo.
 
-```tsx
-import { BookmarkFeature } from "@/features/bookmark";
+| Skill | File | Áp dụng khi |
+| --- | --- | --- |
+| `/new-feature` | `.claude/skills/new-feature/SKILL.md` | Tạo feature module mới (api/hooks/store/components + barrel) |
+| `/ui` | `.claude/skills/ui/SKILL.md` | Thêm/sửa component shadcn, atomic design, styling, theme |
+| `/api-service` | `.claude/skills/api-service/SKILL.md` | Viết service API mới theo lớp apiService không-throw |
 
-export default function BookmarkPage() {
-  return <BookmarkFeature />;
-}
-```
+---
 
-### Phân lớp component (`src/components`)
+## Scope Enforcement (DO NOT)
 
-Phân lớp theo kiểu atomic design, dựa trên shadcn/ui (`components.json`: style `new-york`, base color `zinc`, có RSC+TS):
-- `atoms/` — primitive của shadcn (button, dialog, card, calendar, v.v.) cùng vài atom tự viết (`Icon`, `JumpingInput`). Được alias là cả `@/components` và `ui` trong `components.json` — component shadcn mới cài qua CLI sẽ nằm ở đây.
-- `molecules/` — tổ hợp nhỏ (`SearchBar`, `DataTable`, `MediaGrid`, `TabPanel`, `ButtonGroup`, `OtpInputGroup`), mỗi cái một folder riêng với barrel `index.ts`.
-- `organisms/` — UI tổ hợp riêng cho app, gắn với layout/global state (`Header`, `Sidebar`/`AdminSidebar`, `PostCard`, `PostList`, `NotificationPanel`, `GlobalPopup`, `ExpiredDialog`, `CreatePostForm`, `ChangePasswordModal`, `NavMoreMenu`).
-- `templates/` — tổ hợp layout lớn ở cấp trang.
-- `Providers.tsx` — cây provider client toàn cục, mount trong `layout.tsx` gốc: `QueryClientProvider` → `ThemeProvider` → `GoogleOAuthProvider` → `{children}` + `Toaster` (sonner), `ReactQueryDevtools` chỉ mount ở môi trường development.
+- KHÔNG gọi `axios`/instance trực tiếp ngoài `shared/api` — luôn qua `apiService`.
+- KHÔNG để server-data trong Zustand (đó là việc của React Query).
+- KHÔNG import internals chéo feature; `shared/` KHÔNG import `features/`.
+- KHÔNG hardcode path string — dùng `ROUTES`.
+- KHÔNG dùng `any`; KHÔNG để business logic trong `app/`.
+- KHÔNG tạo/sửa `middleware.ts` — repo dùng `proxy.ts`.
 
-Dùng `cn()` từ `src/lib/utils.ts` (clsx + tailwind-merge) để ghép class điều kiện, theo đúng quy ước của shadcn.
+---
 
-### Quản lý state
-
-- **Zustand** cho state toàn cục/client, mỗi mối quan tâm một store trong `src/store/`: `ownerAccountStore` (user đang đăng nhập), `adminStore`, `notificationStore`/`messageStore` (tự quản lý kết nối WebSocket qua `@stomp/stompjs`), `themeStore` (lưu vào localStorage qua middleware `persist` của zustand, tránh lỗi hydration bằng cách dùng storage no-op khi `window` chưa tồn tại), `validRefreshTokenStore`, `popupStore`. Các store thường export cả một hook (`useXStore`) và một reference thuần (`xStore`) để dùng ngoài React (ví dụ trong axios interceptor/module API).
-
-  Ví dụ tạo store mới (theo mẫu `themeStore.ts`):
-
-  ```ts
-  import { create } from "zustand";
-
-  interface BookmarkStore {
-    bookmarkIds: string[];
-    addBookmark: (id: string) => void;
-  }
-
-  export const useBookmarkStore = create<BookmarkStore>()((set) => ({
-    bookmarkIds: [],
-    addBookmark: (id) =>
-      set((state) => ({ bookmarkIds: [...state.bookmarkIds, id] })),
-  }));
-
-  export const bookmarkStore = useBookmarkStore;
-  ```
-
-- **TanStack React Query** cho server state. `src/lib/queryClient.ts` export `getQueryClient()` (singleton ở client, instance mới cho mỗi request ở server — pattern chuẩn của Next App Router) với default `staleTime: 5 phút`, `gcTime: 10 phút`, `retry: 2`, `refetchOnWindowFocus: false`. `src/lib/queryKeys.ts` tập trung toàn bộ query key theo domain (`posts`, `profile`, `notifications`, `messages`, `search`, `admin`) — khi thêm key mới hãy thêm vào đây thay vì viết mảng key trực tiếp trong component. Hook query/mutation nằm ở `src/hooks/queries/` và `src/hooks/mutations/`.
-
-  Ví dụ thêm query key và hook `useQuery` mới (lấy theo mẫu `usePosts.ts`):
-
-  ```ts
-  // src/lib/queryKeys.ts — thêm key vào nhóm domain phù hợp
-  bookmarks: {
-    list: (userId: string) => ["bookmarks", userId] as const,
-  },
-  ```
-
-  ```ts
-  // src/hooks/queries/useBookmarks.ts
-  "use client";
-  import { useQuery } from "@tanstack/react-query";
-  import { queryKeys } from "@/lib/queryKeys";
-  import { getBookmarks } from "@/lib/api/posts/bookmarkApi";
-
-  export function useBookmarks(userId: string) {
-    return useQuery({
-      queryKey: queryKeys.bookmarks.list(userId),
-      queryFn: () => getBookmarks(userId),
-      enabled: !!userId,
-    });
-  }
-  ```
-
-  Ví dụ thêm hook `useMutation` mới (lấy theo mẫu `usePostMutations.ts`):
-
-  ```ts
-  // src/hooks/mutations/useBookmarkMutations.ts
-  "use client";
-  import { useMutation, useQueryClient } from "@tanstack/react-query";
-  import { toast } from "sonner";
-  import { queryKeys } from "@/lib/queryKeys";
-  import { addBookmark } from "@/lib/api/posts/bookmarkApi";
-
-  export function useAddBookmark(userId: string) {
-    const queryClient = useQueryClient();
-
-    return useMutation({
-      mutationFn: addBookmark,
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: queryKeys.bookmarks.list(userId) });
-        toast.success("Đã lưu bài viết");
-      },
-      onError: () => toast.error("Lưu bài viết thất bại"),
-    });
-  }
-  ```
-
-### Config & utilities
-
-- `src/config/` — config tĩnh: `routes.ts` (map/hàm tạo route có type, ví dụ `ROUTES.POST(postId)`, `ROUTES.PROFILE(userId)` — dùng thay cho hardcode path string), `adminNavRoute.tsx`/`settingNavRoute.tsx` (định nghĩa menu), `globalVariables.ts`, `regex.ts`.
-- `src/utils/` — helper thuần nhỏ (lấy/set cookie, format ngày giờ, chuẩn hóa tiếng Việt, xử lý media, v.v.) — kiểm tra ở đây trước khi viết helper mới.
-- `src/types/` — type domain dùng chung (`post.ts`, `user.ts`, `message.ts`, `api.ts`, `attachments.ts`, `enums/`).
-- Biến môi trường đều là `NEXT_PUBLIC_*` (xem `.env.example`): URL/tên app, protocol/domain/version của API (ghép thành baseURL của axios), protocol/host của WebSocket, Google OAuth client ID.
-
-### Styling
-
-Tailwind CSS v4 (`@tailwindcss/postcss`), style toàn cục ở `src/styles/globals.css`, theme dùng biến CSS (sáng/tối, đổi qua `themeStore`/`ThemeProvider`) — một số nơi dùng trực tiếp giá trị màu như `var(--lower-background-clr)` xen lẫn class Tailwind. Sass dùng cho style theo module (`src/styles/nav.module.scss`, `*.module.scss`). SVG được import như React component qua `@svgr/webpack` (cấu hình trong `next.config.ts` phần turbopack rules).
+Tham chiếu (không copy nội dung): @package.json (scripts), @biome.json (lint/format), @components.json (shadcn).

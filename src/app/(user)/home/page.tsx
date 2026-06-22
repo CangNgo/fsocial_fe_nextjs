@@ -1,11 +1,14 @@
 "use client";
 import dynamic from "next/dynamic";
 
-const HomeFeature = dynamic(
-  () => import("@/features/home").then((m) => ({ default: m.HomeFeature })),
+const Timeline = dynamic(
+  () => import("@/features/home/presentation/pages/timeline"),
   { ssr: false },
 );
 
-export default function HomePage() {
-  return <HomeFeature />;
-}
+
+const HomePage = () => {
+  return <Timeline />;
+};
+
+export default HomePage;

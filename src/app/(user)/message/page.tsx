@@ -2,7 +2,7 @@
 import dynamic from "next/dynamic";
 
 const MessageFeature = dynamic(
-  () => import("@/features/message").then((m) => ({ default: m.MessageFeature })),
+  () => import("@/features/message/presentation/pages/message-feature"),
   { ssr: false },
 );
 

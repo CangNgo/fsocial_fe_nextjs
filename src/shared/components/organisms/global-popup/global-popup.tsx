@@ -8,7 +8,7 @@ import {
   DialogPortal,
   DialogTitle,
 } from "@/shared/components/atoms/dialog";
-import { XMarkIcon } from "@/shared/components/atoms/icon";
+import { XMarkIcon } from "@/shared/components/atoms/icon/icon";
 import { cn } from "@/shared/lib/utils";
 import { usePopupStore } from "@/shared/stores/popup-store";
 import { useThemeStore } from "@/shared/stores/theme-store";

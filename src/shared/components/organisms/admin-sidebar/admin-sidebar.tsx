@@ -6,7 +6,7 @@ import { useState } from "react";
 import { adminNavRoute } from "@/features/admin/config/admin-nav-route";
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/atoms/avatar";
 import { Button } from "@/shared/components/atoms/button";
-import { LogoFSAdmin, LogoutIcon } from "@/shared/components/atoms/icon";
+import { LogoFSAdmin, LogoutIcon } from "@/shared/components/atoms/icon/icon";
 import { Popover, PopoverContent, PopoverTrigger } from "@/shared/components/atoms/popover";
 import { cn } from "@/shared/lib/utils";
 import { adminStore } from "@/shared/stores/admin-store";
