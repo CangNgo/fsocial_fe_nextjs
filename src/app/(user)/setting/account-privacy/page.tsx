@@ -2,7 +2,7 @@
 import dynamic from "next/dynamic";
 
 const AccountPrivacyForm = dynamic(
-  () => import("@/features/setting").then((m) => ({ default: m.AccountPrivacyForm })),
+  () => import("@/features/setting/presentation/pages/account-privacy-form"),
   { ssr: false },
 );
 

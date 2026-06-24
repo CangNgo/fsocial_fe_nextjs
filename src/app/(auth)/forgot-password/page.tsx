@@ -2,7 +2,7 @@
 import dynamic from "next/dynamic";
 
 const ForgotPasswordForm = dynamic(
-  () => import("@/features/auth").then((m) => ({ default: m.ForgotPasswordForm })),
+  () => import("@/features/auth/presentation/pages/forgot-password-form"),
   { ssr: false },
 );
 

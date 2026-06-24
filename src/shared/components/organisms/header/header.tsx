@@ -2,10 +2,10 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { Button } from "@/shared/components/atoms/button";
-import { Bell, HamburgerIcon, LogoNoBG } from "@/shared/components/atoms/icon";
-import { Popover, PopoverContent, PopoverTrigger } from "@/shared/components/atoms/popover";
-import { NavMoreMenu } from "@/shared/components/organisms/nav-more-menu";
+import { Bell, HamburgerIcon, LogoNoBG } from "@/shared/components/atoms/icon/icon";
+import { NavMoreMenu } from "@/shared/components/organisms/nav-more-menu/nav-more-menu";
+import { Button } from "@/shared/components/ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "@/shared/components/ui/popover";
 import { useNotificationStore } from "@/shared/stores/notification-store";
 import { popupNotificationtStore } from "@/shared/stores/popup-store";
 
@@ -21,11 +21,9 @@ export function Header() {
 
   return (
     <>
-      {!isInMessage && <div className="h-12" />}
       <header
-        className={`z-10 px-3 h-12 bg-background ${
-          !isInMessage ? "sm:hidden" : "hidden"
-        } w-full fixed top-0 flex items-center justify-between border-b`}
+        className={`z-10 px-3 h-12 bg-background ${!isInMessage ? "sm:hidden" : "hidden"
+          } w-full fixed top-0 flex items-center justify-between border-b`}
       >
         <Link href="/">
           <LogoNoBG className="size-8" />

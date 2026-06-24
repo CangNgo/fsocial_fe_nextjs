@@ -7,8 +7,6 @@ import {
   getNotificationWithPagination,
   markReadNotification,
 } from "@/shared/api/notifications/notification-api";
-import { Avatar, AvatarFallback } from "@/shared/components/atoms/avatar";
-import { Button } from "@/shared/components/atoms/button";
 import {
   Bell,
   CloseCollapseIcon,
@@ -17,6 +15,8 @@ import {
   TrashCanIcon,
   XMarkIcon,
 } from "@/shared/components/atoms/icon/icon";
+import { Avatar, AvatarFallback } from "@/shared/components/ui/avatar";
+import { Button } from "@/shared/components/ui/button";
 import { regexInMessage, regexInSetting } from "@/shared/config/regex";
 import { useNotificationStore } from "@/shared/stores/notification-store";
 import { ownerAccountStore } from "@/shared/stores/owner-account-store";
@@ -166,7 +166,7 @@ const Noti = ({ notification }: NotiProps) => {
   );
 };
 
-export function NotificationPanel() {
+export default function NotificationPanel() {
   const pathname = usePathname();
   const isNotificationSlide = regexInMessage.test(pathname) || regexInSetting.test(pathname);
 

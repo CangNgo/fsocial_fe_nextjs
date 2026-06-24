@@ -9,7 +9,7 @@ const PUBLIC_ENDPOINTS = [
 ];
 
 export const API = axios.create({
-  baseURL: `${process.env.NEXT_PUBLIC_API_PROTOCOL}://${process.env.NEXT_PUBLIC_API_DOMAIN}/${process.env.NEXT_PUBLIC_API_VERSION}`,
+  baseURL: `${process.env.NEXT_PUBLIC_API_DOMAIN}/${process.env.NEXT_PUBLIC_API_VERSION}`,
   withCredentials: true,
   timeout: 15000,
 });
@@ -49,7 +49,7 @@ API.interceptors.response.use(
       try {
         const refreshToken = getCookie("refresh-token");
         const { data } = await axios.post(
-          `${process.env.NEXT_PUBLIC_API_PROTOCOL}://${process.env.NEXT_PUBLIC_API_DOMAIN}/${process.env.NEXT_PUBLIC_API_VERSION}/post/auth/refresh-token`,
+          `${process.env.NEXT_PUBLIC_API_DOMAIN}/post/auth/refresh-token`,
           { refreshToken },
         );
 

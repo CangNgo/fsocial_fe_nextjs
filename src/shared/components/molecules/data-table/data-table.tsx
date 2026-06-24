@@ -1,6 +1,6 @@
 "use client";
 import type { ReactNode } from "react";
-import { LoadingIcon } from "@/shared/components/atoms/icon";
+import { LoadingIcon } from "@/shared/components/atoms/icon/icon";
 
 interface DataTableProps {
   headers: string[];

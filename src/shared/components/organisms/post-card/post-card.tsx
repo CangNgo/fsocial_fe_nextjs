@@ -6,17 +6,17 @@ import Link from "next/link";
 import { useState } from "react";
 import { processMedias } from "@/features/post/utils/process-media";
 import { likePost } from "@/shared/api/posts/posts-api";
-import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/atoms/avatar";
-import { Button } from "@/shared/components/atoms/button";
 import {
   CommentPostIcon,
   HeartPostIcon,
   RepostPostIcon,
   SharePostIcon,
   TrashCanIcon,
-} from "@/shared/components/atoms/icon";
-import { Popover, PopoverContent, PopoverTrigger } from "@/shared/components/atoms/popover";
-import { MediaGrid } from "@/shared/components/molecules/media-grid";
+} from "@/shared/components/atoms/icon/icon";
+import { MediaGrid } from "@/shared/components/molecules/media-grid/media-grid";
+import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar";
+import { Button } from "@/shared/components/ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "@/shared/components/ui/popover";
 import { cn } from "@/shared/lib/utils";
 import { ownerAccountStore } from "@/shared/stores/owner-account-store";
 import { usePopupStore } from "@/shared/stores/popup-store";
@@ -25,24 +25,27 @@ import { timeAgo } from "@/shared/utils/convert-date-time";
 
 // Dynamically import heavy modals to keep the initial bundle light
 const CommentModal = dynamic(
-  () => import("@/features/post/components/shared/comment-modal").then((m) => m.CommentModal),
+  () => import("@/features/post/presentation/organisms/comment-modal").then((m) => m.CommentModal),
   { ssr: false },
 );
 const ReportModal = dynamic(
-  () => import("@/features/post/components/shared/report-modal").then((m) => m.ReportModal),
+  () => import("@/features/post/presentation/organisms/report-modal").then((m) => m.ReportModal),
   { ssr: false },
 );
 const EditPostModal = dynamic(
-  () => import("@/features/post/components/shared/edit-post-modal").then((m) => m.EditPostModal),
+  () =>
+    import("@/features/post/presentation/organisms/edit-post-modal").then((m) => m.EditPostModal),
   { ssr: false },
 );
 const DeletePostModal = dynamic(
   () =>
-    import("@/features/post/components/shared/delete-post-modal").then((m) => m.DeletePostModal),
+    import("@/features/post/presentation/organisms/delete-post-modal").then(
+      (m) => m.DeletePostModal,
+    ),
   { ssr: false },
 );
 const ModalRepost = dynamic(
-  () => import("@/features/post/components/shared/modal-repost").then((m) => m.ModalRepost),
+  () => import("@/features/post/presentation/organisms/modal-repost").then((m) => m.ModalRepost),
   { ssr: false },
 );
 

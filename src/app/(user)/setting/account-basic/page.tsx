@@ -2,7 +2,7 @@
 import dynamic from "next/dynamic";
 
 const AccountBasicForm = dynamic(
-  () => import("@/features/setting").then((m) => ({ default: m.AccountBasicForm })),
+  () => import("@/features/setting/presentation/pages/account-basic-form"),
   { ssr: false },
 );
 

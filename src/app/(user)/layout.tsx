@@ -3,10 +3,10 @@ import { jwtDecode } from "jwt-decode";
 import dynamic from "next/dynamic";
 import { useEffect, useRef, useState } from "react";
 import { getOwnerProfile } from "@/features/profile/api/profile-api";
-import { ExpiredDialog } from "@/shared/components/organisms/expired-dialog";
-import { GlobalPopup } from "@/shared/components/organisms/global-popup";
-import { Header } from "@/shared/components/organisms/header";
-import { Sidebar } from "@/shared/components/organisms/sidebar";
+import { ExpiredDialog } from "@/shared/components/organisms/expired-dialog/expired-dialog";
+import { GlobalPopup } from "@/shared/components/organisms/global-popup/global-popup";
+import { Header } from "@/shared/components/organisms/header/header";
+import { Sidebar } from "@/shared/components/organisms/sidebar/sidebar";
 import { useMessageStore } from "@/shared/stores/message-store";
 import { useNotificationStore } from "@/shared/stores/notification-store";
 import { ownerAccountStore } from "@/shared/stores/owner-account-store";
@@ -14,10 +14,7 @@ import { validRefreshTokenStore } from "@/shared/stores/valid-refresh-token-stor
 import { getCookie } from "@/shared/utils/cookie";
 
 const NotificationPanel = dynamic(
-  () =>
-    import("@/shared/components/organisms/notification-panel")
-      .then((m) => m.NotificationPanel)
-      .catch(() => () => null),
+  () => import("@/shared/components/organisms/notification-panel/notification-panel"),
   { ssr: false },
 );
 

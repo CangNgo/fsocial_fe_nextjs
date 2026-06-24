@@ -6,20 +6,20 @@ import type React from "react";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
 import { createPost } from "@/shared/api/posts/posts-api";
-import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/atoms/avatar";
-import { Button } from "@/shared/components/atoms/button";
-import type { CarouselApi } from "@/shared/components/atoms/carousel";
-import { Carousel, CarouselContent, CarouselItem } from "@/shared/components/atoms/carousel";
 import {
   ArrowLeftIcon,
   LoadingIcon,
   PencilChangeImageIcon,
   UploadDecorIcon,
-} from "@/shared/components/atoms/icon";
-import { Input } from "@/shared/components/atoms/input";
-import { TextBox } from "@/shared/components/atoms/jumping-input";
-import type { ProcessedMedia } from "@/shared/components/molecules/media-grid";
-import { MediaGrid } from "@/shared/components/molecules/media-grid";
+} from "@/shared/components/atoms/icon/icon";
+import { TextBox } from "@/shared/components/atoms/jumping-input/jumping-input";
+import type { ProcessedMedia } from "@/shared/components/molecules/media-grid/media-grid";
+import { MediaGrid } from "@/shared/components/molecules/media-grid/media-grid";
+import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar";
+import { Button } from "@/shared/components/ui/button";
+import type { CarouselApi } from "@/shared/components/ui/carousel";
+import { Carousel, CarouselContent, CarouselItem } from "@/shared/components/ui/carousel";
+import { Input } from "@/shared/components/ui/input";
 import { cn } from "@/shared/lib/utils";
 import { ownerAccountStore } from "@/shared/stores/owner-account-store";
 import { usePopupStore } from "@/shared/stores/popup-store";

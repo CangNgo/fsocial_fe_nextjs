@@ -2,7 +2,7 @@
 import dynamic from "next/dynamic";
 
 const AdminReportsDashboard = dynamic(
-  () => import("@/features/admin").then((m) => ({ default: m.AdminReportsDashboard })),
+  () => import("@/features/admin/presentation/pages/admin-reports-dashboard"),
   { ssr: false },
 );
 

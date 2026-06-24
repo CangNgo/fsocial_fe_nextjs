@@ -2,7 +2,7 @@
 import dynamic from "next/dynamic";
 
 const AdminPolicyEditor = dynamic(
-  () => import("@/features/admin").then((m) => ({ default: m.AdminPolicyEditor })),
+  () => import("@/features/admin/presentation/pages/admin-policy-editor"),
   { ssr: false },
 );
 

@@ -2,7 +2,7 @@
 import dynamic from "next/dynamic";
 
 const AdminComplaintPanel = dynamic(
-  () => import("@/features/admin").then((m) => ({ default: m.AdminComplaintPanel })),
+  () => import("@/features/admin/presentation/pages/admin-complaint-panel"),
   { ssr: false },
 );
 

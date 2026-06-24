@@ -1,11 +1,11 @@
 "use client";
 import dynamic from "next/dynamic";
 
-const ProfileFeature = dynamic(
-  () => import("@/features/profile").then((m) => ({ default: m.ProfileFeature })),
+const ProfilePage = dynamic(
+  () => import("@/features/profile/presentation/pages/profile-feature"),
   { ssr: false },
 );
 
-export default function ProfilePage() {
-  return <ProfileFeature />;
+export default function Profile() {
+  return <ProfilePage />;
 }
