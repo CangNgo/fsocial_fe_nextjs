@@ -4,8 +4,6 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/atoms/avatar";
-import { Button } from "@/shared/components/atoms/button";
 import {
   Bell,
   CreatePostNavIcon,
@@ -15,7 +13,9 @@ import {
   LogoNoBG,
   MessageNavIcon,
 } from "@/shared/components/atoms/icon/icon";
-import { Popover, PopoverContent, PopoverTrigger } from "@/shared/components/atoms/popover";
+import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar";
+import { Button } from "@/shared/components/ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "@/shared/components/ui/popover";
 import { cn } from "@/shared/lib/utils";
 import { useMessageStore } from "@/shared/stores/message-store";
 import { useNotificationStore } from "@/shared/stores/notification-store";
@@ -24,7 +24,8 @@ import { popupNotificationtStore, usePopupStore } from "@/shared/stores/popup-st
 import { getInitialsFromDisplayName } from "@/shared/utils/combine-name";
 
 const NavMoreMenu = dynamic(
-  () => import("@/shared/components/organisms/nav-more-menu/nav-more-menu").then((m) => m.NavMoreMenu),
+  () =>
+    import("@/shared/components/organisms/nav-more-menu/nav-more-menu").then((m) => m.NavMoreMenu),
   { ssr: false },
 );
 const CreatePostForm = dynamic(

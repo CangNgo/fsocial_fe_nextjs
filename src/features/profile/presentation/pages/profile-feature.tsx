@@ -6,8 +6,6 @@ import type React from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { getPosts } from "@/shared/api/posts/posts-api";
-import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/atoms/avatar";
-import { Button } from "@/shared/components/atoms/button";
 import {
   FollowerProfileTabIcon,
   PencilChangeImageIcon,
@@ -16,8 +14,10 @@ import {
   ReactedProfileTabIcon,
   VideoProfileTabIcon,
 } from "@/shared/components/atoms/icon/icon";
-import { Input } from "@/shared/components/atoms/input";
-import { Popover, PopoverContent, PopoverTrigger } from "@/shared/components/atoms/popover";
+import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar";
+import { Button } from "@/shared/components/ui/button";
+import { Input } from "@/shared/components/ui/input";
+import { Popover, PopoverContent, PopoverTrigger } from "@/shared/components/ui/popover";
 import { cn } from "@/shared/lib/utils";
 import { ownerAccountStore } from "@/shared/stores/owner-account-store";
 import { usePopupStore } from "@/shared/stores/popup-store";
@@ -31,15 +31,7 @@ import { getFollowers, getProfile, requestFollow, unfollow } from "../../api/pro
 import { updateAvatar, updateBanner } from "../../api/update-profile-info-api";
 import { userProfileOptions } from "../../config/user-profile-options";
 import type { AttachmentsResponse } from "../../types/attachments";
-
-export interface ProfileInfo {
-  bio: string;
-  background: string;
-  avatar: string;
-  displayName: string;
-  followers: any[];
-  relationship: boolean;
-}
+import type { ProfileType } from "../../types/profile";
 
 const listTabs = [
   { label: "Bài đăng", icon: <PostProfileTabIcon /> },
@@ -49,12 +41,12 @@ const listTabs = [
   { label: "Đã tương tác", icon: <ReactedProfileTabIcon /> },
 ];
 
-export default function ProfileFeature() {
+export default function Profile() {
   const searchParams = useSearchParams();
   const userId = searchParams.get("id");
 
   const { user, setUser } = ownerAccountStore();
-  const [accountInfo, setAccountInfo] = useState<ProfileInfo | undefined>();
+  const [accountInfo, setAccountInfo] = useState<ProfileType | undefined>();
   const maxPreviewFriendsAvatar = useRef(7);
   const [pictures, setPictures] = useState<AttachmentsResponse[]>([]);
 
@@ -276,7 +268,7 @@ export default function ProfileFeature() {
         followers: [],
         relationship: false,
         background: (user as any).background ?? "",
-      } as unknown as ProfileInfo);
+      } as unknown as ProfileType);
     } else {
       handleGetProfile();
     }
@@ -380,14 +372,14 @@ export default function ProfileFeature() {
                           maxPreviewFriendsAvatar.current,
                           accountInfo?.followers?.length,
                         ) && (
-                        <Button
-                          type="button"
-                          className="absolute top-0 size-full bg-black/50 grid place-content-center rounded-full hover:bg-black/60"
-                          onClick={() => clickChangeTab(3)}
-                        >
-                          <Ellipsis className="size-4 text-txtWhite" />
-                        </Button>
-                      )}
+                          <Button
+                            type="button"
+                            className="absolute top-0 size-full bg-black/50 grid place-content-center rounded-full hover:bg-black/60"
+                            onClick={() => clickChangeTab(3)}
+                          >
+                            <Ellipsis className="size-4 text-txtWhite" />
+                          </Button>
+                        )}
                     </div>
                   ))}
               </div>
@@ -449,11 +441,10 @@ export default function ProfileFeature() {
                 <Button
                   type="button"
                   key={tab.label}
-                  className={`flex-grow flex items-center justify-center gap-1 border-t px-1 sm:py-1 py-3 ${
-                    currentTab === index
-                      ? "text-primary-text fill-primary-text stroke-primary-text border-primary-text"
-                      : "text-gray fill-gray stroke-gray border-background"
-                  }`}
+                  className={`flex-grow flex items-center justify-center gap-1 border-t px-1 sm:py-1 py-3 ${currentTab === index
+                    ? "text-primary-text fill-primary-text stroke-primary-text border-primary-text"
+                    : "text-gray fill-gray stroke-gray border-background"
+                    }`}
                   onClick={() => clickChangeTab(index)}
                 >
                   {tab.icon}

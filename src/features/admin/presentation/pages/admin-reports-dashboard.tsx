@@ -6,16 +6,6 @@ import Link from "next/link";
 import type React from "react";
 import { useEffect, useState } from "react";
 import { Area, AreaChart, CartesianGrid, Label, Pie, PieChart, XAxis, YAxis } from "recharts";
-import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/atoms/avatar";
-import { Button } from "@/shared/components/atoms/button";
-import {
-  type ChartConfig,
-  ChartContainer,
-  ChartLegend,
-  ChartLegendContent,
-  ChartTooltip,
-  ChartTooltipContent,
-} from "@/shared/components/atoms/chart";
 import {
   CrownTop1Icon,
   CrownTop2Icon,
@@ -24,7 +14,17 @@ import {
   NewCreatedAccountIcon,
   PostProfileTabIcon,
 } from "@/shared/components/atoms/icon/icon";
-import { Input } from "@/shared/components/atoms/input";
+import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar";
+import { Button } from "@/shared/components/ui/button";
+import {
+  type ChartConfig,
+  ChartContainer,
+  ChartLegend,
+  ChartLegendContent,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/shared/components/ui/chart";
+import { Input } from "@/shared/components/ui/input";
 import { combineIntoAvatarName, combineIntoDisplayName } from "@/shared/utils/combine-name";
 import {
   getNumberOfComplaint,

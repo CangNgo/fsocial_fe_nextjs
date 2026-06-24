@@ -3,15 +3,11 @@
 import { jwtDecode } from "jwt-decode";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { getPosts } from "@/shared/api/posts/posts-api";
-import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/atoms/avatar";
-import { Button } from "@/shared/components/atoms/button";
 import { CreatePostForm } from "@/shared/components/organisms/create-post-form/create-post-form";
 import { PostList } from "@/shared/components/organisms/post-list/post-list";
 import { ownerAccountStore, type User } from "@/shared/stores/owner-account-store";
 import { usePopupStore } from "@/shared/stores/popup-store";
-import { getInitialsFromDisplayName } from "@/shared/utils/combine-name";
 import { getCookie } from "@/shared/utils/cookie";
-import CreateStory from "../organisms/create-story";
 import StoryList from "../organisms/story-list";
 
 export default function Timeline() {
@@ -21,15 +17,12 @@ export default function Timeline() {
   const [posts, setPosts] = useState<any[] | null>(null);
   const pageRef = useRef(0);
   const isFetchingRef = useRef(false);
-  // Resolve userId: prefer store value, fall back to JWT so we never
-  // block on waiting for the profile API to populate the store.
   const [resolvedUserId, setResolvedUserId] = useState<string | null>(null);
   useEffect(() => {
     if (user?.userId) {
       setResolvedUserId(user.userId);
       return;
     }
-    // Fallback: decode from cookie
     const token = getCookie("access-token");
     if (!token) return;
     try {
@@ -56,16 +49,14 @@ export default function Timeline() {
     fetchPosts();
   }, [fetchPosts]);
 
-  const displayName = user?.displayName ?? "";
-
   const handleOpenCreatePost = () =>
     showPopup("Tạo bài viết", <CreatePostForm onPostCreated={handlePostCreated} />);
 
   return (
     <div className="sm:pb-6">
-      <div className="mx-auto w-full max-w-[640px] px-2 sm:px-4 lg:px-0 space-y-3">
+      <div className="mx-auto w-full max-w-[640px] px-2 sm:px-4 lg:px-0 space-y-3 lg:pt-3 md:pt-2">
         {/* Create-post bar */}
-        <StoryList createPost={handleOpenCreatePost} user={user} />
+        <StoryList createPost={handleOpenCreatePost} />
         {/* Feed */}
         <PostList posts={posts} fetchPosts={fetchPosts} cardStyle />
       </div>

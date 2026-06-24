@@ -4,11 +4,11 @@
 import { Pen } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Button } from "@/shared/components/atoms/button";
 import { CalendarIcon, TrashCanIcon } from "@/shared/components/atoms/icon/icon";
 import { ButtonGroup } from "@/shared/components/molecules/button-group/button-group";
 import { DataTable } from "@/shared/components/molecules/data-table/data-table";
 import { SearchBar } from "@/shared/components/molecules/search-bar/search-bar";
+import { Button } from "@/shared/components/ui/button";
 import { getComplaint, readingComplaint } from "../../api/admin-complaint-api";
 
 interface ComplaintItem {

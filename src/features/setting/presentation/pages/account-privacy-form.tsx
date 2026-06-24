@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Switch } from "@/shared/components/atoms/switch";
+import { Switch } from "@/shared/components/ui/switch";
 
 export default function AccountPrivacyForm() {
   const [hideProfileChecked, setHideProfileChecked] = useState(false);

@@ -4,9 +4,9 @@
 import { AtSign, UserRound } from "lucide-react";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { Button } from "@/shared/components/atoms/button";
-import { Input } from "@/shared/components/atoms/input";
 import { ChangePasswordModal } from "@/shared/components/organisms/change-password-modal/change-password-modal";
+import { Button } from "@/shared/components/ui/button";
+import { Input } from "@/shared/components/ui/input";
 import { cn } from "@/shared/lib/utils";
 import { ownerAccountStore } from "@/shared/stores/owner-account-store";
 import { usePopupStore } from "@/shared/stores/popup-store";

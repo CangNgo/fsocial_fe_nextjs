@@ -2,8 +2,8 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import { deletePost } from "@/shared/api/posts/posts-api";
-import { Button } from "@/shared/components/atoms/button";
 import { LoadingIcon, TrashCanIcon } from "@/shared/components/atoms/icon/icon";
+import { Button } from "@/shared/components/ui/button";
 import { usePopupStore } from "@/shared/stores/popup-store";
 
 interface DeletePostModalProps {

@@ -1,4 +1,4 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/atoms/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar";
 import { ownerAccountStore } from "@/shared/stores/owner-account-store";
 import { getInitialsFromDisplayName } from "@/shared/utils/combine-name";
 
@@ -13,5 +13,6 @@ export default function CreateStory() {
         </AvatarFallback>
       </Avatar>
       <input type="text" />
-    </div>)
+    </div>
+  );
 }

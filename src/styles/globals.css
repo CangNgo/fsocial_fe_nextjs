@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:is(.dark *));
+
 /* ====================================================================
    SHADCN + CUSTOM THEME — Tailwind 4 @theme inline
    ==================================================================== */
@@ -24,6 +26,20 @@
   --color-border: var(--border-clr);
   --color-input: var(--border-field);
   --color-ring: var(--primary-clr);
+
+  /* Semantic status colors */
+  --color-success: var(--success-clr);
+  --color-success-foreground: var(--success-foreground-clr);
+  --color-success-bg: var(--success-bg-clr);
+  --color-warning: var(--warning-clr);
+  --color-warning-foreground: var(--warning-foreground-clr);
+  --color-warning-bg: var(--warning-bg-clr);
+  --color-info: var(--info-clr);
+  --color-info-foreground: var(--info-foreground-clr);
+  --color-info-bg: var(--info-bg-clr);
+  --color-error: var(--error-clr);
+  --color-error-foreground: var(--error-foreground-clr);
+  --color-error-bg: var(--error-bg-clr);
 
   /* Custom brand color utilities */
   --color-brand: var(--primary-clr);
@@ -53,6 +69,14 @@
 
   /* Animations */
   --animate-caret-blink: caret-blink 1.25s ease-out infinite;
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
 }
 
 /* ====================================================================
@@ -125,6 +149,20 @@
     --blue-chart-clr: #6488ff;
     --green-chart-clr: #39c900;
 
+    /* Semantic status */
+    --success-clr: #1e9e4f;
+    --success-foreground-clr: #ffffff;
+    --success-bg-clr: #e6f4ea;
+    --warning-clr: #f0a30a;
+    --warning-foreground-clr: #ffffff;
+    --warning-bg-clr: #fef3e0;
+    --info-clr: #1a73e8;
+    --info-foreground-clr: #ffffff;
+    --info-bg-clr: #e8f0fe;
+    --error-clr: #d93025;
+    --error-foreground-clr: #ffffff;
+    --error-bg-clr: #fce8e6;
+
     --radius: 0.5rem;
   }
 
@@ -166,6 +204,20 @@
     --shadow-clr: hsla(0, 0%, 12%, 1);
     --text-primary-clr: hsl(0, 0%, 96%);
     --text-secondary-clr: hsl(0, 0%, 25%);
+
+    /* Semantic status — dark */
+    --success-clr: #4ade80;
+    --success-foreground-clr: #0a3a1e;
+    --success-bg-clr: #103a1f;
+    --warning-clr: #fbbf24;
+    --warning-foreground-clr: #3a2a05;
+    --warning-bg-clr: #3a2c08;
+    --info-clr: #60a5fa;
+    --info-foreground-clr: #0c2a4d;
+    --info-bg-clr: #0f2747;
+    --error-clr: #f87171;
+    --error-foreground-clr: #450a0a;
+    --error-bg-clr: #3a1212;
   }
 
   * {
@@ -511,4 +563,26 @@
   .shadow-r {
     box-shadow: 1px 0 2px var(--shadow-clr);
   }
+}
+
+:root {
+  --sidebar: hsl(0 0% 98%);
+  --sidebar-foreground: hsl(240 5.3% 26.1%);
+  --sidebar-primary: hsl(240 5.9% 10%);
+  --sidebar-primary-foreground: hsl(0 0% 98%);
+  --sidebar-accent: hsl(240 4.8% 95.9%);
+  --sidebar-accent-foreground: hsl(240 5.9% 10%);
+  --sidebar-border: hsl(220 13% 91%);
+  --sidebar-ring: hsl(217.2 91.2% 59.8%);
+}
+
+.dark {
+  --sidebar: hsl(240 5.9% 10%);
+  --sidebar-foreground: hsl(240 4.8% 95.9%);
+  --sidebar-primary: hsl(224.3 76.3% 48%);
+  --sidebar-primary-foreground: hsl(0 0% 100%);
+  --sidebar-accent: hsl(240 3.7% 15.9%);
+  --sidebar-accent-foreground: hsl(240 4.8% 95.9%);
+  --sidebar-border: hsl(240 3.7% 15.9%);
+  --sidebar-ring: hsl(217.2 91.2% 59.8%);
 }

@@ -2,10 +2,10 @@
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { getPost, repostPost } from "@/shared/api/posts/posts-api";
-import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/atoms/avatar";
-import { Button } from "@/shared/components/atoms/button";
 import { LoadingIcon } from "@/shared/components/atoms/icon/icon";
 import { TextBox } from "@/shared/components/atoms/jumping-input/jumping-input";
+import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar";
+import { Button } from "@/shared/components/ui/button";
 import { ownerAccountStore } from "@/shared/stores/owner-account-store";
 import { usePopupStore } from "@/shared/stores/popup-store";
 import { getTextboxData } from "@/shared/utils/process-textbox-data";

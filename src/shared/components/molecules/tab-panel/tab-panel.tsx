@@ -1,6 +1,6 @@
 "use client";
 import type React from "react";
-import { Button } from "@/shared/components/atoms/button";
+import { Button } from "@/shared/components/ui/button";
 import { cn } from "@/shared/lib/utils";
 
 interface TabItem {

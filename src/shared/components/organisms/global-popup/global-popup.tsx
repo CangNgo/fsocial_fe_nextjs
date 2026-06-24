@@ -1,14 +1,14 @@
 "use client";
 import { Dialog as DialogPrimitive } from "radix-ui";
-import { Button } from "@/shared/components/atoms/button";
+import { XMarkIcon } from "@/shared/components/atoms/icon/icon";
+import { Button } from "@/shared/components/ui/button";
 import {
   Dialog,
   DialogDescription,
   DialogOverlay,
   DialogPortal,
   DialogTitle,
-} from "@/shared/components/atoms/dialog";
-import { XMarkIcon } from "@/shared/components/atoms/icon/icon";
+} from "@/shared/components/ui/dialog";
 import { cn } from "@/shared/lib/utils";
 import { usePopupStore } from "@/shared/stores/popup-store";
 import { useThemeStore } from "@/shared/stores/theme-store";
@@ -26,7 +26,7 @@ export function GlobalPopup() {
           className={cn(
             "fixed z-50 bg-background rounded-lg overflow-hidden outline-none",
             "inset-x-0 bottom-0 max-h-[90dvh] data-[state=closed]:animate-out data-[state=closed]:slide-out-to-bottom data-[state=open]:animate-in data-[state=open]:slide-in-from-bottom",
-            "sm:inset-x-auto sm:bottom-auto sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:max-h-screen sm:py-2 sm:data-[state=closed]:slide-out-to-bottom-0 sm:data-[state=closed]:zoom-out-95 sm:data-[state=closed]:fade-out-0 sm:data-[state=open]:slide-in-from-bottom-0 sm:data-[state=open]:zoom-in-95 sm:data-[state=open]:fade-in-0",
+            "sm:inset-x-auto sm:bottom-auto sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:max-h-screen sm:data-[state=closed]:slide-out-to-bottom-0 sm:data-[state=closed]:zoom-out-95 sm:data-[state=closed]:fade-out-0 sm:data-[state=open]:slide-in-from-bottom-0 sm:data-[state=open]:zoom-in-95 sm:data-[state=open]:fade-in-0",
             theme === "dark" && "border",
           )}
         >
@@ -46,7 +46,8 @@ export function GlobalPopup() {
             <Button
               type="button"
               className={cn(
-                heading ? "absolute top-0 right-0 bottom-0 h-full rounded-md me-2" : "px-3 pt-3",
+                heading ? "absolute top-0 right-0 bottom-0 h-full rounded-md mb-2" : "px-3 pt-3",
+                "cursor-pointer"
               )}
               onClick={hidePopup}
             >

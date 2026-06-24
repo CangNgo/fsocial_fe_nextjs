@@ -2,9 +2,9 @@
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { getTermOfService } from "@/shared/api/admin/admin-policy-setting-api";
-import { Button } from "@/shared/components/atoms/button";
 import { LoadingIcon } from "@/shared/components/atoms/icon/icon";
-import { RadioGroup, RadioGroupItem } from "@/shared/components/atoms/radio-group";
+import { Button } from "@/shared/components/ui/button";
+import { RadioGroup, RadioGroupItem } from "@/shared/components/ui/radio-group";
 import { ownerAccountStore } from "@/shared/stores/owner-account-store";
 import { usePopupStore } from "@/shared/stores/popup-store";
 import { complaint } from "../../api/complaint-api";

@@ -6,15 +6,15 @@ import { useRouter } from "next/navigation";
 import type React from "react";
 import { useEffect, useState } from "react";
 import { getPost } from "@/shared/api/posts/posts-api";
-import { Button } from "@/shared/components/atoms/button";
-import type { CarouselApi } from "@/shared/components/atoms/carousel";
+import { Button } from "@/shared/components/ui/button";
+import type { CarouselApi } from "@/shared/components/ui/carousel";
 import {
   Carousel,
   CarouselContent,
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
-} from "@/shared/components/atoms/carousel";
+} from "@/shared/components/ui/carousel";
 import { cn } from "@/shared/lib/utils";
 import { ownerAccountStore } from "@/shared/stores/owner-account-store";
 import { getImageSize, getVideoSize } from "@/shared/utils/get-size-element";

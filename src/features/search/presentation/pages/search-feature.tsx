@@ -1,11 +1,11 @@
 "use client";
 import { SearchIcon } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/atoms/avatar";
-import { Button } from "@/shared/components/atoms/button";
 import { LoadingIcon } from "@/shared/components/atoms/icon/icon";
-import { Input } from "@/shared/components/atoms/input";
-import { Skeleton } from "@/shared/components/atoms/skeleton";
+import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar";
+import { Button } from "@/shared/components/ui/button";
+import { Input } from "@/shared/components/ui/input";
+import { Skeleton } from "@/shared/components/ui/skeleton";
 import { searchPosts, searchUsers } from "../../api/search-api";
 
 const messageNotFoundPost = "Không tìm thấy bài viết phù hợp";

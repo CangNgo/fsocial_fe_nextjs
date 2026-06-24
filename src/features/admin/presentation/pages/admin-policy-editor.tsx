@@ -9,9 +9,9 @@ import {
   getTermOfService,
   removeTermOfService,
 } from "@/shared/api/admin/admin-policy-setting-api";
-import { Button } from "@/shared/components/atoms/button";
 import { TrashCanIcon } from "@/shared/components/atoms/icon/icon";
-import { Input } from "@/shared/components/atoms/input";
+import { Button } from "@/shared/components/ui/button";
+import { Input } from "@/shared/components/ui/input";
 
 interface Policy {
   id: string;

@@ -3,12 +3,12 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Button } from "@/shared/components/atoms/button";
 import { CalendarIcon, TrashCanIcon } from "@/shared/components/atoms/icon/icon";
-import { Switch } from "@/shared/components/atoms/switch";
 import { ButtonGroup } from "@/shared/components/molecules/button-group/button-group";
 import { DataTable } from "@/shared/components/molecules/data-table/data-table";
 import { SearchBar } from "@/shared/components/molecules/search-bar/search-bar";
+import { Button } from "@/shared/components/ui/button";
+import { Switch } from "@/shared/components/ui/switch";
 import { cn } from "@/shared/lib/utils";
 import { getBanUser, getManageUser } from "../../api/admin-manage-user-api";
 

@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useEffect } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/shared/components/atoms/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/shared/components/ui/dialog";
 import { validRefreshTokenStore } from "@/shared/stores/valid-refresh-token-store";
 
 interface ExpiredDialogProps {

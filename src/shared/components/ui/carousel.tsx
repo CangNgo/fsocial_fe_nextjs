@@ -3,7 +3,7 @@
 import useEmblaCarousel, { type UseEmblaCarouselType } from "embla-carousel-react";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import * as React from "react";
-import { Button } from "@/shared/components/atoms/button";
+import { Button } from "@/shared/components/ui/button";
 import { cn } from "@/shared/lib/utils";
 
 type CarouselApi = UseEmblaCarouselType[1];
@@ -114,7 +114,7 @@ function Carousel({
         canScrollNext,
       }}
     >
-      <section
+      <div
         onKeyDownCapture={handleKeyDown}
         className={cn("relative", className)}
         role="region"
@@ -123,7 +123,7 @@ function Carousel({
         {...props}
       >
         {children}
-      </section>
+      </div>
     </CarouselContext.Provider>
   );
 }
@@ -141,11 +141,12 @@ function CarouselContent({ className, ...props }: React.ComponentProps<"div">) {
   );
 }
 
-function CarouselItem({ className, ...props }: React.ComponentProps<"fieldset">) {
+function CarouselItem({ className, ...props }: React.ComponentProps<"div">) {
   const { orientation } = useCarousel();
 
   return (
-    <fieldset
+    <div
+      role="group"
       aria-roledescription="slide"
       data-slot="carousel-item"
       className={cn(

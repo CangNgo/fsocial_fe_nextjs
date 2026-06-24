@@ -6,20 +6,15 @@ import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { removeVietnameseAccents } from "@/features/auth/utils/remove-special-word";
-import { Button } from "@/shared/components/atoms/button";
 import { ArrowLeftIcon, LoadingIcon } from "@/shared/components/atoms/icon/icon";
-import { Input } from "@/shared/components/atoms/input";
 import { JumpingSelect } from "@/shared/components/atoms/jumping-input/jumping-input";
 import { OtpInputGroup } from "@/shared/components/molecules/otp-input-group/otp-input-group";
+import { Button } from "@/shared/components/ui/button";
+import { Input } from "@/shared/components/ui/input";
 import { dayOptions, monthOptions, yearOptions } from "@/shared/config/global-variables";
 import { regexEmail, regexName, regexPassword } from "@/shared/config/regex";
 import { cn } from "@/shared/lib/utils";
-import {
-  checkDuplicate,
-  requestOTP,
-  sendingCreateAccount,
-  validOTP,
-} from "../../api/signup-api";
+import { checkDuplicate, requestOTP, sendingCreateAccount, validOTP } from "../../api/signup-api";
 
 interface Step1FormData {
   firstName: string;

@@ -12,11 +12,11 @@ import {
   updateBanner,
   updatePersonalInfo,
 } from "@/features/profile/api/update-profile-info-api";
-import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/atoms/avatar";
-import { Button } from "@/shared/components/atoms/button";
 import { PencilChangeImageIcon } from "@/shared/components/atoms/icon/icon";
-import { Input } from "@/shared/components/atoms/input";
 import { JumpingSelect, TextBox } from "@/shared/components/atoms/jumping-input/jumping-input";
+import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar";
+import { Button } from "@/shared/components/ui/button";
+import { Input } from "@/shared/components/ui/input";
 import { dayOptions, monthOptions, yearOptions } from "@/shared/config/global-variables";
 import { cn } from "@/shared/lib/utils";
 import { ownerAccountStore } from "@/shared/stores/owner-account-store";

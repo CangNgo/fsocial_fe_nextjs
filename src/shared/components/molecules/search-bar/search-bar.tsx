@@ -1,6 +1,6 @@
 "use client";
 import { SearchIcon } from "lucide-react";
-import { Input } from "@/shared/components/atoms/input";
+import { Input } from "@/shared/components/ui/input";
 
 interface SearchBarProps {
   value: string;

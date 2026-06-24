@@ -1,38 +1,17 @@
-import { Button } from '@/shared/components/atoms/button';
-import { User } from '@/shared/stores/owner-account-store';
-import Image from 'next/image';
+import type { User } from "@/shared/stores/owner-account-store";
+import StoryItem from "../molecules/story-item";
 
 interface StoryListProps {
   createPost: () => void;
-  user: User;
 }
 
-const StoryList = ({ createPost, user }: StoryListProps) => {
+const StoryList = ({ createPost }: StoryListProps) => {
   return (
-    <div className='flex gap-2 h-30 w-full ' >
-      <StoryItem user={user} action={createPost} />
+    <div className="flex gap-2 h-40 w-full ">
+      <StoryItem action={createPost} />
     </div>
-  )
-}
+  );
+};
 
-interface IStoryItemProps {
-  user: User;
-  action: () => void;
-}
 
-const StoryItem = ({ user, action }: IStoryItemProps) => {
-  const displayName = user?.displayName ?? "";
-  return (
-    <div className="relative w-80 cursor-pointer bg-white w" onClick={action}>
-      <div className="relative">
-        <Image width={100}
-          height={300} src={user?.avatar || ""} alt="user" />
-      </div>
-      <span className="flex-1 text-sm text-muted-foreground select-none">
-        {displayName ? `${displayName}, bạn đang nghĩ gì?` : "Bạn đang nghĩ gì?"}
-      </span>
-    </div>
-  )
-}
-
-export default StoryList
+export default StoryList;
