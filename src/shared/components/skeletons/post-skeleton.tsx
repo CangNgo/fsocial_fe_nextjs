@@ -1,7 +1,7 @@
 "use client";
 
-import { Skeleton } from "../ui/skeleton";
 import { cn } from "../../lib/utils";
+import { Skeleton } from "../ui/skeleton";
 
 export function PostSkeleton({ card }: { card?: boolean }) {
   return (

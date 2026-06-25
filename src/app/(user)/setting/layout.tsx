@@ -1,4 +1,4 @@
-import { SettingNav } from "@/shared/components/organisms/setting-nav/setting-nav";
+import { SettingNav } from "@/shared/components/organisms/setting-nav";
 
 export default function SettingLayout({ children }: { children: React.ReactNode }) {
   return (

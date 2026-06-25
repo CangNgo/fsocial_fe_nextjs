@@ -7,14 +7,13 @@ import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { getPost } from "@/shared/api/posts/posts-api";
 import { HeartPostIcon, LoadingIcon, XMarkIcon } from "@/shared/components/atoms/icon/icon";
-import { TextBox } from "@/shared/components/atoms/jumping-input/jumping-input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar";
 import { Button } from "@/shared/components/ui/button";
+import { Textarea } from "@/shared/components/ui/textarea";
 import { ownerAccountStore } from "@/shared/stores/owner-account-store";
 import { usePopupStore } from "@/shared/stores/popup-store";
 import { combineIntoAvatarName, combineIntoDisplayName } from "@/shared/utils/combine-name";
 import { dateTimeToNotiTime } from "@/shared/utils/convert-date-time";
-import { getTextboxData } from "@/shared/utils/process-textbox-data";
 import {
   getComments,
   getRepliesComment,
@@ -22,14 +21,7 @@ import {
   replyComment,
   sendComment,
 } from "../../api/comments-api";
-
-const PostCard = dynamic(
-  () =>
-    import("@/shared/components/organisms/post-card/post-card").then((m) => ({
-      default: m.PostCard,
-    })),
-  { ssr: false },
-);
+import PostCard from "../molecules/post-card";
 
 interface Comment {
   id: string;
@@ -158,14 +150,16 @@ interface CommentModalProps {
 
 export function CommentModal({ id, store }: CommentModalProps) {
   const user = ownerAccountStore((state) => state.user);
-  const textbox = useRef<HTMLDivElement>(null);
+  const textbox = useRef<HTMLTextAreaElement>(null);
+  const [commentText, setCommentText] = useState("");
+  const [replyPrefix, setReplyPrefix] = useState("");
   const s = store as
     | {
-        getState?: () => {
-          updatePost?: (id: string, props: unknown) => void;
-          findPost?: (id: string) => Comment | null;
-        };
-      }
+      getState?: () => {
+        updatePost?: (id: string, props: unknown) => void;
+        findPost?: (id: string) => Comment | null;
+      };
+    }
     | undefined;
 
   const [post, setPost] = useState<Record<string, unknown> | null>(null);
@@ -173,7 +167,6 @@ export function CommentModal({ id, store }: CommentModalProps) {
   const [submitCmtClicked, setSubmitCmtClicked] = useState(false);
   const [selectReply, setSelectReply] = useState<Partial<Comment>>({});
   const [commentsReply, setCommentsReply] = useState<CommentReply[]>([]);
-  const [trigger, setTrigger] = useState(false);
 
   useEffect(() => {
     const found = s?.getState?.()?.findPost?.(id);
@@ -191,26 +184,40 @@ export function CommentModal({ id, store }: CommentModalProps) {
     });
   }, [user?.userId, id, s]);
 
+  useEffect(() => {
+    if (!textbox.current) return;
+
+    textbox.current.focus();
+    const nextPosition = textbox.current.value.length;
+    textbox.current.setSelectionRange(nextPosition, nextPosition);
+  }, [replyPrefix]);
+
   const selectCommentToReply = (selectedComment: Comment) => {
-    const { userId, firstName, lastName } = selectedComment;
-    const exist = Array.from(textbox.current?.childNodes ?? []).find(
-      (el: unknown) => (el as HTMLElement)?.dataset?.mention === userId,
-    );
-    if (exist) return;
+    const mentionText = `${combineIntoDisplayName(
+      selectedComment.firstName,
+      selectedComment.lastName,
+    )} `;
+
     setSelectReply(selectedComment);
-    if (textbox.current) {
-      textbox.current.innerHTML += `<a href="" class="text-primary font-semibold" contenteditable="false" data-mention="${userId}">${combineIntoDisplayName(firstName, lastName)}</a>&nbsp;`;
-    }
-    setTrigger(!trigger);
+    setReplyPrefix(mentionText);
+    setCommentText((currentText) => {
+      const textWithoutPrefix = replyPrefix && currentText.startsWith(replyPrefix)
+        ? currentText.slice(replyPrefix.length)
+        : currentText;
+
+      return `${mentionText}${textWithoutPrefix}`;
+    });
   };
 
   const handleSendComment = async () => {
-    const { innerText, innerHTML } = getTextboxData(textbox as React.RefObject<HTMLElement>);
-    if (!innerText || !innerHTML) {
-      if (textbox.current) textbox.current.innerHTML = "";
-      setTrigger(!trigger);
+    const innerText = commentText.trim();
+    const innerHTML = innerText;
+
+    if (!innerText) {
+      setCommentText("");
       return;
     }
+
     setSubmitCmtClicked(true);
     const formData = new FormData();
     formData.append("userId", user?.userId ?? "");
@@ -225,14 +232,15 @@ export function CommentModal({ id, store }: CommentModalProps) {
       formData.append("postId", id);
       resp = await sendComment(formData);
     }
+
     const r = resp as { statusCode?: number; data?: Comment };
     if (!resp || r.statusCode !== 200) {
       toast.error("Bình luận thất bại");
       setSubmitCmtClicked(false);
       return;
     }
+
     toast.success("Đã đăng bình luận");
-    if (textbox.current) textbox.current.innerHTML = "";
 
     const now = new Date();
     now.setHours(now.getHours() + 7);
@@ -269,11 +277,13 @@ export function CommentModal({ id, store }: CommentModalProps) {
     } else {
       setComments([newCmt, ...comments]);
     }
+
+    setCommentText("");
+    setReplyPrefix("");
     setSelectReply({});
     s?.getState?.()?.updatePost?.(id, {
       countComments: ((post?.countComments as number) ?? 0) + 1,
     });
-    setTrigger(!trigger);
     setSubmitCmtClicked(false);
   };
 
@@ -287,6 +297,16 @@ export function CommentModal({ id, store }: CommentModalProps) {
       return;
     }
     setCommentsReply([...commentsReply, { id: commentId, reply: resp.data ?? [] }]);
+  };
+
+  const handleCancelReply = () => {
+    const updatedText = commentText.startsWith(replyPrefix)
+      ? commentText.slice(replyPrefix.length)
+      : commentText;
+
+    setCommentText(updatedText);
+    setReplyPrefix("");
+    setSelectReply({});
   };
 
   return (
@@ -327,7 +347,7 @@ export function CommentModal({ id, store }: CommentModalProps) {
             type="button"
             variant="outline"
             size="icon-sm"
-            onClick={() => setSelectReply({})}
+            onClick={handleCancelReply}
             className="cursor-pointer"
           >
             <XMarkIcon className="" />
@@ -340,17 +360,20 @@ export function CommentModal({ id, store }: CommentModalProps) {
               {combineIntoAvatarName(user?.firstName ?? "", user?.lastName ?? "")}
             </AvatarFallback>
           </Avatar>
-          <TextBox
-            texboxRef={textbox}
-            className="py-2 w-full max-h-[40vh]"
+          <Textarea
+            ref={textbox}
+            className="w-full max-h-[40vh] resize-none py-2"
             placeholder="Viết bình luận"
-            contentEditable={!submitCmtClicked}
+            disabled={submitCmtClicked}
+            value={commentText}
+            onChange={(e) => setCommentText(e.target.value)}
             onKeyDown={(e) => {
               if (window.innerWidth <= 640) return;
-              if (e.key === "Enter" && !e.shiftKey) handleSendComment();
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                handleSendComment();
+              }
             }}
-            autoFocus
-            trigger={trigger}
           />
           <Button
             type="button"

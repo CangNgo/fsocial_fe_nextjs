@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import type React from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
+import { PostList } from "@/features/post/presentation/molecules/post-list";
 import { getPosts } from "@/shared/api/posts/posts-api";
 import {
   FollowerProfileTabIcon,
@@ -54,7 +55,10 @@ export default function Profile() {
 
   // Posts state (no store — local until postsStore is created)
   const [postsUser, setPostsUser] = useState<any[] | null>(null);
-  const [isEndUserPosts, setIsEndUserPosts] = useState(false);
+  const pageRef = useRef(0);
+  const isFetchingPostsRef = useRef(false);
+  const hasMorePostsRef = useRef(true);
+  const [hasMorePosts, setHasMorePosts] = useState(true);
 
   // Followers state
   const [followers, setFollowers] = useState<any[] | null>(null);
@@ -149,20 +153,49 @@ export default function Profile() {
 
   // ─── tab content fetchers ─────────────────────────────────────────────────
 
+  const profilePostUserId = isOwner ? user?.userId : userId;
+
   const fetchPostsUser = useCallback(async () => {
-    if (!user?.userId) return;
-    const resp = (await getPosts(user.userId, 0)) as any;
+    if (isFetchingPostsRef.current || !hasMorePostsRef.current || !profilePostUserId) return;
+
+    isFetchingPostsRef.current = true;
+    const resp = (await getPosts(profilePostUserId, pageRef.current)) as any;
+    isFetchingPostsRef.current = false;
+
     if (!resp || resp.statusCode !== 200) return;
-    if (!postsUser) {
-      setPostsUser(resp.data);
-    } else {
-      if (postsUser.length !== 0 && resp.data.length === 0) {
-        setIsEndUserPosts(true);
-        return;
-      }
-      setPostsUser((prev) => [...(prev ?? []), ...resp.data]);
+
+    const newPosts: any[] = resp.data ?? [];
+
+    if (newPosts.length === 0) {
+      hasMorePostsRef.current = false;
+      setHasMorePosts(false);
+      setPostsUser((prev) => prev ?? []);
+      return;
     }
-  }, [user?.userId, postsUser]);
+
+    setPostsUser((prev) => {
+      if (!prev) return newPosts;
+
+      const existingIds = new Set(prev.map((post) => post?.id).filter(Boolean));
+      const uniqueNewPosts = newPosts.filter((post) => !existingIds.has(post?.id));
+
+      if (uniqueNewPosts.length === 0) {
+        return prev;
+      }
+
+      return [...prev, ...uniqueNewPosts];
+    });
+
+    pageRef.current += 1;
+  }, [profilePostUserId]);
+
+  const resetPostsUserState = useCallback(() => {
+    setPostsUser(null);
+    pageRef.current = 0;
+    isFetchingPostsRef.current = false;
+    hasMorePostsRef.current = true;
+    setHasMorePosts(true);
+  }, []);
 
   const showFollowers = useCallback(async () => {
     if (followers) return;
@@ -172,17 +205,20 @@ export default function Profile() {
   }, [followers]);
 
   useEffect(() => {
-    switch (currentTab) {
-      case 0:
-        fetchPostsUser();
-        break;
-      case 3:
-        showFollowers();
-        break;
-      default:
-        break;
+    if (currentTab === 3) {
+      showFollowers();
     }
-  }, [currentTab, showFollowers, fetchPostsUser]);
+  }, [currentTab, showFollowers]);
+
+  useEffect(() => {
+    resetPostsUserState();
+  }, [resetPostsUserState, profilePostUserId]);
+
+  useEffect(() => {
+    if (currentTab === 0 && profilePostUserId) {
+      fetchPostsUser();
+    }
+  }, [currentTab, profilePostUserId, fetchPostsUser]);
 
   // ─── tab navigation ────────────────────────────────────────────────────────
 
@@ -441,9 +477,10 @@ export default function Profile() {
                 <Button
                   type="button"
                   key={tab.label}
-                  className={`flex-grow flex items-center justify-center gap-1 border-t px-1 sm:py-1 py-3 ${currentTab === index
-                    ? "text-primary-text fill-primary-text stroke-primary-text border-primary-text"
-                    : "text-gray fill-gray stroke-gray border-background"
+                  variant="outline"
+                  className={`flex-grow flex items-center justify-center gap-1 px-1 sm:py-1 py-3 ${currentTab === index
+                      ? "text-primary-text fill-primary-text stroke-primary-text border-primary-text"
+                      : "text-gray fill-gray stroke-gray border-background"
                     }`}
                   onClick={() => clickChangeTab(index)}
                 >
@@ -470,15 +507,13 @@ export default function Profile() {
                 )}
               >
                 {/* Tab 0: Posts */}
-                <div className="pt-0.5 snap-start mx-auto md:space-y-4 space-y-1.5 md:pb-0 w-full">
-                  {postsUser?.map((post: any) => (
-                    <div key={post.id} className="sm:rounded shadow-y border-x my-2 md:my-4 p-4">
-                      <p>{post.content?.text}</p>
-                    </div>
-                  ))}
-                  {isEndUserPosts && (
-                    <p className="pb-4 text-center text-gray">Bạn đã xem hết bài viết</p>
-                  )}
+                <div className="pt-0.5 snap-start mx-auto md:pb-0 w-full">
+                  <PostList
+                    posts={postsUser}
+                    fetchPosts={fetchPostsUser}
+                    hasMore={hasMorePosts}
+                    cardStyle
+                  />
                 </div>
 
                 {/* Tab 1: Pictures */}
@@ -528,12 +563,8 @@ export default function Profile() {
 
                 {/* Tab 4: Posts reacted (owner only) */}
                 {isOwner && (
-                  <div className="pt-0.5 snap-start mx-auto md:space-y-4 space-y-1.5 md:pb-0 w-full">
-                    {postsUser?.map((post: any) => (
-                      <div key={post.id} className="sm:rounded shadow-y border-x my-2 md:my-4 p-4">
-                        <p>{post.content?.text}</p>
-                      </div>
-                    ))}
+                  <div className="pt-0.5 snap-start mx-auto md:pb-0 w-full">
+                    <PostList posts={postsUser} hasMore={false} cardStyle />
                   </div>
                 )}
               </div>

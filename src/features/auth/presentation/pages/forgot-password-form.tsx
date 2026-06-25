@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { ArrowLeftIcon, LoadingIcon } from "@/shared/components/atoms/icon/icon";
-import { OtpInputGroup } from "@/shared/components/molecules/otp-input-group/otp-input-group";
+import { OtpInputGroup } from "@/shared/components/molecules/otp-input-group";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
 import { regexEmail, regexPassword } from "@/shared/config/regex";
@@ -54,9 +54,8 @@ export default function ForgotPasswordForm() {
       const parentWidth = parent.offsetWidth;
       stepsWrapper.current.style.gridTemplateColumns = `repeat(3, ${parentWidth}px)`;
       stepsWrapper.current.style.height = `${el.offsetHeight + 4}px`;
-      stepsWrapper.current.style.transform = `translateX(-${
-        formContainer.current.offsetWidth * (currentStep - 1)
-      }px)`;
+      stepsWrapper.current.style.transform = `translateX(-${formContainer.current.offsetWidth * (currentStep - 1)
+        }px)`;
     });
 
     resizeObserver.observe(parent);
@@ -178,9 +177,8 @@ export default function ForgotPasswordForm() {
 
   const connectorClass = (threshold: number) =>
     `col-span-2 relative h-[1px] bg-gradient-to-r from-transparent from-50% to-muted to-50% bg-[length:20px_100%]
-     before:absolute before:left-0 before:h-full ${
-       currentStep >= threshold ? "before:w-full" : "before:w-0"
-} before:bg-gradient-to-r before:from-transparent before:from-50% before:to-pink-500 before:to-50% before:bg-[length:20px_100%]
+     before:absolute before:left-0 before:h-full ${currentStep >= threshold ? "before:w-full" : "before:w-0"
+    } before:bg-gradient-to-r before:from-transparent before:from-50% before:to-pink-500 before:to-50% before:bg-[length:20px_100%]
      before:transition-all before:duration-700 before:ease-out`;
 
   return (
@@ -219,9 +217,8 @@ export default function ForgotPasswordForm() {
         {/* â”€â”€ Sliding form container â”€â”€ */}
         <div
           ref={formContainer}
-          className={`md:py-8 py-4 overflow-hidden xl:basis-5/12 lg:basis-6/12 md:basis-7/12 basis-full border rounded-lg w-14 ${
-            currentStep === 3 ? "hidden" : ""
-          }`}
+          className={`md:py-8 py-4 overflow-hidden xl:basis-5/12 lg:basis-6/12 md:basis-7/12 basis-full border rounded-lg w-14 ${currentStep === 3 ? "hidden" : ""
+            }`}
         >
           <div
             ref={stepsWrapper}

@@ -4,7 +4,7 @@
 import { AtSign, UserRound } from "lucide-react";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { ChangePasswordModal } from "@/shared/components/organisms/change-password-modal/change-password-modal";
+import { ChangePasswordModal } from "@/shared/components/organisms/change-password-modal";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
 import { cn } from "@/shared/lib/utils";
