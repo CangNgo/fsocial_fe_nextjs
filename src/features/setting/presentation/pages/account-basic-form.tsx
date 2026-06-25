@@ -1,9 +1,8 @@
 // @ts-nocheck
 "use client";
 
-import { ChevronDown } from "lucide-react";
 import type React from "react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import {
@@ -13,18 +12,22 @@ import {
   updatePersonalInfo,
 } from "@/features/profile/api/update-profile-info-api";
 import { PencilChangeImageIcon } from "@/shared/components/atoms/icon/icon";
-import { JumpingSelect, TextBox } from "@/shared/components/atoms/jumping-input/jumping-input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
+import {
+  NativeSelect,
+  NativeSelectOption,
+} from "@/shared/components/ui/native-select";
+import { Textarea } from "@/shared/components/ui/textarea";
 import { dayOptions, monthOptions, yearOptions } from "@/shared/config/global-variables";
 import { cn } from "@/shared/lib/utils";
 import { ownerAccountStore } from "@/shared/stores/owner-account-store";
 import { getInitialsFromDisplayName } from "@/shared/utils/combine-name";
-import { getTextboxData } from "@/shared/utils/process-textbox-data";
 
 export interface ProfileInfo {
-  displayName: string;
+  firstName: string;
+  lastName: string;
   bio: string;
   gender: string;
   day: string;
@@ -33,7 +36,7 @@ export interface ProfileInfo {
   address: string;
 }
 
-const _GenderOptions: Record<string, string> = {
+const genderOptions: Record<string, string> = {
   "0": "Nam",
   "1": "Nữ",
   "2": "Khác",
@@ -43,19 +46,18 @@ const _GenderOptions: Record<string, string> = {
 export default function AccountBasicForm() {
   const { user, setUser } = ownerAccountStore();
   const [isEditing, setIsEditing] = useState(false);
-  const [bioHTML, setBioHTML] = useState("");
 
   const {
     register,
     handleSubmit,
     formState: { errors, dirtyFields },
     getValues,
-    setValue,
     reset,
   } = useForm<ProfileInfo>({
     mode: "onChange",
     defaultValues: {
-      displayName: "",
+      firstName: "",
+      lastName: "",
       bio: "",
       gender: "3",
       day: "1",
@@ -65,7 +67,6 @@ export default function AccountBasicForm() {
     },
   });
 
-  // Load data from store into form
   useEffect(() => {
     if (!user.userId) return;
     let day = "1",
@@ -84,36 +85,21 @@ export default function AccountBasicForm() {
 
     reset({
       ...getValues(),
-      displayName: user.displayName,
+      firstName: user.firstName || "",
+      lastName: user.lastName || "",
       bio: user.bio || "",
+      gender: user.gender || "3",
       day,
       month,
       year,
       address: user.address || "",
     });
-    setBioHTML(user.bio || "");
-    register("bio");
-  }, [user, reset, register, getValues]);
-
-  const bioRef = useRef<HTMLDivElement | null>(null);
-
-  useEffect(() => {
-    if (bioRef.current && bioHTML !== undefined) {
-      bioRef.current.innerHTML = bioHTML;
-    }
-  }, [bioHTML]);
-
-  const handleOnInput = () => {
-    if (!isEditing || !bioRef.current) return;
-    const innerHTML = getTextboxData(bioRef as React.RefObject<HTMLDivElement>).innerHTML || "";
-    setValue("bio", innerHTML, { shouldDirty: true });
-  };
+  }, [user, reset, getValues]);
 
   const handleSelectBanner = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     const previewURL = URL.createObjectURL(file);
-    // No ModalCropImage in this project — update directly
     setUser({ banner: previewURL });
     updateBanner(file).then((resp) => {
       if (resp) toast.success("Đã cập nhật ảnh bìa");
@@ -160,7 +146,6 @@ export default function AccountBasicForm() {
           dob: dobString,
           address: data.address,
         });
-        setBioHTML(data.bio);
       } else {
         toast.error("Cập nhật thông tin thất bại");
       }
@@ -171,7 +156,6 @@ export default function AccountBasicForm() {
 
   return (
     <div className="sm:mt-5 mt-2 mb-5">
-      {/* Banner */}
       <div className="mb-5 space-y-3">
         <p className="font-medium">Ảnh bìa</p>
         <div
@@ -181,7 +165,6 @@ export default function AccountBasicForm() {
           )}
         >
           {user.banner ? (
-            // eslint-disable-next-line @next/next/no-img-element
             <img src={user.banner} className="size-full" alt="" />
           ) : (
             <div className="size-full grid place-content-center">
@@ -209,7 +192,6 @@ export default function AccountBasicForm() {
         </div>
       </div>
 
-      {/* Avatar */}
       <div className="mb-5 space-y-3">
         <p className="font-medium">Ảnh đại diện</p>
         <div className="relative bg-background border-4 rounded-full p-1 w-fit transition">
@@ -240,19 +222,16 @@ export default function AccountBasicForm() {
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-        {/* Bio */}
-        <TextBox
-          label="Tiểu sử"
-          texboxRef={bioRef as React.RefObject<HTMLDivElement>}
-          onInput={handleOnInput}
-          placeholder="Viết gì đó giới thiệu về bản thân"
-          innerHTML={bioHTML}
-          contentEditable={isEditing}
-          className={cn("custom-input min-h-[70px]", !isEditing && "opacity-65 cursor-not-allowed")}
-          parentClassName={dirtyFields.bio ? "border-bottom-faded" : undefined}
-        />
+        <div className={dirtyFields.bio ? "border-bottom-faded" : undefined}>
+          <span className="block mb-2 font-medium">Tiểu sử</span>
+          <Textarea
+            placeholder="Viết gì đó giới thiệu về bản thân"
+            disabled={!isEditing}
+            className={cn("custom-input min-h-[70px] resize-none", !isEditing && "opacity-65")}
+            {...register("bio")}
+          />
+        </div>
 
-        {/* Name */}
         <div className="grid grid-cols-2 gap-4">
           <label
             htmlFor="firstName"
@@ -310,7 +289,6 @@ export default function AccountBasicForm() {
           </label>
         </div>
 
-        {/* Gender */}
         <label
           htmlFor="gender"
           className={cn(
@@ -320,71 +298,56 @@ export default function AccountBasicForm() {
           )}
         >
           <span className="block mb-2 font-medium">Giới tính</span>
-          <div className="relative">
-            <Input
-              id="gender"
-              type="text"
-              placeholder={undefined}
-              className={cn(
-                "custom-input",
-                errors?.gender && "custom-input-error",
-                !isEditing && "pointer-events-none",
-              )}
-              tabIndex={!isEditing ? -1 : 0}
-              {...register("gender")}
-            />
-            <div
-              className={cn(
-                "absolute top-1/2 right-0 -translate-x-1/2 -translate-y-1/2",
-                errors?.gender ? "text-red-500" : "text-muted-foreground",
-              )}
-            >
-              <ChevronDown />
-            </div>
-          </div>
+          <NativeSelect
+            id="gender"
+            disabled={!isEditing}
+            className={cn("custom-input w-full", errors?.gender && "custom-input-error")}
+            {...register("gender")}
+          >
+            {Object.entries(genderOptions).map(([key, value]) => (
+              <NativeSelectOption key={key} value={key}>
+                {value}
+              </NativeSelectOption>
+            ))}
+          </NativeSelect>
           {errors?.gender && (
             <p className="text-red-500 text-sm mt-1">{String(errors.gender?.message ?? "")}</p>
           )}
         </label>
 
-        {/* Date of birth */}
         <div>
           <p className="mb-4 font-medium">Ngày sinh</p>
           <div className="grid grid-cols-3 gap-4">
-            <JumpingSelect
-              label="Ngày"
-              name="day"
-              register={register as never}
-              errors={errors as never}
-              options={dayOptions}
-              icon={<ChevronDown />}
-              disabled={!isEditing}
-              className={dirtyFields.day ? "border-bottom-faded" : undefined}
-            />
-            <JumpingSelect
-              label="Tháng"
-              name="month"
-              register={register as never}
-              errors={errors as never}
-              options={monthOptions}
-              icon={<ChevronDown />}
-              disabled={!isEditing}
-              className={dirtyFields.month ? "border-bottom-faded" : undefined}
-            />
-            <JumpingSelect
-              label="Năm"
-              name="year"
-              register={register as never}
-              errors={errors as never}
-              options={yearOptions}
-              icon={<ChevronDown />}
-              disabled={!isEditing}
-              className={dirtyFields.year ? "border-bottom-faded" : undefined}
-            />
+            {[
+              { name: "day", label: "Ngày", options: dayOptions, dirty: dirtyFields.day },
+              { name: "month", label: "Tháng", options: monthOptions, dirty: dirtyFields.month },
+              { name: "year", label: "Năm", options: yearOptions, dirty: dirtyFields.year },
+            ].map((item) => (
+              <label
+                key={item.name}
+                className={cn(
+                  "block",
+                  !isEditing && "pointer-events-none opacity-65",
+                  item.dirty ? "border-bottom-faded" : undefined,
+                )}
+              >
+                <span className="block mb-2 font-medium">{item.label}</span>
+                <NativeSelect
+                  disabled={!isEditing}
+                  className="custom-input w-full"
+                  {...register(item.name as "day" | "month" | "year")}
+                >
+                  {Object.entries(item.options).map(([key, value]) => (
+                    <NativeSelectOption key={key} value={key}>
+                      {String(value)}
+                    </NativeSelectOption>
+                  ))}
+                </NativeSelect>
+              </label>
+            ))}
           </div>
         </div>
 
-        {/* Address */}
         <div>
           <p className="mb-4 font-medium">Địa chỉ</p>
           <div className="grid grid-cols-1 gap-4">
@@ -408,16 +371,8 @@ export default function AccountBasicForm() {
                     !isEditing && "pointer-events-none",
                   )}
                   tabIndex={!isEditing ? -1 : 0}
-                  {...register("address", {})}
+                  {...register("address")}
                 />
-                <div
-                  className={cn(
-                    "absolute top-1/2 right-0 -translate-x-1/2 -translate-y-1/2",
-                    errors?.address ? "text-red-500" : "text-muted-foreground",
-                  )}
-                >
-                  <ChevronDown />
-                </div>
               </div>
               {errors?.address && (
                 <p className="text-red-500 text-sm mt-1">{String(errors.address?.message ?? "")}</p>
@@ -426,7 +381,6 @@ export default function AccountBasicForm() {
           </div>
         </div>
 
-        {/* Controls */}
         {!isEditing ? (
           <Button
             type="button"

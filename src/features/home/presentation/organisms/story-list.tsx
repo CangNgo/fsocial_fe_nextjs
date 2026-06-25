@@ -13,5 +13,4 @@ const StoryList = ({ createPost }: StoryListProps) => {
   );
 };
 
-
 export default StoryList;

@@ -3,9 +3,9 @@ import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { getPost, updatePost } from "@/shared/api/posts/posts-api";
 import { LoadingIcon } from "@/shared/components/atoms/icon/icon";
-import { TextBox } from "@/shared/components/atoms/jumping-input/jumping-input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar";
 import { Button } from "@/shared/components/ui/button";
+import { Textarea } from "@/shared/components/ui/textarea";
 import { ownerAccountStore } from "@/shared/stores/owner-account-store";
 import { usePopupStore } from "@/shared/stores/popup-store";
 import { getInitialsFromDisplayName } from "@/shared/utils/combine-name";
@@ -19,8 +19,9 @@ interface EditPostModalProps {
 export function EditPostModal({ id, store }: EditPostModalProps) {
   const { hidePopup } = usePopupStore();
   const user = ownerAccountStore.getState().user;
-  const textbox = useRef<HTMLDivElement>(null);
+  const textbox = useRef<HTMLTextAreaElement>(null);
   const [post, setPost] = useState<Record<string, unknown> | null>(null);
+  const [content, setContent] = useState("");
   const [submitClicked, setSubmitClicked] = useState(false);
 
   useEffect(() => {
@@ -28,20 +29,25 @@ export function EditPostModal({ id, store }: EditPostModalProps) {
     const found = s?.getState?.()?.findPost?.(id);
     if (found) {
       setPost(found as Record<string, unknown>);
+      setContent(((found as Record<string, unknown>).text as string) ?? "");
     } else {
       getPost(user?.userId ?? "", id).then((resp: unknown) => {
-        const r = resp as { statusCode?: number; data?: unknown };
-        if (r?.statusCode === 200) setPost(r.data as Record<string, unknown>);
+        const r = resp as { statusCode?: number; data?: Record<string, unknown> };
+        if (r?.statusCode === 200) {
+          setPost(r.data ?? null);
+          setContent((r.data?.text as string) ?? "");
+        }
       });
     }
   }, [user?.userId, store, id]);
 
   const handleUpdate = async () => {
-    if (!textbox.current) return;
+    if (!content.trim()) return;
+
     setSubmitClicked(true);
     const formData = new FormData();
-    formData.append("text", textbox.current.innerText);
-    formData.append("HTMLText", textbox.current.innerHTML);
+    formData.append("text", content);
+    formData.append("HTMLText", content);
     formData.append("postId", id);
     const resp = (await updatePost(formData)) as { statusCode?: number; data?: unknown } | null;
     setSubmitClicked(false);
@@ -72,13 +78,16 @@ export function EditPostModal({ id, store }: EditPostModalProps) {
             </div>
           </div>
 
-          <TextBox
-            texboxRef={textbox}
-            placeholder="Hãy nghĩ gì đó..."
-            className="min-h-[100px] px-4 py-2"
-            innerHTML={(post.HTMLText as string) ?? (post.text as string) ?? ""}
-            autoFocus
-          />
+          <div className="px-4">
+            <Textarea
+              ref={textbox}
+              placeholder="Hãy nghĩ gì đó..."
+              className="min-h-[100px] py-2"
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              autoFocus
+            />
+          </div>
         </div>
       )}
       <div className="sticky bottom-0 p-3 bg-background border-t flex gap-3">

@@ -3,25 +3,27 @@ import { jwtDecode } from "jwt-decode";
 import dynamic from "next/dynamic";
 import { useEffect, useRef, useState } from "react";
 import { getOwnerProfile } from "@/features/profile/api/profile-api";
-import { ExpiredDialog } from "@/shared/components/organisms/expired-dialog/expired-dialog";
-import { GlobalPopup } from "@/shared/components/organisms/global-popup/global-popup";
-import { Header } from "@/shared/components/organisms/header/header";
-import { Sidebar } from "@/shared/components/organisms/sidebar/sidebar";
-import { useMessageStore } from "@/shared/stores/message-store";
-import { useNotificationStore } from "@/shared/stores/notification-store";
+import { ExpiredDialog } from "@/shared/components/organisms/expired-dialog";
+import { GlobalPopup } from "@/shared/components/organisms/global-popup";
+import { Header } from "@/shared/components/organisms/header";
+import { Sidebar } from "@/shared/components/organisms/sidebar";
+// Tạm comment kết nối websocket
+// import { useMessageStore } from "@/shared/stores/message-store";
+// import { useNotificationStore } from "@/shared/stores/notification-store";
 import { ownerAccountStore } from "@/shared/stores/owner-account-store";
 import { validRefreshTokenStore } from "@/shared/stores/valid-refresh-token-store";
 import { getCookie } from "@/shared/utils/cookie";
 
 const NotificationPanel = dynamic(
-  () => import("@/shared/components/organisms/notification-panel/notification-panel"),
+  () => import("@/shared/components/organisms/notification-panel"),
   { ssr: false },
 );
 
 export default function UserLayout({ children }: { children: React.ReactNode }) {
   const { setUser } = ownerAccountStore();
-  const { connectNotificationWebSocket } = useNotificationStore();
-  const { connectMessageWebSocket } = useMessageStore();
+  // Tạm comment kết nối websocket
+  // const { connectNotificationWebSocket } = useNotificationStore();
+  // const { connectMessageWebSocket } = useMessageStore();
   const { refreshToken } = validRefreshTokenStore();
   const initialized = useRef(false);
 
@@ -55,15 +57,14 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
 
     if (!initialized.current) {
       initialized.current = true;
-      connectNotificationWebSocket(userId);
-      connectMessageWebSocket(userId);
+      // Tạm comment kết nối websocket
+      // connectNotificationWebSocket(userId);
+      // connectMessageWebSocket(userId);
     }
   }, [
     // Set userId immediately so HomeFeature/other pages can start fetching
     // without waiting for the full profile response.
     setUser,
-    connectNotificationWebSocket,
-    connectMessageWebSocket,
   ]);
 
   return (

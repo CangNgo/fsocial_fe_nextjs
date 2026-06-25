@@ -1,15 +1,18 @@
 // @ts-nocheck
 "use client";
 
-import { AtSign, ChevronDown, Eye, EyeOff, UserRoundIcon } from "lucide-react";
+import { AtSign, Eye, EyeOff, UserRoundIcon } from "lucide-react";
 import type React from "react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { LogoNoBG } from "@/shared/components/atoms/icon/icon";
-import { JumpingSelect } from "@/shared/components/atoms/jumping-input/jumping-input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
+import {
+  NativeSelect,
+  NativeSelectOption,
+} from "@/shared/components/ui/native-select";
 import { dayOptions, monthOptions, yearOptions } from "@/shared/config/global-variables";
 import { regexEmail, regexName, regexPassword } from "@/shared/config/regex";
 import { cn } from "@/shared/lib/utils";
@@ -60,19 +63,7 @@ export default function AdminProfileEditor() {
       email: user.email,
       avatar: user.avatar,
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    user.year,
-    user.username,
-    user.gender,
-    user.month,
-    user.firstName,
-    user.avatar,
-    user.lastName,
-    user.email,
-    user.day,
-    reset,
-  ]);
+  }, [user, reset]);
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -114,7 +105,6 @@ export default function AdminProfileEditor() {
         fill="fill-gray-3light"
       />
 
-      {/* Header greeting */}
       <h5>
         {hours < 12 && "Chào buổi sáng"}
         {hours >= 12 && hours <= 18 && "Chào buổi chiều"}
@@ -128,9 +118,7 @@ export default function AdminProfileEditor() {
         Cập nhật thông tin của bạn tại đây. Không chia sẻ thông tin để tránh rủi ro phát sinh.
       </p>
 
-      {/* Form */}
       <div className="max-w-[1080px] mx-auto grid grid-cols-2 gap-10 mt-12">
-        {/* Personal info */}
         <div className="space-y-5">
           <p className="font-medium">Thông tin cá nhân</p>
 
@@ -163,9 +151,7 @@ export default function AdminProfileEditor() {
                 </span>
               </div>
               {errors.firstName && (
-                <p className="text-red-500 text-sm mt-1">
-                  {String(errors.firstName?.message ?? "")}
-                </p>
+                <p className="text-red-500 text-sm mt-1">{String(errors.firstName?.message ?? "")}</p>
               )}
             </div>
             <div>
@@ -196,60 +182,50 @@ export default function AdminProfileEditor() {
                 </span>
               </div>
               {errors.lastName && (
-                <p className="text-red-500 text-sm mt-1">
-                  {String(errors.lastName?.message ?? "")}
-                </p>
+                <p className="text-red-500 text-sm mt-1">{String(errors.lastName?.message ?? "")}</p>
               )}
             </div>
           </div>
 
           <div className="grid grid-cols-3 gap-2">
-            <JumpingSelect
-              label="Ngày"
-              name="day"
-              register={register as never}
-              errors={errors as never}
-              options={dayOptions}
-              disabled={true}
-              icon={<ChevronDown />}
-            />
-            <JumpingSelect
-              label="Tháng"
-              name="month"
-              register={register as never}
-              errors={errors as never}
-              options={monthOptions}
-              disabled={true}
-              icon={<ChevronDown />}
-            />
-            <JumpingSelect
-              label="Năm"
-              name="year"
-              register={register as never}
-              errors={errors as never}
-              options={yearOptions}
-              disabled={true}
-              icon={<ChevronDown />}
-            />
+            {[
+              { name: "day", label: "Ngày", options: dayOptions },
+              { name: "month", label: "Tháng", options: monthOptions },
+              { name: "year", label: "Năm", options: yearOptions },
+            ].map((item) => (
+              <label key={item.name} className="block opacity-65">
+                <span className="block mb-2 font-medium">{item.label}</span>
+                <NativeSelect
+                  disabled
+                  className="custom-input w-full"
+                  {...register(item.name as "day" | "month" | "year")}
+                >
+                  {Object.entries(item.options).map(([key, value]) => (
+                    <NativeSelectOption key={key} value={key}>
+                      {String(value)}
+                    </NativeSelectOption>
+                  ))}
+                </NativeSelect>
+              </label>
+            ))}
           </div>
 
-          <JumpingSelect
-            label="Giới tính"
-            name="gender"
-            register={register as never}
-            errors={errors as never}
-            options={genderOptions}
-            icon={<ChevronDown />}
-          />
+          <label className="block">
+            <span className="block mb-2 font-medium">Giới tính</span>
+            <NativeSelect className="custom-input w-full" {...register("gender")}>
+              {Object.entries(genderOptions).map(([key, value]) => (
+                <NativeSelectOption key={key} value={key}>
+                  {value}
+                </NativeSelectOption>
+              ))}
+            </NativeSelect>
+          </label>
 
-          {/* Avatar */}
           <div className="p-6 flex items-center gap-6">
             <div className="ring-4 ring-offset-4 rounded-full ring-gray-2light">
               <Avatar className="size-32">
                 <AvatarImage src={avatarURL} />
-                <AvatarFallback>
-                  {combineIntoAvatarName(user.firstName, user.lastName)}
-                </AvatarFallback>
+                <AvatarFallback>{combineIntoAvatarName(user.firstName, user.lastName)}</AvatarFallback>
               </Avatar>
             </div>
 
@@ -269,7 +245,6 @@ export default function AdminProfileEditor() {
         </div>
 
         <div className="space-y-8">
-          {/* Login info */}
           <div className="space-y-5">
             <p className="font-medium">Thông tin đăng nhập</p>
             <div>
@@ -304,9 +279,7 @@ export default function AdminProfileEditor() {
                 </div>
               </div>
               {errors.username && (
-                <p className="text-red-500 text-sm mt-1">
-                  {String(errors.username?.message ?? "")}
-                </p>
+                <p className="text-red-500 text-sm mt-1">{String(errors.username?.message ?? "")}</p>
               )}
             </div>
             <div>
@@ -350,7 +323,6 @@ export default function AdminProfileEditor() {
             </div>
           </div>
 
-          {/* Change password */}
           <div className="space-y-5">
             <p className="font-medium">Đổi mật khẩu</p>
             <div>
@@ -381,23 +353,13 @@ export default function AdminProfileEditor() {
                     errors.oldPassword ? "text-red-500" : "text-muted-foreground",
                   )}
                 >
-                  <Button
-                    type="button"
-                    className="cursor-pointer"
-                    onClick={toggleOldPasswordVisibility}
-                  >
-                    {!isShowOldPassword ? (
-                      <Eye className="size-5" />
-                    ) : (
-                      <EyeOff className="size-5" />
-                    )}
+                  <Button type="button" className="cursor-pointer" onClick={toggleOldPasswordVisibility}>
+                    {!isShowOldPassword ? <Eye className="size-5" /> : <EyeOff className="size-5" />}
                   </Button>
                 </div>
               </div>
               {errors.oldPassword && (
-                <p className="text-red-500 text-sm mt-1">
-                  {String(errors.oldPassword?.message ?? "")}
-                </p>
+                <p className="text-red-500 text-sm mt-1">{String(errors.oldPassword?.message ?? "")}</p>
               )}
             </div>
 
@@ -409,7 +371,7 @@ export default function AdminProfileEditor() {
                   className={cn("peer custom-input", errors.newPassword && "custom-input-error")}
                   tabIndex={0}
                   {...register("newPassword", {
-                    required: "Mật khẩu không được để trống",
+                    required: "Mật khẩu mới không được để trống",
                     pattern: {
                       value: regexPassword,
                       message: "Mật khẩu từ 8-20 kí tự, bao gồm cả chữ và số",
@@ -433,23 +395,13 @@ export default function AdminProfileEditor() {
                     errors.newPassword ? "text-red-500" : "text-muted-foreground",
                   )}
                 >
-                  <Button
-                    type="button"
-                    className="cursor-pointer"
-                    onClick={toggleNewPasswordVisibility}
-                  >
-                    {!isShowNewPassword ? (
-                      <Eye className="size-5" />
-                    ) : (
-                      <EyeOff className="size-5" />
-                    )}
+                  <Button type="button" className="cursor-pointer" onClick={toggleNewPasswordVisibility}>
+                    {!isShowNewPassword ? <Eye className="size-5" /> : <EyeOff className="size-5" />}
                   </Button>
                 </div>
               </div>
               {errors.newPassword && (
-                <p className="text-red-500 text-sm mt-1">
-                  {String(errors.newPassword?.message ?? "")}
-                </p>
+                <p className="text-red-500 text-sm mt-1">{String(errors.newPassword?.message ?? "")}</p>
               )}
             </div>
 
@@ -461,13 +413,8 @@ export default function AdminProfileEditor() {
                   className={cn("peer custom-input", errors.reNewPassword && "custom-input-error")}
                   tabIndex={0}
                   {...register("reNewPassword", {
-                    required: "Mật khẩu không được để trống",
-                    pattern: {
-                      value: regexPassword,
-                      message: "Mật khẩu từ 8-20 kí tự, bao gồm cả chữ và số",
-                    },
-                    validate: (value: string) =>
-                      value === newPassword || "Mật khẩu nhập lại không khớp với mật khẩu mới",
+                    required: "Mật khẩu nhập lại không được để trống",
+                    validate: (value) => value === newPassword || "Mật khẩu nhập lại không khớp",
                   })}
                 />
                 <span
@@ -479,7 +426,7 @@ export default function AdminProfileEditor() {
                       : "peer-hover:text-foreground peer-focus:text-foreground",
                   )}
                 >
-                  Nhập lại mật khẩu mới
+                  Nhập lại mật khẩu
                 </span>
                 <div
                   className={cn(
@@ -492,28 +439,20 @@ export default function AdminProfileEditor() {
                     className="cursor-pointer"
                     onClick={toggleReNewPasswordVisibility}
                   >
-                    {!isShowReNewPassword ? (
-                      <Eye className="size-5" />
-                    ) : (
-                      <EyeOff className="size-5" />
-                    )}
+                    {!isShowReNewPassword ? <Eye className="size-5" /> : <EyeOff className="size-5" />}
                   </Button>
                 </div>
               </div>
               {errors.reNewPassword && (
-                <p className="text-red-500 text-sm mt-1">
-                  {String(errors.reNewPassword?.message ?? "")}
-                </p>
+                <p className="text-red-500 text-sm mt-1">{String(errors.reNewPassword?.message ?? "")}</p>
               )}
             </div>
           </div>
-        </div>
-      </div>
 
-      <div className="mt-6 flex justify-center">
-        <Button type="button" onClick={handleUpdateProfile} className="btn-primary px-8 py-3 w-fit">
-          Cập nhật thay đổi
-        </Button>
+          <Button type="button" className="btn-primary w-full py-3" onClick={handleUpdateProfile}>
+            Cập nhật thông tin
+          </Button>
+        </div>
       </div>
     </div>
   );

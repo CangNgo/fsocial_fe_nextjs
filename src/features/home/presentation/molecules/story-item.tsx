@@ -1,9 +1,8 @@
-import { Image } from "@/shared/components/atoms/image";
-import { Card } from "@/shared/components/ui/card";
-import { User, ownerAccountStore } from "@/shared/stores/owner-account-store";
 import { PlusIcon } from "lucide-react";
 import React from "react";
-
+import { Image } from "@/shared/components/atoms/image";
+import { Card } from "@/shared/components/ui/card";
+import { ownerAccountStore, type User } from "@/shared/stores/owner-account-store";
 
 interface IStoryItemProps {
   action: () => void;
@@ -17,7 +16,13 @@ const StoryItem = ({ action }: IStoryItemProps) => {
       onClick={action}
     >
       <div className="relative w-full flex-1 h-2/3">
-        <Image className="object-cover" src={user?.avatar} alt="user" fill />
+        <Image
+          className="object-cover"
+          src={user?.avatar}
+          alt="user"
+          fill
+          sizes="(max-width: 768px) 33vw, 16vw"
+        />
         <div className="absolute bottom-[-16px] left-[calc(50%-16px)] p-1 bg-blue-500/90 rounded-full border-2 border-white">
           <PlusIcon className="w-5 h-5 text-white" />
         </div>

@@ -3,12 +3,11 @@ import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { getPost, repostPost } from "@/shared/api/posts/posts-api";
 import { LoadingIcon } from "@/shared/components/atoms/icon/icon";
-import { TextBox } from "@/shared/components/atoms/jumping-input/jumping-input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar";
 import { Button } from "@/shared/components/ui/button";
+import { Textarea } from "@/shared/components/ui/textarea";
 import { ownerAccountStore } from "@/shared/stores/owner-account-store";
 import { usePopupStore } from "@/shared/stores/popup-store";
-import { getTextboxData } from "@/shared/utils/process-textbox-data";
 
 interface ModalRepostProps {
   id: string;
@@ -18,9 +17,10 @@ interface ModalRepostProps {
 export function ModalRepost({ id, store }: ModalRepostProps) {
   const user = ownerAccountStore.getState().user;
   const { hidePopup } = usePopupStore();
-  const textbox = useRef<HTMLDivElement>(null);
+  const textbox = useRef<HTMLTextAreaElement>(null);
   const [submitClicked, setSubmitClicked] = useState(false);
   const [post, setPost] = useState<Record<string, unknown> | null>(null);
+  const [content, setContent] = useState("");
 
   useEffect(() => {
     const s = store as { getState?: () => { findPost?: (id: string) => unknown } } | undefined;
@@ -36,12 +36,11 @@ export function ModalRepost({ id, store }: ModalRepostProps) {
   }, [user?.userId, store, id]);
 
   const handleRepost = async () => {
-    const { innerText, innerHTML } = getTextboxData(textbox as React.RefObject<HTMLElement>);
     setSubmitClicked(true);
     const formData = new FormData();
     formData.append("userId", user?.userId ?? "");
-    formData.append("text", innerText ?? "");
-    formData.append("HTMLText", innerHTML ?? "");
+    formData.append("text", content);
+    formData.append("HTMLText", content);
     formData.append("originPostId", id);
     const resp = (await repostPost(formData)) as { statusCode?: number } | null;
     setSubmitClicked(false);
@@ -64,11 +63,12 @@ export function ModalRepost({ id, store }: ModalRepostProps) {
           <span className="font-semibold">{user.displayName}</span>
         </div>
 
-        <TextBox
-          texboxRef={textbox}
+        <Textarea
+          ref={textbox}
           placeholder="Hãy viết gì đó..."
-          className="min-h-[80px] py-2"
-          innerHTML=""
+          className="min-h-[80px] py-2 resize-none"
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
           autoFocus
         />
 
