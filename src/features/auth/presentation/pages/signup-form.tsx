@@ -124,7 +124,7 @@ export default function SignupForm() {
 
     const data = getValuesStep2();
     setCheckDuplicateClicked(true);
-    const duplicateResp = (await checkDuplicate(data.username, data.email)) as ApiResponse | null;
+    const duplicateResp = (await checkDuplicate(data.username)) as ApiResponse | null;
     setCheckDuplicateClicked(false);
 
     if (!duplicateResp || duplicateResp.statusCode !== 200) {
