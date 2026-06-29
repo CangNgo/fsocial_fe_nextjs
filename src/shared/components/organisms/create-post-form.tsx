@@ -292,7 +292,7 @@ export default function CreatePostForm({ onPostCreated }: CreatePostFormProps) {
             </div>
           </CarouselItem>
 
-          {/* {filePreviews.length > 0 && (
+          {filePreviews.length > 0 && (
             <CarouselItem>
               <div className="relative flex h-[100dvh] flex-col pt-11 sm:h-full sm:max-h-[90dvh]">
                 <div className="flex-grow overflow-y-auto scrollable-div space-y-2">
@@ -336,7 +336,7 @@ export default function CreatePostForm({ onPostCreated }: CreatePostFormProps) {
                 </div>
               </div>
             </CarouselItem>
-          )} */}
+          )}
         </CarouselContent>
       </Carousel>
     </div>

@@ -22,6 +22,8 @@ import { ownerAccountStore } from "@/shared/stores/owner-account-store";
 import { usePopupStore } from "@/shared/stores/popup-store";
 import { getInitialsFromDisplayName } from "@/shared/utils/combine-name";
 import { timeAgo } from "@/shared/utils/convert-date-time";
+import MediaLayout from "@/shared/components/molecules/media-layout";
+import { PhotoGrid } from "../organisms/photo-cell";
 
 // Dynamically import heavy modals to keep the initial bundle light
 const CommentModal = dynamic(
@@ -77,7 +79,7 @@ function PostCardComponent({
   const [popoverOpen, setPopoverOpen] = useState(false);
   const user = ownerAccountStore.getState().user;
 
-  const updatePost = store ? store((state: any) => state.updatePost) : () => {};
+  const updatePost = store ? store((state: any) => state.updatePost) : () => { };
   const medias = useMemo(() => processMedias(post), [post]);
 
   const likes: number = post.countLikes;
@@ -215,6 +217,16 @@ function PostCardComponent({
           isShared={isShared}
           PostCardComponent={PostCard}
         />
+        <MediaLayout medias={post.content?.media} />
+        <div className="max-w-lg mx-auto p-4">
+          <PhotoGrid
+            media={post}
+            onImageClick={() => {
+              if (!post.originPostId) showCommentPopup();
+            }}
+            maxWidth={500}
+          />
+        </div>
       </div>
 
       {/* Reactions */}

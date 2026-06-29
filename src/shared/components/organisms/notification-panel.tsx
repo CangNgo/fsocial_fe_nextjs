@@ -130,9 +130,8 @@ const Noti = ({ notification }: NotiProps) => {
       </Button>
 
       <div
-        className={`flex absolute top-0 h-full left-full bg-secondary ${
-          idNotiShowing === notification.id && "-translate-x-full"
-        } transition`}
+        className={`flex absolute top-0 h-full left-full bg-secondary ${idNotiShowing === notification.id && "-translate-x-full"
+          } transition`}
       >
         <Button
           type="button"
@@ -187,23 +186,23 @@ export default function NotificationPanel() {
   const { isVisible, setIsVisible } = popupNotificationtStore();
 
   const handleGetNotification = async () => {
-    if (!user?.userId) return;
-    const resp = (await getNotificationWithPagination({
-      userId: user.userId,
-      channelId: "INBOX",
-      page: 0,
-      limit: 10,
-    })) as any;
-    if (!resp || resp.statusCode !== 200) return;
-    const data = resp.data;
-    setUnreadCount(resp.data.unreadCount ?? 0);
-    const processData = (Array.isArray(data) ? data : []).map((noti: any) => {
-      const { textTime, labelType } = dateTimeToNotiTime(noti.createdAt);
-      return { ...noti, textTime, labelType };
-    });
-    setNotifications(processData);
-    setPage(0);
-    setHasMore(processData.length === 10);
+    // if (!user?.userId) return;
+    // const resp = (await getNotificationWithPagination({
+    //   userId: user.userId,
+    //   channelId: "INBOX",
+    //   page: 0,
+    //   limit: 10,
+    // })) as any;
+    // if (!resp || resp.statusCode !== 200) return;
+    // const data = resp.data;
+    // setUnreadCount(resp.data.unreadCount ?? 0);
+    // const processData = (Array.isArray(data) ? data : []).map((noti: any) => {
+    //   const { textTime, labelType } = dateTimeToNotiTime(noti.createdAt);
+    //   return { ...noti, textTime, labelType };
+    // });
+    // setNotifications(processData);
+    // setPage(0);
+    // setHasMore(processData.length === 10);
   };
 
   const handleLoadMoreNotifications = async () => {
@@ -279,13 +278,12 @@ export default function NotificationPanel() {
     <div
       className={`
         z-0 bg-black h-screen overflow-hidden flex-shrink-0
-        lg:border-l-[1px] lg:block ${
-          !isNotificationSlide
-            ? `
+        lg:border-l-[1px] lg:block ${!isNotificationSlide
+          ? `
           lg:relative lg:left-auto lg:min-w-fit lg:max-w-fit lg:visible
           md:left-[260px] md:w-[calc(100%-260px)]
           sm:left-[210px] sm:w-[calc(100%-210px)]`
-            : `
+          : `
           lg:left-[260px] lg:w-[calc(100%-260px)]
           sm:left-[76px] sm:w-[calc(100%-76px)]
           `
@@ -307,17 +305,15 @@ export default function NotificationPanel() {
           md:w-[360px]
           sm:w-[340px] sm:pb-0
           w-full pb-14
-          ${
-            isVisible
-              ? "drop-shadow-[1px_0px_1px_var(--drop-shadow)]"
-              : "sm:-translate-x-full sm:translate-y-0 translate-y-full"
+          ${isVisible
+            ? "drop-shadow-[1px_0px_1px_var(--drop-shadow)]"
+            : "sm:-translate-x-full sm:translate-y-0 translate-y-full"
           }
           transition`}
       >
         <CloseCollapseIcon
-          className={`absolute left-full top-1/2 -translate-x-[1px] -translate-y-1/2 cursor-pointer  ${
-            !isNotificationSlide ? "lg:hidden" : ""
-          } sm:block hidden
+          className={`absolute left-full top-1/2 -translate-x-[1px] -translate-y-1/2 cursor-pointer  ${!isNotificationSlide ? "lg:hidden" : ""
+            } sm:block hidden
             ${isVisible ? "" : "-translate-x-full"}
             will-change-transform`}
         />
@@ -345,9 +341,8 @@ export default function NotificationPanel() {
 
           <div
             ref={scrollContainerRef}
-            className={`flex-grow overflow-y-auto sm:pe-4 ${
-              !isNotificationSlide ? "" : "scrollable-div"
-            }`}
+            className={`flex-grow overflow-y-auto sm:pe-4 ${!isNotificationSlide ? "" : "scrollable-div"
+              }`}
           >
             {notifications?.length === 0 && <p className="p-4">Bạn chưa có thông báo nào</p>}
 

@@ -11,44 +11,19 @@ import { usePopupStore } from "@/shared/stores/popup-store";
 import { getCookie } from "@/shared/utils/cookie";
 import { useTimelineStore } from "../../store/timeline-store";
 import StoryList from "../organisms/story-list";
+import { PostsResponse, selectTimelineState, TimelinePost } from "../../types/post";
 
-interface TimelinePost {
-  id?: string;
-  displayName?: string;
-  avatar?: string | null;
-  [key: string]: unknown;
-}
-
-interface PostsResponse {
-  statusCode?: number;
-  data?: TimelinePost[];
-}
-
-const selectTimelineState = (state: ReturnType<typeof useTimelineStore.getState>) => ({
-  posts: state.posts,
-  hasMore: state.hasMore,
-  page: state.page,
-  isFetching: state.isFetching,
-  prependPost: state.prependPost,
-  appendPosts: state.appendPosts,
-  setHasMore: state.setHasMore,
-  setIsFetching: state.setIsFetching,
-  incrementPage: state.incrementPage,
-  reset: state.reset,
+const normalizePost = (post: TimelinePost): TimelinePost => ({
+  ...post,
+  content: {
+    ...post.content,
+    htmltext: post.content?.htmltext ?? post.content?.html,
+  },
 });
 
 const getUniquePosts = (existingPosts: TimelinePost[] | null, incomingPosts: TimelinePost[]) => {
   const existingIds = new Set(existingPosts?.map((post) => post.id).filter(Boolean) ?? []);
   return incomingPosts.filter((post) => !post.id || !existingIds.has(post.id));
-};
-
-const getUserIdFromToken = (token: string) => {
-  try {
-    const { sub } = jwtDecode<{ sub: string }>(token);
-    return sub ?? null;
-  } catch {
-    return null;
-  }
 };
 
 const isPostsResponse = (response: unknown): response is PostsResponse => {
@@ -71,6 +46,7 @@ export default function Timeline() {
     reset,
   } = useTimelineStore(useShallow(selectTimelineState));
   const [resolvedUserId, setResolvedUserId] = useState<string | null>(null);
+  const userId = ownerAccountStore.getState().user?.userId;
 
   useEffect(() => {
     if (user?.userId) {
@@ -81,9 +57,8 @@ export default function Timeline() {
     const token = getCookie("access-token");
     if (!token) return;
 
-    const tokenUserId = getUserIdFromToken(token);
-    if (tokenUserId) {
-      setResolvedUserId(tokenUserId);
+    if (userId) {
+      setResolvedUserId(userId);
     }
   }, [user?.userId]);
 
@@ -92,91 +67,53 @@ export default function Timeline() {
   }, [resolvedUserId, reset]);
 
   const fetchPosts = useCallback(async () => {
-    if (isFetching || !hasMore || !resolvedUserId) return;
+    const { isFetching: fetching, hasMore: more, page: currentPage, posts: currentPosts } =
+      useTimelineStore.getState();
+
+    if (fetching || !more || !resolvedUserId) return;
 
     setIsFetching(true);
-    const response = await getPosts(resolvedUserId, page);
+    const response = await getPosts(resolvedUserId, currentPage);
     setIsFetching(false);
 
     if (!isPostsResponse(response) || response.statusCode !== 200) {
+      setHasMore(false);
       return;
     }
 
-    const newPosts = Array.isArray(response.data) ? response.data : [];
+    const newPosts = Array.isArray(response.data) ? response.data.map(normalizePost) : [];
 
     if (newPosts.length === 0) {
       setHasMore(false);
       return;
     }
 
-    const uniquePosts = getUniquePosts(posts as TimelinePost[] | null, newPosts);
+    const uniquePosts = getUniquePosts(currentPosts, newPosts);
     if (uniquePosts.length > 0) {
       appendPosts(uniquePosts);
     }
 
     incrementPage();
-  }, [
-    appendPosts,
-    hasMore,
-    incrementPage,
-    isFetching,
-    page,
-    posts,
-    resolvedUserId,
-    setHasMore,
-    setIsFetching,
-  ]);
+  }, [resolvedUserId, appendPosts, incrementPage, setHasMore, setIsFetching]);
 
   useEffect(() => {
-    if (!resolvedUserId || isFetching || posts !== null || page !== 0) {
-      return;
-    }
+    if (!resolvedUserId) return;
+    const { posts: currentPosts, page: currentPage } = useTimelineStore.getState();
+    if (currentPosts !== null || currentPage !== 0) return;
 
     fetchPosts();
-  }, [fetchPosts, isFetching, page, posts, resolvedUserId]);
+  }, [fetchPosts, resolvedUserId]);
 
   const handlePostCreated = useCallback(
     (post: TimelinePost) => {
-      const normalizedHtmlText =
-        typeof post.content === "object" && post.content !== null && "htmltext" in post.content
-          ? post.content.htmltext
-          : typeof post.HTMLText === "string"
-            ? post.HTMLText
-            : typeof post.htmltext === "string"
-              ? post.htmltext
-              : undefined;
-
-      const normalizedText =
-        typeof post.content === "object" && post.content !== null && "text" in post.content
-          ? post.content.text
-          : typeof post.text === "string"
-            ? post.text
-            : contentToPlainText(normalizedHtmlText);
-
       prependPost({
-        ...post,
-        displayName: post.displayName ?? user?.displayName,
-        avatar: post.avatar ?? user?.avatar,
-        content:
-          typeof post.content === "object" && post.content !== null
-            ? {
-                ...post.content,
-                text: normalizedText,
-                htmltext: normalizedHtmlText ?? post.content.htmltext,
-              }
-            : {
-                text: normalizedText,
-                htmltext: normalizedHtmlText,
-              },
+        ...normalizePost(post),
+        displayName: post.displayName ?? user?.displayName ?? "",
+        avatar: post.avatar ?? user?.avatar ?? null,
       });
     },
     [prependPost, user?.avatar, user?.displayName],
   );
-
-  function contentToPlainText(htmlText: string | undefined) {
-    if (!htmlText) return "";
-    return htmlText.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
-  }
 
   const handleOpenCreatePost = useCallback(() => {
     showPopup("Tạo bài viết", <CreatePostForm onPostCreated={handlePostCreated} />);

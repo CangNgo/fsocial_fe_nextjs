@@ -1,12 +1,13 @@
 import { create } from "zustand";
+import type { TimelinePost } from "../types/post";
 
 interface TimelineStoreState {
-  posts: any[] | null;
+  posts: TimelinePost[] | null;
   hasMore: boolean;
   page: number;
   isFetching: boolean;
-  prependPost: (post: any) => void;
-  appendPosts: (posts: any[]) => void;
+  prependPost: (post: TimelinePost) => void;
+  appendPosts: (posts: TimelinePost[]) => void;
   setHasMore: (value: boolean) => void;
   setIsFetching: (value: boolean) => void;
   incrementPage: () => void;

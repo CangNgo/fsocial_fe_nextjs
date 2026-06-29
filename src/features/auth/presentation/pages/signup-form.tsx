@@ -614,8 +614,8 @@ export default function SignupForm() {
           />
           <img
             className={`absolute w-11/12 left-1/2 -translate-x-1/2 mt-12 ${currentStep === 3
-                ? "translate-y-0 opacity-100 transition duration-300"
-                : "translate-y-1/4 opacity-0 invisible"
+              ? "translate-y-0 opacity-100 transition duration-300"
+              : "translate-y-1/4 opacity-0 invisible"
               }`}
             src="/decor/signup_step_3_decor.svg"
             alt=""
