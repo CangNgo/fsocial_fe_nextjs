@@ -1,4 +1,5 @@
-import { regexImage, regexVideo } from "@/shared/config/regex";
+import type { MediaResponse } from "@/features/home/types/post";
+import { MediaType } from "@/features/home/types/post";
 
 export interface ProcessedMedia {
   src: string;
@@ -6,16 +7,14 @@ export interface ProcessedMedia {
 }
 
 export const processMedias = (post: {
-  content?: { media?: string[] };
+  content?: { media?: MediaResponse[] };
   originPostId?: string;
 }): ProcessedMedia[] => {
   if (post.content?.media) {
-    return post.content.media.map((media) => {
-      let type: "image" | "video" = "image";
-      if (regexImage.test(media)) type = "image";
-      else if (regexVideo.test(media)) type = "video";
-      return { src: media, type };
-    });
+    return post.content.media.map(({ url, type }) => ({
+      src: url,
+      type: type === MediaType.VIDEO ? "video" : "image",
+    }));
   }
   if (post.originPostId) {
     return [{ src: post.originPostId, type: "post" }];

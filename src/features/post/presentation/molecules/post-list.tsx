@@ -70,8 +70,8 @@ export function PostList({
       components={{
         Footer: () => (hasMore ? <PostSkeleton card={cardStyle} /> : null),
       }}
-      rangeChanged={({ endIndex }) => {
-        if (hasMore && endIndex >= safeData.length - 5) fetchPosts();
+      endReached={() => {
+        if (hasMore) fetchPosts();
       }}
     />
   );
