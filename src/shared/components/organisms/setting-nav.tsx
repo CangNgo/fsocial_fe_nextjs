@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { settingNavRoute } from "@/features/setting/config/setting-nav-route";
+import { settingNavRoute } from "@/shared/config/setting-nav-route";
 import { cn } from "@/shared/lib/utils";
 
 export function SettingNav() {

@@ -2,7 +2,7 @@
 import dynamic from "next/dynamic";
 
 const AdminProfileEditor = dynamic(
-  () => import("@/features/admin/presentation/pages/admin-profile-editor"),
+  () => import("@/features/admin/components/pages/admin-profile-editor"),
   { ssr: false },
 );
 

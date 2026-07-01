@@ -186,7 +186,7 @@ export default function NotificationPanel() {
   const { isVisible, setIsVisible } = popupNotificationtStore();
 
   const handleGetNotification = async () => {
-    // if (!user?.userId) return;
+    // if (!user.id) return;
     // const resp = (await getNotificationWithPagination({
     //   userId: user.userId,
     //   channelId: "INBOX",
@@ -206,7 +206,7 @@ export default function NotificationPanel() {
   };
 
   const handleLoadMoreNotifications = async () => {
-    if (isLoading || !hasMore || !user?.userId) return;
+    if (isLoading || !hasMore || !user.id) return;
     setIsLoading(true);
     const nextPage = page + 1;
     const resp = (await getNotificationWithPagination({
@@ -247,9 +247,9 @@ export default function NotificationPanel() {
   };
 
   useEffect(() => {
-    if (!user?.userId) return;
+    if (!user.id) return;
     handleGetNotification();
-  }, [user?.userId, handleGetNotification]);
+  }, [user.id, handleGetNotification]);
 
   useEffect(() => {
     const scrollContainer = scrollContainerRef.current;

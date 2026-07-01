@@ -1,5 +1,4 @@
-import type { MediaResponse } from "@/features/home/types/post";
-import { MediaType } from "@/features/home/types/post";
+import { type MediaResponse, MediaType } from "@/shared/types/media";
 import { cn } from "@/shared/lib/utils";
 import LayoutOne from "./layout-one";
 import LayoutTwo from "./layout-two";

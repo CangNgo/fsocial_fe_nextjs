@@ -1,5 +1,4 @@
-import type { MediaResponse } from "@/features/home/types/post";
-import { MediaType } from "@/features/home/types/post";
+import { type MediaResponse, MediaType } from "@/shared/types/media";
 
 export interface ProcessedMedia {
   src: string;

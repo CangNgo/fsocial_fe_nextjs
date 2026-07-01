@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { changePassword } from "@/features/auth/api/change-password-api";
+import { changePassword } from "@/shared/api/auth/change-password-api";
 import { LoadingIcon } from "@/shared/components/atoms/icon/icon";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";

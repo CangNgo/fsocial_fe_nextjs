@@ -3,7 +3,7 @@ import { Check, Moon, SunMedium } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
-import { adminNavRoute } from "@/features/admin/config/admin-nav-route";
+import { adminNavRoute } from "@/shared/config/admin-nav-route";
 import { LogoFSAdmin, LogoutIcon } from "@/shared/components/atoms/icon/icon";
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar";
 import { Button } from "@/shared/components/ui/button";

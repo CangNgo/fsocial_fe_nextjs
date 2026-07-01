@@ -11,7 +11,7 @@ export const getPost = async (userId: string, postId: string): Promise<unknown> 
 
 export const likePost = async (postId: string): Promise<unknown> => {
   const user = ownerAccountStore.getState().user;
-  const dataObj = { userId: user?.userId, postId };
+  const dataObj = { userId: user.id, postId };
   return apiPost("/post/actions/like", dataObj);
 };
 

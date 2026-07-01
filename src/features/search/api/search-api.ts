@@ -6,6 +6,6 @@ export const searchUsers = async (keyword: string): Promise<unknown> => {
 };
 
 export const searchPosts = async (keyword: string): Promise<unknown> => {
-  const userId = ownerAccountStore.getState().user?.userId;
+  const userId = ownerAccountStore.getState().user.id;
   return apiGet(`/post/find?user_id=${userId}&find_post=${keyword}`);
 };

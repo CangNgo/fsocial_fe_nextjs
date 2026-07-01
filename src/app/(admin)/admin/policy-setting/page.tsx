@@ -2,7 +2,7 @@
 import dynamic from "next/dynamic";
 
 const AdminPolicyEditor = dynamic(
-  () => import("@/features/admin/presentation/pages/admin-policy-editor"),
+  () => import("@/features/admin/components/pages/admin-policy-editor"),
   { ssr: false },
 );
 

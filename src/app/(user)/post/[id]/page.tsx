@@ -1,7 +1,7 @@
 "use client";
 import dynamic from "next/dynamic";
 
-const PostFeature = dynamic(() => import("@/features/post/presentation/pages/post-feature"), {
+const PostFeature = dynamic(() => import("@/features/post/components/pages/post-feature"), {
   ssr: false,
 });
 
