@@ -9,6 +9,7 @@ import { LoadingIcon } from "@/shared/components/atoms/icon/icon";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
 import { regexPassword } from "@/shared/config/regex";
+import { ROUTES } from "@/shared/config/routes";
 import { cn } from "@/shared/lib/utils";
 import { usePopupStore } from "@/shared/stores/popup-store";
 
@@ -37,7 +38,7 @@ export function ChangePasswordModal() {
 
   const gotoForgetPassword = () => {
     hidePopup();
-    router.push("/forgot-password");
+    router.push(ROUTES.FORGOT_PASSWORD);
   };
 
   const handleChangePassword = async () => {

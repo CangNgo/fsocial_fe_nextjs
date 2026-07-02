@@ -10,7 +10,10 @@ interface UseChooseConversationOptions {
   setContentActive: (contentActive: number) => void;
 }
 
-export function useChooseConversation({ contentActive, setContentActive }: UseChooseConversationOptions) {
+export function useChooseConversation({
+  contentActive,
+  setContentActive,
+}: UseChooseConversationOptions) {
   const { setMessages, conversation, setConversation, setSubscription } = useMessageStore();
   const [trigger, setTrigger] = useState(true);
   const controllerGetmsgs = useRef<AbortController | null>(null);

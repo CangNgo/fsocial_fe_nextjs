@@ -1,10 +1,16 @@
 "use client";
 
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import { ROUTES } from "@/shared/config/routes";
 import { requestOTP, resetPassword, validOTP } from "../api/forgot-password-api";
+import {
+  forgotPasswordStep1Schema,
+  forgotPasswordStep2Schema,
+} from "../schemas/forgot-password-schema";
 import type {
   ForgotPasswordApiResponse,
   ForgotPasswordStep1FormData,
@@ -20,7 +26,10 @@ export function useForgotPassword() {
   const [currentStep, setCurrentStep] = useState(1);
   const carousel = useStepCarousel(currentStep, TOTAL_STEPS);
 
-  const step1Form = useForm<ForgotPasswordStep1FormData>({ mode: "all" });
+  const step1Form = useForm<ForgotPasswordStep1FormData>({
+    mode: "all",
+    resolver: zodResolver(forgotPasswordStep1Schema),
+  });
   const {
     formState: { isValid: isValidStep1 },
     getValues: getValuesStep1,
@@ -43,7 +52,7 @@ export function useForgotPassword() {
 
   const handleSubmitOTP = async () => {
     if (otpValue === "") {
-      setOtpErrMessage("MÃ£ OTP khÃ´ng Ä‘Æ°á»£c Ä‘á»ƒ trá»‘ng");
+      setOtpErrMessage("Mã OTP không được để trống");
       return;
     }
     setOtpErrMessage("");
@@ -60,7 +69,7 @@ export function useForgotPassword() {
     if (resp?.statusCode === 200) {
       setCurrentStep(2);
     } else {
-      setOtpErrMessage(resp?.message ?? "MÃ£ OTP khÃ´ng há»£p lá»‡");
+      setOtpErrMessage(resp?.message ?? "Mã OTP không hợp lệ");
     }
   };
 
@@ -71,7 +80,10 @@ export function useForgotPassword() {
   const [isShowRePassword, setIsShowRePassword] = useState(false);
   const [step2Submitting, setStep2Submitting] = useState(false);
 
-  const step2Form = useForm<ForgotPasswordStep2FormData>({ mode: "all" });
+  const step2Form = useForm<ForgotPasswordStep2FormData>({
+    mode: "all",
+    resolver: zodResolver(forgotPasswordStep2Schema),
+  });
   const {
     formState: { isValid: isValidStep2 },
     getValues: getValuesStep2,
@@ -95,7 +107,7 @@ export function useForgotPassword() {
       setCurrentStep(3);
       toast.success("Äá»•i máº­t kháº©u thÃ nh cÃ´ng, Ä‘ang chuyá»ƒn hÆ°á»›ng...");
       setTimeout(() => {
-        router.push("/login");
+        router.push(ROUTES.LOGIN);
       }, 2500);
     } else {
       setStep2Err(resp?.message ?? "ÄÃ£ cÃ³ lá»—i xáº£y ra trong quÃ¡ trÃ¬nh reset máº­t kháº©u");

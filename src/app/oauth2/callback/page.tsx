@@ -1,6 +1,7 @@
 "use client";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect } from "react";
+import { ROUTES } from "@/shared/config/routes";
 import { validRefreshTokenStore } from "@/shared/stores/valid-refresh-token-store";
 import { setCookie } from "@/shared/utils/cookie";
 
@@ -17,9 +18,9 @@ function OAuth2CallbackInner() {
       setCookie("access-token", token, 360 * 10);
       setCookie("refresh-token", refreshToken, 360 * 10);
       setRefreshToken(refreshToken);
-      setTimeout(() => router.replace("/home"), 2000);
+      setTimeout(() => router.replace(ROUTES.HOME), 2000);
     } else {
-      router.replace("/login?error=oauth2_failed");
+      router.replace(`${ROUTES.LOGIN}?error=oauth2_failed`);
     }
   }, [setRefreshToken, searchParams.get, router.replace]);
 

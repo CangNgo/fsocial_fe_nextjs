@@ -1,11 +1,10 @@
-import { type MediaResponse, MediaType } from "@/shared/types/media";
 import { cn } from "@/shared/lib/utils";
-import LayoutOne from "./layout-one";
-import LayoutTwo from "./layout-two";
-import LayoutThree from "./layout-three";
-import LayoutFour from "./layout-four";
+import { type MediaResponse, MediaType } from "@/shared/types/media";
 import LayoutFive from "./layout-five";
-
+import LayoutFour from "./layout-four";
+import LayoutOne from "./layout-one";
+import LayoutThree from "./layout-three";
+import LayoutTwo from "./layout-two";
 
 interface MediaLayoutProps {
   medias: MediaResponse[] | undefined;
@@ -44,7 +43,5 @@ const GenerateLayout = ({ media }: GenerateLayoutProps) => {
   //   )
   // }
 
-  return (
-    <div>hello</div>
-  )
-}
+  return <div>hello</div>;
+};

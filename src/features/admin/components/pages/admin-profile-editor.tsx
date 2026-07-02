@@ -6,10 +6,7 @@ import { LogoNoBG } from "@/shared/components/atoms/icon/icon";
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
-import {
-  NativeSelect,
-  NativeSelectOption,
-} from "@/shared/components/ui/native-select";
+import { NativeSelect, NativeSelectOption } from "@/shared/components/ui/native-select";
 import { dayOptions, monthOptions, yearOptions } from "@/shared/config/global-variables";
 import { regexEmail, regexName, regexPassword } from "@/shared/config/regex";
 import { cn } from "@/shared/lib/utils";
@@ -91,7 +88,9 @@ export default function AdminProfileEditor() {
                 </span>
               </div>
               {errors.firstName && (
-                <p className="text-red-500 text-sm mt-1">{String(errors.firstName?.message ?? "")}</p>
+                <p className="text-red-500 text-sm mt-1">
+                  {String(errors.firstName?.message ?? "")}
+                </p>
               )}
             </div>
             <div>
@@ -122,7 +121,9 @@ export default function AdminProfileEditor() {
                 </span>
               </div>
               {errors.lastName && (
-                <p className="text-red-500 text-sm mt-1">{String(errors.lastName?.message ?? "")}</p>
+                <p className="text-red-500 text-sm mt-1">
+                  {String(errors.lastName?.message ?? "")}
+                </p>
               )}
             </div>
           </div>
@@ -165,7 +166,9 @@ export default function AdminProfileEditor() {
             <div className="ring-4 ring-offset-4 rounded-full ring-gray-2light">
               <Avatar className="size-32">
                 <AvatarImage src={avatarURL} />
-                <AvatarFallback>{combineIntoAvatarName(user.firstName, user.lastName)}</AvatarFallback>
+                <AvatarFallback>
+                  {combineIntoAvatarName(user.firstName, user.lastName)}
+                </AvatarFallback>
               </Avatar>
             </div>
 
@@ -219,7 +222,9 @@ export default function AdminProfileEditor() {
                 </div>
               </div>
               {errors.username && (
-                <p className="text-red-500 text-sm mt-1">{String(errors.username?.message ?? "")}</p>
+                <p className="text-red-500 text-sm mt-1">
+                  {String(errors.username?.message ?? "")}
+                </p>
               )}
             </div>
             <div>
@@ -293,13 +298,23 @@ export default function AdminProfileEditor() {
                     errors.oldPassword ? "text-red-500" : "text-muted-foreground",
                   )}
                 >
-                  <Button type="button" className="cursor-pointer" onClick={toggleOldPasswordVisibility}>
-                    {!isShowOldPassword ? <Eye className="size-5" /> : <EyeOff className="size-5" />}
+                  <Button
+                    type="button"
+                    className="cursor-pointer"
+                    onClick={toggleOldPasswordVisibility}
+                  >
+                    {!isShowOldPassword ? (
+                      <Eye className="size-5" />
+                    ) : (
+                      <EyeOff className="size-5" />
+                    )}
                   </Button>
                 </div>
               </div>
               {errors.oldPassword && (
-                <p className="text-red-500 text-sm mt-1">{String(errors.oldPassword?.message ?? "")}</p>
+                <p className="text-red-500 text-sm mt-1">
+                  {String(errors.oldPassword?.message ?? "")}
+                </p>
               )}
             </div>
 
@@ -335,13 +350,23 @@ export default function AdminProfileEditor() {
                     errors.newPassword ? "text-red-500" : "text-muted-foreground",
                   )}
                 >
-                  <Button type="button" className="cursor-pointer" onClick={toggleNewPasswordVisibility}>
-                    {!isShowNewPassword ? <Eye className="size-5" /> : <EyeOff className="size-5" />}
+                  <Button
+                    type="button"
+                    className="cursor-pointer"
+                    onClick={toggleNewPasswordVisibility}
+                  >
+                    {!isShowNewPassword ? (
+                      <Eye className="size-5" />
+                    ) : (
+                      <EyeOff className="size-5" />
+                    )}
                   </Button>
                 </div>
               </div>
               {errors.newPassword && (
-                <p className="text-red-500 text-sm mt-1">{String(errors.newPassword?.message ?? "")}</p>
+                <p className="text-red-500 text-sm mt-1">
+                  {String(errors.newPassword?.message ?? "")}
+                </p>
               )}
             </div>
 
@@ -379,12 +404,18 @@ export default function AdminProfileEditor() {
                     className="cursor-pointer"
                     onClick={toggleReNewPasswordVisibility}
                   >
-                    {!isShowReNewPassword ? <Eye className="size-5" /> : <EyeOff className="size-5" />}
+                    {!isShowReNewPassword ? (
+                      <Eye className="size-5" />
+                    ) : (
+                      <EyeOff className="size-5" />
+                    )}
                   </Button>
                 </div>
               </div>
               {errors.reNewPassword && (
-                <p className="text-red-500 text-sm mt-1">{String(errors.reNewPassword?.message ?? "")}</p>
+                <p className="text-red-500 text-sm mt-1">
+                  {String(errors.reNewPassword?.message ?? "")}
+                </p>
               )}
             </div>
           </div>

@@ -3,11 +3,10 @@ import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { updatePost } from "@/shared/api/posts/posts-api";
 import { LoadingIcon } from "@/shared/components/atoms/icon/icon";
-import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar";
+import { UserAvatar } from "@/shared/components/molecules/user-avatar";
 import { Button } from "@/shared/components/ui/button";
 import { Textarea } from "@/shared/components/ui/textarea";
 import { usePopupStore } from "@/shared/stores/popup-store";
-import { getInitialsFromDisplayName } from "@/shared/utils/combine-name";
 import { dateTimeToPostTime } from "@/shared/utils/convert-date-time";
 import type { PostCardStore } from "../../hooks/use-post-card-actions";
 import { usePostForModal } from "../../hooks/use-post-for-modal";
@@ -52,12 +51,11 @@ export function EditPostModal({ id, store }: EditPostModalProps) {
       {post && (
         <div className="flex-grow pt-3 space-y-2 overflow-y-auto">
           <div className="flex space-x-2 px-4">
-            <Avatar className="size-9">
-              <AvatarImage src={(post.avatar as string) ?? undefined} />
-              <AvatarFallback className="text-[11px] font-medium">
-                {getInitialsFromDisplayName(post.displayName as string)}
-              </AvatarFallback>
-            </Avatar>
+            <UserAvatar
+              src={post.avatar as string}
+              displayName={post.displayName as string}
+              className="size-9"
+            />
             <div className="flex flex-col justify-center">
               <span className="font-semibold">{post.displayName as string}</span>
               <span className="text-muted-foreground text-xs">

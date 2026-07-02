@@ -3,7 +3,7 @@ import { useRef, useState } from "react";
 import { toast } from "sonner";
 import { repostPost } from "@/shared/api/posts/posts-api";
 import { LoadingIcon } from "@/shared/components/atoms/icon/icon";
-import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar";
+import { UserAvatar } from "@/shared/components/molecules/user-avatar";
 import { Button } from "@/shared/components/ui/button";
 import { Textarea } from "@/shared/components/ui/textarea";
 import { ownerAccountStore } from "@/shared/stores/owner-account-store";
@@ -45,10 +45,7 @@ export function ModalRepost({ id, store }: ModalRepostProps) {
     <div className="relative pt-11 flex flex-col sm:w-[550px] w-screen sm:h-fit sm:max-h-[90dvh] h-[100dvh]">
       <div className="mt-3 flex-grow space-y-2 overflow-y-auto px-4">
         <div className="flex items-center space-x-2">
-          <Avatar className="size-9">
-            <AvatarImage src={user?.avatar ?? undefined} />
-            <AvatarFallback className="text-[11px] font-medium">{user.displayName}</AvatarFallback>
-          </Avatar>
+          <UserAvatar src={user?.avatar} displayName={user?.displayName} className="size-9" />
           <span className="font-semibold">{user.displayName}</span>
         </div>
 

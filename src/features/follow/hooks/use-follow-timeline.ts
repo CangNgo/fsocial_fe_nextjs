@@ -2,9 +2,9 @@
 
 import { createElement, useCallback, useEffect, useRef, useState } from "react";
 import { getFollowingPosts } from "@/shared/api/posts/posts-api";
+import CreatePostForm from "@/shared/components/organisms/create-post-form";
 import { ownerAccountStore } from "@/shared/stores/owner-account-store";
 import { usePopupStore } from "@/shared/stores/popup-store";
-import CreatePostForm from "@/shared/components/organisms/create-post-form";
 import type { FollowPost, FollowPostsResponse } from "../types/follow";
 
 export function useFollowTimeline() {

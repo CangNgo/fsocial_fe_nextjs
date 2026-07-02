@@ -881,7 +881,7 @@ export function useGoogleAuth() {
     try {
       const { accessToken, user } = await googleLogin(idToken);
       authUtils.saveToken(accessToken);
-      router.push('/dashboard');
+      router.push(`/dashboard');
     } catch (error) {
       console.error('Google login error:', error);
       // TODO: hiện toast error
@@ -1039,21 +1039,21 @@ function EmailPasswordForm() {
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-const PUBLIC_PATHS = ['/login', '/register', '/api/auth'];
+const PUBLIC_PATHS = [`/login', `/register', `/api/auth'];
 
 export function middleware(request: NextRequest) {
   const token = request.cookies.get('auth_token')?.value;
   const isPublic = PUBLIC_PATHS.some(p => request.nextUrl.pathname.startsWith(p));
 
   if (!token && !isPublic) {
-    return NextResponse.redirect(new URL('/login', request.url));
+    return NextResponse.redirect(new URL(`/login', request.url));
   }
 
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
+  matcher: [`/((?!_next/static|_next/image|favicon.ico).*)'],
 };
 ```
 

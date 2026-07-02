@@ -6,6 +6,7 @@ import { useState } from "react";
 import { KeyIcon, LogoutIcon, SwitchIcon } from "@/shared/components/atoms/icon/icon";
 import { ChangePasswordModal } from "@/shared/components/organisms/change-password-modal";
 import { Popover, PopoverContent, PopoverTrigger } from "@/shared/components/ui/popover";
+import { ROUTES } from "@/shared/config/routes";
 import { cn } from "@/shared/lib/utils";
 import { usePopupStore } from "@/shared/stores/popup-store";
 import { useThemeStore } from "@/shared/stores/theme-store";
@@ -22,7 +23,7 @@ interface NavMoreMenuProps {
 export function NavMoreMenu({ inMobile, setPopoverOpen }: NavMoreMenuProps) {
   const { theme, setTheme } = useThemeStore();
   const pathname = usePathname();
-  const isInSetting = pathname.startsWith("/setting");
+  const isInSetting = pathname.startsWith(ROUTES.SETTING.PREFIX);
   const [switchThemeOpen, setSwitchThemeOpen] = useState(false);
   const router = useRouter();
   const { setRefreshToken } = validRefreshTokenStore();
@@ -30,7 +31,7 @@ export function NavMoreMenu({ inMobile, setPopoverOpen }: NavMoreMenuProps) {
 
   const handleLogout = () => {
     setRefreshToken(null);
-    router.push("/login");
+    router.push(ROUTES.LOGIN);
   };
 
   const handlePopupChangePassword = () => {
@@ -41,7 +42,7 @@ export function NavMoreMenu({ inMobile, setPopoverOpen }: NavMoreMenuProps) {
   return (
     <>
       <Link
-        href={!isInSetting ? "/setting/account-basic" : "#"}
+        href={!isInSetting ? ROUTES.SETTING.ACCOUNT_BASIC : "#"}
         className={navMoreClass}
         onClick={() => setPopoverOpen(false)}
       >

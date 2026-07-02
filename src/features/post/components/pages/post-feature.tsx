@@ -20,7 +20,7 @@ export default function PostFeature() {
 
   const handleGetPost = async () => {
     if (!user.id || !postId) return;
-    const resp = (await getPost(user.userId, postId)) as any;
+    const resp = (await getPost(user.id, postId)) as any;
     if (!resp || resp.statusCode !== 200) {
       setPosts([]);
       return;

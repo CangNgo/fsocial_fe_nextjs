@@ -85,7 +85,11 @@ export default function SearchFeature() {
                     )}
                   </div>
                 </div>
-                <Button type="button" variant="ghost" className="btn-ghost max-w-fit px-4 py-1 rounded">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  className="btn-ghost max-w-fit px-4 py-1 rounded"
+                >
                   Theo dõi
                 </Button>
               </div>

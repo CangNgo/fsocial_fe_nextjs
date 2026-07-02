@@ -4,8 +4,8 @@ import { useCallback, useEffect } from "react";
 import { useShallow } from "zustand/react/shallow";
 import { getPosts } from "@/shared/api/posts/posts-api";
 import { ownerAccountStore } from "@/shared/stores/owner-account-store";
-import { useTimelineStore } from "../store/timeline-store";
 import type { TimelinePost } from "@/shared/types/post";
+import { useTimelineStore } from "../store/timeline-store";
 import { selectTimelineState } from "../types/post";
 import { getUniquePosts, isPostsResponse, normalizePost } from "../utils/normalize-post";
 

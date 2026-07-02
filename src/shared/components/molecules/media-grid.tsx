@@ -3,7 +3,8 @@
 
 import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
-import React, { memo, useCallback, useEffect, useMemo, useState } from "react";
+import type React from "react";
+import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { getPost } from "@/shared/api/posts/posts-api";
 import { Button } from "@/shared/components/ui/button";
 import type { CarouselApi } from "@/shared/components/ui/carousel";
@@ -14,6 +15,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/shared/components/ui/carousel";
+import { ROUTES } from "@/shared/config/routes";
 import { cn } from "@/shared/lib/utils";
 import { ownerAccountStore } from "@/shared/stores/owner-account-store";
 import { getImageSize, getVideoSize } from "@/shared/utils/get-size-element";
@@ -217,7 +219,7 @@ const MediaGridComponent = ({
 
   const router = useRouter();
   const handleToOriginPost = useCallback(() => {
-    if (!blockEvent && post) router.push(`/post?id=${post.id}`);
+    if (!blockEvent && post) router.push(ROUTES.POST(post.id));
   }, [blockEvent, post, router]);
 
   const effectiveAllowCarousel = allowCarousel && medias.length > 1;

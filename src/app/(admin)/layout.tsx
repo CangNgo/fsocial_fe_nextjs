@@ -18,7 +18,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       getAdminProfile(decoded.sub).then((profile) => {
         if (profile) setUser(profile as Parameters<typeof setUser>[0]);
       });
-    } catch { }
+    } catch {}
   }, [setUser]);
 
   return (

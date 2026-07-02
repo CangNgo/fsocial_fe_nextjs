@@ -1,10 +1,13 @@
 "use client";
 
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import { ROUTES } from "@/shared/config/routes";
 import { checkDuplicate, requestOTP, sendingCreateAccount, validOTP } from "../api/signup-api";
+import { signupStep1Schema, signupStep2Schema } from "../schemas/signup-schema";
 import type { SignupApiResponse, SignupStep1FormData, SignupStep2FormData } from "../types/signup";
 import { removeVietnameseAccents } from "../utils/remove-special-word";
 import { useStepCarousel } from "./use-step-carousel";
@@ -16,16 +19,21 @@ export function useSignupWizard() {
   const [currentStep, setCurrentStep] = useState(1);
   const carousel = useStepCarousel(currentStep, TOTAL_STEPS);
 
-  const step1Form = useForm<SignupStep1FormData>({ mode: "all" });
+  const step1Form = useForm<SignupStep1FormData>({
+    mode: "all",
+    resolver: zodResolver(signupStep1Schema),
+  });
   const {
     trigger: triggerValidStep1,
     formState: { isValid: isValidStep1 },
     getValues: getValuesStep1,
   } = step1Form;
 
-  const step2Form = useForm<SignupStep2FormData>({ mode: "all" });
+  const step2Form = useForm<SignupStep2FormData>({
+    mode: "all",
+    resolver: zodResolver(signupStep2Schema),
+  });
   const {
-    watch: watchStep2,
     trigger: triggerValidateStep2,
     formState: { isValid: isValidStep2 },
     setError: setErrorStep2,
@@ -33,12 +41,8 @@ export function useSignupWizard() {
     getValues: getValuesStep2,
   } = step2Form;
 
-  const password = watchStep2("password");
-
   const [checkDuplicateClicked, setCheckDuplicateClicked] = useState(false);
   const [step2Err, setStep2Err] = useState("");
-  const [isShowPassword, setIsShowPassword] = useState(false);
-  const [isShowRePassword, setIsShowRePassword] = useState(false);
 
   const [otpValue, setOtpValue] = useState("");
   const [validOTPClicked, setValidOTPClicked] = useState(false);
@@ -123,12 +127,12 @@ export function useSignupWizard() {
     setCurrentStep(4);
     toast.success("Tạo tài khoản thành công");
     setTimeout(() => {
-      router.push("/login");
+      router.push(ROUTES.LOGIN);
     }, 1500);
   };
 
   const handleGoogleSignup = () => {
-    router.push("/oauth2/authorization/google");
+    router.push(ROUTES.GOOGLE_OAUTH_AUTHORIZE);
   };
 
   return {
@@ -136,13 +140,8 @@ export function useSignupWizard() {
     ...carousel,
     step1Form,
     step2Form,
-    password,
     checkDuplicateClicked,
     step2Err,
-    isShowPassword,
-    setIsShowPassword,
-    isShowRePassword,
-    setIsShowRePassword,
     otpValue,
     setOtpValue,
     validOTPClicked,

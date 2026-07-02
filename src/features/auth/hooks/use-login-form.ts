@@ -1,20 +1,18 @@
 "use client";
 
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import { ROUTES } from "@/shared/config/routes";
 import { login } from "../api/login-api";
+import { type LoginFormData, loginSchema } from "../schemas/login-schema";
 import { setToken } from "./set-token";
 import { useGoogleAuth } from "./use-google-auth";
 
-interface LoginFormData {
-  loginName: string;
-  password: string;
-}
-
 export function useLoginForm() {
   const router = useRouter();
-  const form = useForm<LoginFormData>({ mode: "all" });
+  const form = useForm<LoginFormData>({ mode: "all", resolver: zodResolver(loginSchema) });
   const {
     formState: { isValid },
     trigger,
@@ -45,7 +43,7 @@ export function useLoginForm() {
     const tokens = result.data;
     if (tokens?.accessToken && tokens?.refreshToken) {
       setToken(tokens.accessToken, tokens.refreshToken);
-      router.push("/home");
+      router.push(ROUTES.HOME);
     }
   };
 

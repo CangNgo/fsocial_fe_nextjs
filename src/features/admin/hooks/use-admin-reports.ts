@@ -9,10 +9,10 @@ import {
 import {
   type ChartDataItem,
   type DateRange,
-  type KOLItem,
   dateClassToISO8601,
   fakeChartDataGender,
   fakeTopKOL,
+  type KOLItem,
   reFormatDataReports,
 } from "../utils/admin-report-utils";
 
@@ -49,7 +49,10 @@ export function useAdminReports() {
       getNumberOfPost(start, end),
       getNumberOfNewRegistration(start, end),
       getNumberOfComplaint(start, end),
-    ])) as Array<{ statusCode?: number; data?: Array<{ hour?: number; date?: string; count: number }> } | null>;
+    ])) as Array<{
+      statusCode?: number;
+      data?: Array<{ hour?: number; date?: string; count: number }>;
+    } | null>;
 
     if (respPostCreated && respPostCreated.statusCode === 200) {
       setChartDataPosts(reFormatDataReports(respPostCreated.data ?? []));

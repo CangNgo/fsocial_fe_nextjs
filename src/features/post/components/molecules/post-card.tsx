@@ -2,8 +2,8 @@
 
 import { Ellipsis, MessageSquareWarning, Pen } from "lucide-react";
 import Link from "next/link";
-import { memo } from "react";
 import type { Dispatch, SetStateAction } from "react";
+import { memo } from "react";
 import {
   CommentPostIcon,
   HeartPostIcon,
@@ -11,11 +11,10 @@ import {
   SharePostIcon,
   TrashCanIcon,
 } from "@/shared/components/atoms/icon/icon";
-import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar";
+import { UserAvatar } from "@/shared/components/molecules/user-avatar";
 import { Button } from "@/shared/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/shared/components/ui/popover";
 import { cn } from "@/shared/lib/utils";
-import { getInitialsFromDisplayName } from "@/shared/utils/combine-name";
 import { timeAgo } from "@/shared/utils/convert-date-time";
 import {
   type PostCardPost,
@@ -68,12 +67,11 @@ function PostCardComponent({
       <div className={cn("flex items-center justify-between px-4 pt-4 pb-1", isShared && "px-6")}>
         <div className="flex space-x-2">
           <Link href={`/profile?id=${post.userId}`}>
-            <Avatar className={cn("size-9", isShared && "size-8")}>
-              <AvatarImage src={post.avatar ?? undefined} />
-              <AvatarFallback className="text-[11px] font-medium transition">
-                {getInitialsFromDisplayName(post.displayName ?? "")}
-              </AvatarFallback>
-            </Avatar>
+            <UserAvatar
+              src={post.avatar}
+              displayName={post.displayName}
+              className={cn("size-9", isShared && "size-8")}
+            />
           </Link>
           <div className="flex flex-col justify-center">
             <Link href={`/profile?id=${post.userId}`} className="font-semibold">
@@ -142,7 +140,10 @@ function PostCardComponent({
           )
         )}
         {allowCarousel ? (
-          <PostMediaCarousel media={post.content?.media ?? []} initialIndex={initialMediaIndex ?? 0} />
+          <PostMediaCarousel
+            media={post.content?.media ?? []}
+            initialIndex={initialMediaIndex ?? 0}
+          />
         ) : (
           <PhotoGrid
             media={post.content?.media ?? []}
@@ -155,7 +156,6 @@ function PostCardComponent({
 
       {showReact && (
         <div className="px-4 sm:py-4 py-3 flex justify-between">
-          {/* biome-ignore lint/a11y/useSemanticElements: kept as a div to preserve the reaction-bar layout; exposed as a button via role for assistive tech */}
           <div
             className="flex items-center sm:gap-2 gap-1 cursor-pointer"
             onClick={handleLike}
@@ -191,7 +191,7 @@ function PostCardComponent({
 
           <Button
             variant={"outline"}
-            className="flex items-center sm:gap-2 gap-1  cursor-pointer hover:bg-transparent"
+            className="flex items-center sm:gap-2 gap-1 cursor-pointer hover:bg-transparent"
             onClick={showRepostPopup}
           >
             <RepostPostIcon />

@@ -15,7 +15,10 @@ export function useProfilePosts(profilePostUserId?: string | null, currentTab?: 
     if (isFetchingPostsRef.current || !hasMorePostsRef.current || !profilePostUserId) return;
 
     isFetchingPostsRef.current = true;
-    const resp = (await getPosts(profilePostUserId, pageRef.current)) as ProfilePostsResponse | null;
+    const resp = (await getPosts(
+      profilePostUserId,
+      pageRef.current,
+    )) as ProfilePostsResponse | null;
     isFetchingPostsRef.current = false;
 
     if (!resp || resp.statusCode !== 200) return;

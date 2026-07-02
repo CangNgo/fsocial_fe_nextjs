@@ -257,11 +257,7 @@ export default function AccountBasicForm() {
         </div>
 
         {!isEditing ? (
-          <Button
-            type="button"
-            className="btn-primary py-2.5 w-full"
-            onClick={handleStartEditing}
-          >
+          <Button type="button" className="btn-primary py-2.5 w-full" onClick={handleStartEditing}>
             Thay đổi thông tin
           </Button>
         ) : (

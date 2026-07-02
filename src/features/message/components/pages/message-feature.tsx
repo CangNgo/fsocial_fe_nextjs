@@ -161,7 +161,11 @@ export default function MessageFeature() {
         {contentActive === 2 && currentConversation && (
           <div className="size-full flex flex-col">
             <div className="px-4 py-3 border-b flex items-center gap-3">
-              <Button type="button" onClick={handleGoBack} className="btn-transparent p-1 sm:hidden">
+              <Button
+                type="button"
+                onClick={handleGoBack}
+                className="btn-transparent p-1 sm:hidden"
+              >
                 ←
               </Button>
               <Avatar className="size-9">

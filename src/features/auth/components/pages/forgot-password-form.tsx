@@ -1,11 +1,12 @@
 "use client";
-import { AtSign, Eye, EyeOff } from "lucide-react";
+import { AtSign } from "lucide-react";
 import Link from "next/link";
 import { ArrowLeftIcon, LoadingIcon } from "@/shared/components/atoms/icon/icon";
+import { FormInput } from "@/shared/components/molecules/form-input";
 import { OtpInputGroup } from "@/shared/components/molecules/otp-input-group";
 import { Button } from "@/shared/components/ui/button";
-import { Input } from "@/shared/components/ui/input";
 import { regexEmail, regexPassword } from "@/shared/config/regex";
+import { ROUTES } from "@/shared/config/routes";
 import { cn } from "@/shared/lib/utils";
 import { useForgotPassword } from "../../hooks/use-forgot-password";
 
@@ -29,10 +30,6 @@ export default function ForgotPasswordForm() {
     password,
     isValidStep2,
     step2Err,
-    isShowPassword,
-    setIsShowPassword,
-    isShowRePassword,
-    setIsShowRePassword,
     step2Submitting,
     handleStep2,
     stepCircleClass,
@@ -75,9 +72,9 @@ export default function ForgotPasswordForm() {
         >
           3
         </h3>
-        <span className="col-span-3 fs-sm font-light text-center">XÃ¡c minh</span>
-        <span className="col-span-3 fs-sm font-light text-center">Äá»•i máº­t kháº©u</span>
-        <span className="col-span-3 fs-sm font-light text-center">HoÃ n táº¥t</span>
+        <span className="col-span-3 fs-sm font-light text-center">Xác minh</span>
+        <span className="col-span-3 fs-sm font-light text-center">Đổi mật khẩu</span>
+        <span className="col-span-3 fs-sm font-light text-center">Hoàn tất</span>
       </div>
 
       <div className="flex md:gap-x-[5%] w-full justify-center">
@@ -97,53 +94,24 @@ export default function ForgotPasswordForm() {
               className={`md:px-8 px-4 h-fit ${currentStep === 1 ? "" : "invisible"}`}
             >
               <div className="mb-4">
-                <h2>XÃ¡c minh tÃ i khoáº£n</h2>
+                <h2>Xác minh tài khoản</h2>
                 <p className="text-muted-foreground">
-                  HÃ£y Ä‘iá»n láº¡i email Ä‘Ã£ Ä‘Äƒng kÃ½ Ä‘á»ƒ khÃ´i phá»¥c láº¡i nhÃ©
+                  Hãy điền lại email đã đăng ký để khôi phục lại nhé
                 </p>
               </div>
               <div className="space-y-5">
                 <div className="flex gap-2">
                   <div className="flex-grow">
-                    <div className="relative">
-                      <Input
-                        type="text"
-                        placeholder=""
-                        className={cn(
-                          "peer custom-input",
-                          errorsStep1.email && "custom-input-error",
-                        )}
-                        tabIndex={0}
-                        {...registerStep1("email", {
-                          required: "Email khÃ´ng Ä‘Æ°á»£c Ä‘á»ƒ trá»‘ng",
-                          pattern: { value: regexEmail, message: "Email khÃ´ng há»£p lá»‡" },
-                        })}
-                      />
-                      <span
-                        className={cn(
-                          "fs-sm text-muted-foreground absolute bg-background rounded-sm px-1.5 top-0 left-2 -translate-y-1/2 pointer-events-none",
-                          "peer-placeholder-shown:top-1/2 peer-hover:top-0 peer-focus:top-0 transition",
-                          errorsStep1.email
-                            ? "text-red-500"
-                            : "peer-hover:text-foreground peer-focus:text-foreground",
-                        )}
-                      >
-                        Email
-                      </span>
-                      <div
-                        className={cn(
-                          "absolute top-1/2 right-0 -translate-x-1/2 -translate-y-1/2",
-                          errorsStep1.email ? "text-red-500" : "text-muted-foreground",
-                        )}
-                      >
-                        <AtSign className="size-5" />
-                      </div>
-                    </div>
-                    {errorsStep1.email && (
-                      <p className="text-red-500 text-sm mt-1">
-                        {String(errorsStep1.email?.message ?? "")}
-                      </p>
-                    )}
+                    <FormInput
+                      type="text"
+                      label="Email"
+                      icon={<AtSign className="size-5" />}
+                      error={String(errorsStep1.email?.message ?? "")}
+                      {...registerStep1("email", {
+                        required: "Email không được để trống",
+                        pattern: { value: regexEmail, message: "Email không hợp lệ" },
+                      })}
+                    />
                   </div>
                   <div>
                     <Button
@@ -155,14 +123,11 @@ export default function ForgotPasswordForm() {
                       onClick={handleRequireOTP}
                       disabled={disableResendOTP}
                     >
-                      {cooldownSeconds > 0 ? `Gá»­i láº¡i (${cooldownSeconds})` : "Gá»­i mÃ£"}
+                      {cooldownSeconds > 0 ? `Gửi lại (${cooldownSeconds})` : "Gửi mã"}
                     </Button>
                   </div>
                 </div>
-                <p>
-                  Kiá»ƒm tra email Ä‘á»ƒ nháº­n mÃ£ xÃ¡c minh gá»“m 4 sá»‘ vÃ  nháº­p vÃ o Ã´ bÃªn
-                  dÆ°á»›i
-                </p>
+                <p>Kiểm tra email để nhận mã xác minh gồm 4 số và nhập vào ô bên dưới</p>
                 <div className="flex justify-center">
                   <OtpInputGroup
                     value={otpValue}
@@ -181,7 +146,7 @@ export default function ForgotPasswordForm() {
                     )}
                     onClick={handleSubmitOTP}
                   >
-                    {validOTPClicked ? <LoadingIcon /> : "XÃ¡c nháº­n"}
+                    {validOTPClicked ? <LoadingIcon /> : "Xác nhận"}
                   </Button>
                 </div>
               </div>
@@ -192,124 +157,44 @@ export default function ForgotPasswordForm() {
               className={`md:px-8 px-4 h-fit ${currentStep === 2 ? "" : "invisible"}`}
             >
               <div className="mb-4">
-                <h2>Äá»•i máº­t kháº©u</h2>
-                <p className="text-muted-foreground">LuÃ´n ghi nhá»› máº­t kháº©u má»›i</p>
+                <h2>Đổi mật khẩu</h2>
+                <p className="text-muted-foreground">Luôn ghi nhớ mật khẩu mới</p>
               </div>
               <div className="space-y-5">
                 <div className="flex-grow">
-                  <div className="relative">
-                    <Input
-                      type={isShowPassword ? "text" : "password"}
-                      placeholder=""
-                      className={cn(
-                        "peer custom-input",
-                        errorsStep2.password && "custom-input-error",
-                      )}
-                      tabIndex={0}
-                      {...registerStep2("password", {
-                        required: "Máº­t kháº©u khÃ´ng Ä‘Æ°á»£c Ä‘á»ƒ trá»‘ng",
-                        pattern: {
-                          value: regexPassword,
-                          message: "Máº­t kháº©u tá»« 8-20 kÃ­ tá»±, bao gá»“m cáº£ chá»¯ vÃ  sá»‘",
-                        },
-                      })}
-                    />
-                    <span
-                      className={cn(
-                        "fs-sm text-muted-foreground absolute bg-background rounded-sm px-1.5 top-0 left-2 -translate-y-1/2 pointer-events-none",
-                        "peer-placeholder-shown:top-1/2 peer-hover:top-0 peer-focus:top-0 transition",
-                        errorsStep2.password
-                          ? "text-red-500"
-                          : "peer-hover:text-foreground peer-focus:text-foreground",
-                      )}
-                    >
-                      Máº­t kháº©u má»›i
-                    </span>
-                    <div
-                      className={cn(
-                        "absolute top-1/2 right-0 -translate-x-1/2 -translate-y-1/2",
-                        errorsStep2.password ? "text-red-500" : "text-muted-foreground",
-                      )}
-                    >
-                      <Button
-                        type="button"
-                        className="cursor-pointer"
-                        onClick={() => setIsShowPassword(!isShowPassword)}
-                      >
-                        {!isShowPassword ? (
-                          <Eye className="size-5" />
-                        ) : (
-                          <EyeOff className="size-5" />
-                        )}
-                      </Button>
-                    </div>
-                  </div>
-                  {errorsStep2.password && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {String(errorsStep2.password?.message ?? "")}
-                    </p>
-                  )}
+                  <FormInput
+                    type="password"
+                    label="Mật khẩu mới"
+                    error={String(errorsStep2.password?.message ?? "")}
+                    {...registerStep2("password", {
+                      required: "Mật khẩu không được để trống",
+                      pattern: {
+                        value: regexPassword,
+                        message: "Mật khẩu từ 8-20 kí tự, bao gồm cả chữ và số",
+                      },
+                    })}
+                  />
                 </div>
                 <div className="flex-grow">
-                  <div className="relative">
-                    <Input
-                      type={isShowRePassword ? "text" : "password"}
-                      placeholder=""
-                      className={cn(
-                        "peer custom-input",
-                        errorsStep2.rePassword && "custom-input-error",
-                      )}
-                      tabIndex={0}
-                      {...registerStep2("rePassword", {
-                        required: "Máº­t kháº©u nháº­p láº¡i khÃ´ng Ä‘Æ°á»£c Ä‘á»ƒ trá»‘ng",
-                        pattern: {
-                          value: regexPassword,
-                          message: "Máº­t kháº©u tá»« 8-20 kÃ­ tá»±, bao gá»“m cáº£ chá»¯ vÃ  sá»‘",
-                        },
-                        validate: (value) => value === password || "Máº­t kháº©u nháº­p láº¡i khÃ´ng khá»›p",
-                      })}
-                    />
-                    <span
-                      className={cn(
-                        "fs-sm text-muted-foreground absolute bg-background rounded-sm px-1.5 top-0 left-2 -translate-y-1/2 pointer-events-none",
-                        "peer-placeholder-shown:top-1/2 peer-hover:top-0 peer-focus:top-0 transition",
-                        errorsStep2.rePassword
-                          ? "text-red-500"
-                          : "peer-hover:text-foreground peer-focus:text-foreground",
-                      )}
-                    >
-                      Nháº­p láº¡i Máº­t kháº©u
-                    </span>
-                    <div
-                      className={cn(
-                        "absolute top-1/2 right-0 -translate-x-1/2 -translate-y-1/2",
-                        errorsStep2.rePassword ? "text-red-500" : "text-muted-foreground",
-                      )}
-                    >
-                      <Button
-                        type="button"
-                        className="cursor-pointer"
-                        onClick={() => setIsShowRePassword(!isShowRePassword)}
-                      >
-                        {!isShowRePassword ? (
-                          <Eye className="size-5" />
-                        ) : (
-                          <EyeOff className="size-5" />
-                        )}
-                      </Button>
-                    </div>
-                  </div>
-                  {errorsStep2.rePassword && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {String(errorsStep2.rePassword?.message ?? "")}
-                    </p>
-                  )}
+                  <FormInput
+                    type="password"
+                    label="Nhập lại Mật khẩu"
+                    error={String(errorsStep2.rePassword?.message ?? "")}
+                    {...registerStep2("rePassword", {
+                      required: "Mật khẩu nhập lại không được để trống",
+                      pattern: {
+                        value: regexPassword,
+                        message: "Mật khẩu từ 8-20 kí tự, bao gồm cả chữ và số",
+                      },
+                      validate: (value) => value === password || "Mật khẩu nhập lại không khớp",
+                    })}
+                  />
                 </div>
                 <div className="space-y-4">
                   <div>
                     <p className="fs-sm text-muted-foreground mb-1">
-                      *Sau khi Ä‘á»•i máº­t kháº©u, báº¡n sáº½ Ä‘Æ°á»£c chuyá»ƒn hÆ°á»›ng Ä‘á»ƒ
-                      Ä‘Äƒng nháº­p láº¡i tÃ i khoáº£n báº±ng máº­t kháº©u má»›i nÃ y
+                      *Sau khi đổi mật khẩu, bạn sẽ được chuyển hướng để đăng nhập lại tài khoản
+                      bằng mật khẩu mới này
                     </p>
                     {step2Err && <p className="mb-1 text-red-600 text-sm">{step2Err}</p>}
                     <Button
@@ -321,7 +206,7 @@ export default function ForgotPasswordForm() {
                       )}
                       onClick={handleStep2}
                     >
-                      {step2Submitting ? <LoadingIcon /> : "XÃ¡c nháº­n"}
+                      {step2Submitting ? <LoadingIcon /> : "Xác nhận"}
                     </Button>
                   </div>
                   <Button
@@ -330,7 +215,7 @@ export default function ForgotPasswordForm() {
                     className="btn-outline px-8 py-3 w-full flex items-center justify-center gap-2"
                     onClick={backToStep1}
                   >
-                    <ArrowLeftIcon className="size-5" /> Quay láº¡i
+                    <ArrowLeftIcon className="size-5" /> Quay lại
                   </Button>
                 </div>
               </div>
@@ -342,7 +227,7 @@ export default function ForgotPasswordForm() {
           <div className="relative md:px-8 px-4 bg-background pt-3">
             <div className="flex items-center my-6">
               <div className="border-t flex-grow" />
-              <span className="px-4 text-muted-foreground text-sm">Hoáº·c</span>
+              <span className="px-4 text-muted-foreground text-sm">Hoặc</span>
               <div className="border-t flex-grow" />
             </div>
             <Button
@@ -350,8 +235,8 @@ export default function ForgotPasswordForm() {
               variant="ghost"
               className="btn-outline px-8 py-3 w-full flex items-center justify-center gap-2"
             >
-              <Link href="/login">
-                <ArrowLeftIcon className="size-5" /> Quay láº¡i Ä‘Äƒng nháº­p
+              <Link href={ROUTES.LOGIN}>
+                <ArrowLeftIcon className="size-5" /> Quay lại đăng nhập
               </Link>
             </Button>
           </div>
@@ -374,13 +259,11 @@ export default function ForgotPasswordForm() {
             }
           >
             <h1 className="lg:text-4xl md:text-3xl text-2xl bg-gradient-to-r from-pink-500 to-orange-400 bg-clip-text text-transparent mb-2">
-              ÄÃ£ Ä‘á»•i máº­t kháº©u thÃ nh cÃ´ng
+              Đã đổi mật khẩu thành công
               <br />
-              ðŸŽ‰ðŸŽ‰ðŸŽ‰
+              🎉🎉🎉
             </h1>
-            <h3 className="text-muted-foreground">
-              Äang chuyá»ƒn hÆ°á»›ng vá» trang Ä‘Äƒng nháº­p...
-            </h3>
+            <h3 className="text-muted-foreground">Đang chuyển hướng về trang đăng nhập...</h3>
             <img src="/decor/signup_step_4_decor.svg" alt="" />
           </div>
         </div>

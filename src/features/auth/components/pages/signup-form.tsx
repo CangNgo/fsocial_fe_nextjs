@@ -1,14 +1,13 @@
 "use client";
-import { AtSign, Eye, EyeOff, UserRoundIcon } from "lucide-react";
+import { AtSign, UserRoundIcon } from "lucide-react";
 import Link from "next/link";
 import { ArrowLeftIcon, LoadingIcon } from "@/shared/components/atoms/icon/icon";
+import { FormInput } from "@/shared/components/molecules/form-input";
 import { OtpInputGroup } from "@/shared/components/molecules/otp-input-group";
 import { Button } from "@/shared/components/ui/button";
-import { Input } from "@/shared/components/ui/input";
 import { NativeSelect, NativeSelectOption } from "@/shared/components/ui/native-select";
 import { dayOptions, monthOptions, yearOptions } from "@/shared/config/global-variables";
-import { regexEmail, regexName, regexPassword } from "@/shared/config/regex";
-import { cn } from "@/shared/lib/utils";
+import { ROUTES } from "@/shared/config/routes";
 import { useSignupWizard } from "../../hooks/use-signup-wizard";
 import { genderOptions } from "../../utils/signup-constants";
 
@@ -20,13 +19,8 @@ export default function SignupForm() {
     setStepsRef,
     step1Form,
     step2Form,
-    password,
     checkDuplicateClicked,
     step2Err,
-    isShowPassword,
-    setIsShowPassword,
-    isShowRePassword,
-    setIsShowRePassword,
     otpValue,
     setOtpValue,
     validOTPClicked,
@@ -68,78 +62,18 @@ export default function SignupForm() {
               </div>
               <div className="space-y-5">
                 <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <div className="relative">
-                      <Input
-                        type="text"
-                        placeholder=""
-                        className={cn(
-                          "peer custom-input",
-                          errorsStep1.firstName && "custom-input-error",
-                        )}
-                        tabIndex={0}
-                        {...registerStep1("firstName", {
-                          required: "Tên không được để trống",
-                          pattern: {
-                            value: regexName,
-                            message: "Tên tối đa 13 kí tự, không chứa số và ký tự đặc biệt",
-                          },
-                        })}
-                      />
-                      <span
-                        className={cn(
-                          "fs-sm text-muted-foreground absolute bg-background rounded-sm px-1.5 top-0 left-2 -translate-y-1/2 pointer-events-none",
-                          "peer-placeholder-shown:top-1/2 peer-hover:top-0 peer-focus:top-0 transition",
-                          errorsStep1.firstName
-                            ? "text-red-500"
-                            : "peer-hover:text-foreground peer-focus:text-foreground",
-                        )}
-                      >
-                        Tên
-                      </span>
-                    </div>
-                    {errorsStep1.firstName && (
-                      <p className="text-red-500 text-sm mt-1">
-                        {String(errorsStep1.firstName?.message ?? "")}
-                      </p>
-                    )}
-                  </div>
-                  <div>
-                    <div className="relative">
-                      <Input
-                        type="text"
-                        placeholder=""
-                        className={cn(
-                          "peer custom-input",
-                          errorsStep1.lastName && "custom-input-error",
-                        )}
-                        tabIndex={0}
-                        {...registerStep1("lastName", {
-                          required: "Họ không được để trống",
-                          pattern: {
-                            value: regexName,
-                            message: "Họ tối đa 13 kí tự, không chứa số và ký tự đặc biệt",
-                          },
-                        })}
-                      />
-                      <span
-                        className={cn(
-                          "fs-sm text-muted-foreground absolute bg-background rounded-sm px-1.5 top-0 left-2 -translate-y-1/2 pointer-events-none",
-                          "peer-placeholder-shown:top-1/2 peer-hover:top-0 peer-focus:top-0 transition",
-                          errorsStep1.lastName
-                            ? "text-red-500"
-                            : "peer-hover:text-foreground peer-focus:text-foreground",
-                        )}
-                      >
-                        Họ
-                      </span>
-                    </div>
-                    {errorsStep1.lastName && (
-                      <p className="text-red-500 text-sm mt-1">
-                        {String(errorsStep1.lastName?.message ?? "")}
-                      </p>
-                    )}
-                  </div>
+                  <FormInput
+                    type="text"
+                    label="Tên"
+                    error={String(errorsStep1.firstName?.message ?? "")}
+                    {...registerStep1("firstName")}
+                  />
+                  <FormInput
+                    type="text"
+                    label="Họ"
+                    error={String(errorsStep1.lastName?.message ?? "")}
+                    {...registerStep1("lastName")}
+                  />
                 </div>
                 <div className="grid grid-cols-3 gap-3">
                   {[
@@ -199,193 +133,32 @@ export default function SignupForm() {
                 </p>
               </div>
               <div className="space-y-5">
-                <div>
-                  <div className="relative">
-                    <Input
-                      type="text"
-                      placeholder=""
-                      className={cn(
-                        "peer custom-input",
-                        errorsStep2.username && "custom-input-error",
-                      )}
-                      tabIndex={0}
-                      {...registerStep2("username", {
-                        required: "Tên đăng nhập không được để trống",
-                      })}
-                    />
-                    <span
-                      className={cn(
-                        "fs-sm text-muted-foreground absolute bg-background rounded-sm px-1.5 top-0 left-2 -translate-y-1/2 pointer-events-none",
-                        "peer-placeholder-shown:top-1/2 peer-hover:top-0 peer-focus:top-0 transition",
-                        errorsStep2.username
-                          ? "text-red-500"
-                          : "peer-hover:text-foreground peer-focus:text-foreground",
-                      )}
-                    >
-                      Tên đăng nhập
-                    </span>
-                    <div
-                      className={cn(
-                        "absolute top-1/2 right-0 -translate-x-1/2 -translate-y-1/2",
-                        errorsStep2.username ? "text-red-500" : "text-muted-foreground",
-                      )}
-                    >
-                      <UserRoundIcon className="size-5" />
-                    </div>
-                  </div>
-                  {errorsStep2.username && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {String(errorsStep2.username?.message ?? "")}
-                    </p>
-                  )}
-                </div>
-                <div>
-                  <div className="relative">
-                    <Input
-                      type="text"
-                      placeholder=""
-                      className={cn("peer custom-input", errorsStep2.email && "custom-input-error")}
-                      tabIndex={0}
-                      {...registerStep2("email", {
-                        required: "Email không được để trống",
-                        pattern: { value: regexEmail, message: "Email không hợp lệ" },
-                      })}
-                    />
-                    <span
-                      className={cn(
-                        "fs-sm text-muted-foreground absolute bg-background rounded-sm px-1.5 top-0 left-2 -translate-y-1/2 pointer-events-none",
-                        "peer-placeholder-shown:top-1/2 peer-hover:top-0 peer-focus:top-0 transition",
-                        errorsStep2.email
-                          ? "text-red-500"
-                          : "peer-hover:text-foreground peer-focus:text-foreground",
-                      )}
-                    >
-                      Email
-                    </span>
-                    <div
-                      className={cn(
-                        "absolute top-1/2 right-0 -translate-x-1/2 -translate-y-1/2",
-                        errorsStep2.email ? "text-red-500" : "text-muted-foreground",
-                      )}
-                    >
-                      <AtSign className="size-5" />
-                    </div>
-                  </div>
-                  {errorsStep2.email && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {String(errorsStep2.email?.message ?? "")}
-                    </p>
-                  )}
-                </div>
-                <div>
-                  <div className="relative">
-                    <Input
-                      type={isShowPassword ? "text" : "password"}
-                      placeholder=""
-                      className={cn(
-                        "peer custom-input",
-                        errorsStep2.password && "custom-input-error",
-                      )}
-                      tabIndex={0}
-                      {...registerStep2("password", {
-                        required: "Mật khẩu không được để trống",
-                        pattern: {
-                          value: regexPassword,
-                          message: "Mật khẩu từ 8-20 kí tự, bao gồm cả chữ và số",
-                        },
-                      })}
-                    />
-                    <span
-                      className={cn(
-                        "fs-sm text-muted-foreground absolute bg-background rounded-sm px-1.5 top-0 left-2 -translate-y-1/2 pointer-events-none",
-                        "peer-placeholder-shown:top-1/2 peer-hover:top-0 peer-focus:top-0 transition",
-                        errorsStep2.password
-                          ? "text-red-500"
-                          : "peer-hover:text-foreground peer-focus:text-foreground",
-                      )}
-                    >
-                      Mật khẩu
-                    </span>
-                    <div
-                      className={cn(
-                        "absolute top-1/2 right-0 -translate-x-1/2 -translate-y-1/2",
-                        errorsStep2.password ? "text-red-500" : "text-muted-foreground",
-                      )}
-                    >
-                      {!isShowPassword ? (
-                        <Eye
-                          className="size-5 cursor-pointer"
-                          onClick={() => setIsShowPassword(true)}
-                        />
-                      ) : (
-                        <EyeOff
-                          className="size-5 cursor-pointer"
-                          onClick={() => setIsShowPassword(false)}
-                        />
-                      )}
-                    </div>
-                  </div>
-                  {errorsStep2.password && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {String(errorsStep2.password?.message ?? "")}
-                    </p>
-                  )}
-                </div>
-                <div>
-                  <div className="relative">
-                    <Input
-                      type={isShowRePassword ? "text" : "password"}
-                      placeholder=""
-                      className={cn(
-                        "peer custom-input",
-                        errorsStep2.rePassword && "custom-input-error",
-                      )}
-                      tabIndex={0}
-                      {...registerStep2("rePassword", {
-                        required: "Mật khẩu nhập lại không được để trống",
-                        pattern: {
-                          value: regexPassword,
-                          message: "Mật khẩu từ 8-20 kí tự, bao gồm cả chữ và số",
-                        },
-                        validate: (value) => value === password || "Mật khẩu nhập lại không khớp",
-                      })}
-                    />
-                    <span
-                      className={cn(
-                        "fs-sm text-muted-foreground absolute bg-background rounded-sm px-1.5 top-0 left-2 -translate-y-1/2 pointer-events-none",
-                        "peer-placeholder-shown:top-1/2 peer-hover:top-0 peer-focus:top-0 transition",
-                        errorsStep2.rePassword
-                          ? "text-red-500"
-                          : "peer-hover:text-foreground peer-focus:text-foreground",
-                      )}
-                    >
-                      Nhập lại Mật khẩu
-                    </span>
-                    <div
-                      className={cn(
-                        "absolute top-1/2 right-0 -translate-x-1/2 -translate-y-1/2",
-                        errorsStep2.rePassword ? "text-red-500" : "text-muted-foreground",
-                      )}
-                    >
-                      {!isShowRePassword ? (
-                        <Eye
-                          className="size-5 cursor-pointer"
-                          onClick={() => setIsShowRePassword(true)}
-                        />
-                      ) : (
-                        <EyeOff
-                          className="size-5 cursor-pointer"
-                          onClick={() => setIsShowRePassword(false)}
-                        />
-                      )}
-                    </div>
-                  </div>
-                  {errorsStep2.rePassword && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {String(errorsStep2.rePassword?.message ?? "")}
-                    </p>
-                  )}
-                </div>
+                <FormInput
+                  type="text"
+                  label="Tên đăng nhập"
+                  icon={<UserRoundIcon className="size-5" />}
+                  error={String(errorsStep2.username?.message ?? "")}
+                  {...registerStep2("username")}
+                />
+                <FormInput
+                  type="text"
+                  label="Email"
+                  icon={<AtSign className="size-5" />}
+                  error={String(errorsStep2.email?.message ?? "")}
+                  {...registerStep2("email")}
+                />
+                <FormInput
+                  type="password"
+                  label="Mật khẩu"
+                  error={String(errorsStep2.password?.message ?? "")}
+                  {...registerStep2("password")}
+                />
+                <FormInput
+                  type="password"
+                  label="Nhập lại Mật khẩu"
+                  error={String(errorsStep2.rePassword?.message ?? "")}
+                  {...registerStep2("rePassword")}
+                />
                 {step2Err && <p className="text-red-500 text-sm">{step2Err}</p>}
                 <div className="space-y-4">
                   <Button
@@ -467,7 +240,7 @@ export default function SignupForm() {
               </Button>
               <p className="text-muted-foreground text-center text-sm">
                 Bạn đã có tài khoản?{" "}
-                <Link href="/login" className="underline font-semibold">
+                <Link href={ROUTES.LOGIN} className="underline font-semibold">
                   Quay lại đăng nhập
                 </Link>
               </p>

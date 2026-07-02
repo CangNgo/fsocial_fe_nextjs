@@ -2,12 +2,12 @@
 
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useEffect, useState } from "react";
-import { type MediaResponse, MediaType } from "@/shared/types/media";
 import { Image } from "@/shared/components/atoms/image";
 import { Button } from "@/shared/components/ui/button";
 import type { CarouselApi } from "@/shared/components/ui/carousel";
 import { Carousel, CarouselContent, CarouselItem } from "@/shared/components/ui/carousel";
 import { cn } from "@/shared/lib/utils";
+import { type MediaResponse, MediaType } from "@/shared/types/media";
 
 interface PostMediaCarouselProps {
   media: MediaResponse[];

@@ -1,8 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { ownerAccountStore } from "@/shared/stores/owner-account-store";
 import { useMessageStore } from "@/shared/stores/message-store";
+import { ownerAccountStore } from "@/shared/stores/owner-account-store";
 import { getConversations } from "../api/message-api";
 import type { Conversation, ConversationsResponse } from "../types/conversation";
 

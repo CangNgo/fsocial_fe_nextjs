@@ -1,6 +1,7 @@
 import { jwtDecode } from "jwt-decode";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
+import { GUEST_ONLY_PATHS, ROUTES, USER_PATHS } from "@/shared/config/routes";
 
 interface JwtPayload {
   sub: string;
@@ -8,9 +9,7 @@ interface JwtPayload {
   exp: number;
 }
 
-const GUEST_ONLY_PATHS = ["/login", "/signup", "/forgot-password"];
-const ADMIN_PREFIX = "/admin";
-const USER_PATHS = ["/home", "/follow", "/search", "/message", "/profile", "/post", "/setting"];
+const ADMIN_PREFIX = ROUTES.ADMIN.PREFIX;
 
 function getRoleFromToken(token: string | undefined): string | null {
   if (!token) return null;
@@ -38,22 +37,22 @@ export function proxy(request: NextRequest) {
 
   if (!isLoggedIn && (isUserPath || isAdminPath)) {
     const url = request.nextUrl.clone();
-    url.pathname = "/login";
+    url.pathname = ROUTES.LOGIN;
     url.searchParams.set("from", pathname);
     return NextResponse.redirect(url);
   }
 
   if (isLoggedIn && isGuestPath) {
-    const redirectTo = isAdmin ? "/admin/complaint" : "/home";
+    const redirectTo = isAdmin ? ROUTES.ADMIN.COMPLAINT : ROUTES.HOME;
     return NextResponse.redirect(new URL(redirectTo, request.url));
   }
 
   if (isLoggedIn && isAdminPath && !isAdmin) {
-    return NextResponse.redirect(new URL("/home", request.url));
+    return NextResponse.redirect(new URL(ROUTES.HOME, request.url));
   }
 
   if (isLoggedIn && isUserPath && isAdmin) {
-    return NextResponse.redirect(new URL("/admin/complaint", request.url));
+    return NextResponse.redirect(new URL(ROUTES.ADMIN.COMPLAINT, request.url));
   }
 
   return NextResponse.next();

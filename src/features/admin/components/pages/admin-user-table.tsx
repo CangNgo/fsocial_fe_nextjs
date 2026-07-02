@@ -125,7 +125,8 @@ export default function AdminUserTable() {
           <tr
             key={item.id}
             className={cn(
-              `hover:bg-secondary border-t transition ${item.status && "hover:bg-primary-ghost bg-primary-ghost"
+              `hover:bg-secondary border-t transition ${
+                item.status && "hover:bg-primary-ghost bg-primary-ghost"
               }`,
             )}
           >

@@ -12,7 +12,7 @@ import {
   PencilChangeImageIcon,
   UploadDecorIcon,
 } from "@/shared/components/atoms/icon/icon";
-import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar";
+import { UserAvatar } from "@/shared/components/molecules/user-avatar";
 import { Button } from "@/shared/components/ui/button";
 import type { CarouselApi } from "@/shared/components/ui/carousel";
 import { Carousel, CarouselContent, CarouselItem } from "@/shared/components/ui/carousel";
@@ -93,7 +93,9 @@ export default function CreatePostForm({ onPostCreated }: CreatePostFormProps) {
     const files = e.target.files;
     if (!files) return;
 
-    const normalizedFiles = await Promise.all(Array.from(files).map((file) => convertImageToPng(file)));
+    const normalizedFiles = await Promise.all(
+      Array.from(files).map((file) => convertImageToPng(file)),
+    );
 
     const previewUrls: FilePreview[] = normalizedFiles.map((file) => ({
       src: URL.createObjectURL(file),
@@ -154,10 +156,12 @@ export default function CreatePostForm({ onPostCreated }: CreatePostFormProps) {
             <div className="relative h-[100dvh] overflow-y-auto scrollable-div space-y-2 pt-11 sm:h-full sm:max-h-[80dvh]">
               <div className="flex items-start justify-between px-4 pt-3">
                 <div className="flex items-center gap-2">
-                  <Avatar className="grid size-9">
-                    <AvatarImage src={user?.avatar ?? undefined} />
-                    <AvatarFallback className="text-[12px]">{user?.displayName ?? ""}</AvatarFallback>
-                  </Avatar>
+                  <UserAvatar
+                    src={user?.avatar}
+                    displayName={user?.displayName}
+                    className="size-9"
+                    fallbackClassName="text-[12px]"
+                  />
                   <div className="flex flex-col justify-center">
                     <span className="font-semibold">{user?.displayName ?? ""}</span>
                   </div>
@@ -188,7 +192,10 @@ export default function CreatePostForm({ onPostCreated }: CreatePostFormProps) {
                 {previewCount > 0 && (
                   <div className="overflow-hidden rounded-md" style={{ height: PREVIEW_HEIGHT }}>
                     <div
-                      className={cn("grid h-full w-full gap-1", getPreviewGridClassName(previewCount))}
+                      className={cn(
+                        "grid h-full w-full gap-1",
+                        getPreviewGridClassName(previewCount),
+                      )}
                     >
                       {visiblePreviews.map((preview, index) => {
                         const showOverlay = hiddenPreviewCount > 0 && index === 4;
@@ -216,7 +223,9 @@ export default function CreatePostForm({ onPostCreated }: CreatePostFormProps) {
                             )}
                             {showOverlay && (
                               <div className="absolute inset-0 grid place-content-center bg-black/60 text-white">
-                                <span className="text-2xl font-semibold">+{hiddenPreviewCount}</span>
+                                <span className="text-2xl font-semibold">
+                                  +{hiddenPreviewCount}
+                                </span>
                               </div>
                             )}
                           </div>
@@ -230,7 +239,9 @@ export default function CreatePostForm({ onPostCreated }: CreatePostFormProps) {
                   htmlFor="create-post-file-upload"
                   className={cn(
                     "rounded-md flex items-center justify-center bg-gray-3light",
-                    fileUploads.length === 0 ? "mx-3 cursor-pointer aspect-video" : "opacity-0 absolute inset-0",
+                    fileUploads.length === 0
+                      ? "mx-3 cursor-pointer aspect-video"
+                      : "opacity-0 absolute inset-0",
                   )}
                   onDragOver={(e) => {
                     e.preventDefault();
@@ -249,7 +260,9 @@ export default function CreatePostForm({ onPostCreated }: CreatePostFormProps) {
                     e.currentTarget.style.opacity = "";
                     const files = e.dataTransfer.files;
                     if (files.length > 0) {
-                      await handleOnFileChange({ target: { files } } as { target: { files: FileList } });
+                      await handleOnFileChange({ target: { files } } as {
+                        target: { files: FileList };
+                      });
                     }
                   }}
                 >
@@ -299,10 +312,18 @@ export default function CreatePostForm({ onPostCreated }: CreatePostFormProps) {
                   {filePreviews.map((media, index) => (
                     <div key={media.src} className="relative overflow-hidden">
                       {media.type === "image" && (
-                        <img src={media.src} alt="Bài đăng" className="size-full object-cover object-center" />
+                        <img
+                          src={media.src}
+                          alt="Bài đăng"
+                          className="size-full object-cover object-center"
+                        />
                       )}
                       {media.type === "video" && (
-                        <video src={media.src} controls className="size-full object-cover object-center" />
+                        <video
+                          src={media.src}
+                          controls
+                          className="size-full object-cover object-center"
+                        />
                       )}
                       <Button
                         type="button"

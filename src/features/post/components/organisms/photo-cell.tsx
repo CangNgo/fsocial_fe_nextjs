@@ -1,6 +1,6 @@
-import { computeLayout } from "../../utils/compute-layout";
-import type { LayoutSlot, MediaResponse } from "@/shared/types/media";
 import { Image } from "@/shared/components/atoms/image";
+import type { LayoutSlot, MediaResponse } from "@/shared/types/media";
+import { computeLayout } from "../../utils/compute-layout";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // PhotoCell — render 1 ô ảnh trong grid

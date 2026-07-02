@@ -11,7 +11,7 @@ export interface UpdateProfile {
 export async function updateBanner(bannerFile: File): Promise<unknown> {
   const formData = new FormData();
   formData.append("file", bannerFile);
-  return apiPut("/post/profile/update-background", formData, {
+  return apiPut("/profile/update-background", formData, {
     headers: { "Content-Type": "multipart/form-data" },
   });
 }
@@ -19,7 +19,7 @@ export async function updateBanner(bannerFile: File): Promise<unknown> {
 export async function updateAvatar(avatarFile: File): Promise<unknown> {
   const formData = new FormData();
   formData.append("file", avatarFile);
-  return apiPut("/post/profile/update-avatar", formData, {
+  return apiPut("/profile/update-avatar", formData, {
     headers: { "Content-Type": "multipart/form-data" },
   });
 }

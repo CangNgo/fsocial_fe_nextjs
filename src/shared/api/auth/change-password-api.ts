@@ -6,5 +6,5 @@ export interface ChangePasswordPayload {
 }
 
 export async function changePassword(sendingData: ChangePasswordPayload): Promise<unknown> {
-  return apiPut("/post/change-password", sendingData);
+  return apiPut("/change-password", sendingData);
 }

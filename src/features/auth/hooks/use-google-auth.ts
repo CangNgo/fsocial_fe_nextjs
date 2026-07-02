@@ -2,7 +2,8 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useRef } from "react";
+import { ROUTES } from "@/shared/config/routes";
 import { getUserInfoByGoogle } from "../api/google-api";
 import { setToken } from "./set-token";
 
@@ -14,6 +15,7 @@ declare global {
 
 export function useGoogleAuth() {
   const router = useRouter();
+  const isGSIInitialized = useRef(false);
 
   const handleSuccess = useCallback(
     async (idToken: string) => {
@@ -22,7 +24,7 @@ export function useGoogleAuth() {
         const tokens = result?.data;
         if (!tokens) return;
         setToken(tokens?.accessToken, tokens?.refreshToken);
-        router.push("/");
+        router.push(ROUTES.ROOT);
       } catch (error) {
         console.error("Google login error:", error);
       }
@@ -32,6 +34,7 @@ export function useGoogleAuth() {
 
   const initGSI = useCallback(() => {
     if (!window.google) return;
+    if (isGSIInitialized.current) return;
 
     window.google.accounts.id.initialize({
       client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!,
@@ -40,10 +43,11 @@ export function useGoogleAuth() {
       },
       auto_select: false,
       cancel_on_tap_outside: true,
-      use_fedcm_for_prompt: true,
+      use_fedcm_for_prompt: false,
     });
 
     window.google.accounts.id.prompt();
+    console.log("url: ", window.location.href);
 
     const btnEl = document.getElementById("google-signin-btn");
     if (btnEl) {

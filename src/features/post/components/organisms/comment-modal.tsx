@@ -4,12 +4,11 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import type { PostCardPost, PostCardStore } from "../../hooks/use-post-card-actions";
-import { usePostForModal } from "../../hooks/use-post-for-modal";
 import { HeartPostIcon, LoadingIcon, XMarkIcon } from "@/shared/components/atoms/icon/icon";
-import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar";
+import { UserAvatar } from "@/shared/components/molecules/user-avatar";
 import { Button } from "@/shared/components/ui/button";
 import { Textarea } from "@/shared/components/ui/textarea";
+import { ROUTES } from "@/shared/config/routes";
 import { ownerAccountStore } from "@/shared/stores/owner-account-store";
 import { usePopupStore } from "@/shared/stores/popup-store";
 import { combineIntoAvatarName, combineIntoDisplayName } from "@/shared/utils/combine-name";
@@ -21,6 +20,8 @@ import {
   replyComment,
   sendComment,
 } from "../../api/comments-api";
+import type { PostCardPost, PostCardStore } from "../../hooks/use-post-card-actions";
+import { usePostForModal } from "../../hooks/use-post-for-modal";
 import PostCard from "../molecules/post-card";
 
 interface Comment {
@@ -67,17 +68,17 @@ function RenderComment({
 
   const handleDirectToProfile = () => {
     hidePopup();
-    router.push(`/profile?id=${comment.userId}`);
+    router.push(ROUTES.PROFILE(comment.userId));
   };
 
   return (
     <div className="flex gap-3">
-      <Avatar className="size-9 cursor-pointer" onClick={handleDirectToProfile}>
-        <AvatarImage src={comment.avatar ?? undefined} />
-        <AvatarFallback className="text-[11px]">
-          {combineIntoAvatarName(comment.firstName, comment.lastName)}
-        </AvatarFallback>
-      </Avatar>
+      <UserAvatar
+        src={comment.avatar}
+        initials={combineIntoAvatarName(comment.firstName, comment.lastName)}
+        className="size-9 cursor-pointer"
+        onClick={handleDirectToProfile}
+      />
       <div>
         <div className="space-y-1">
           <Link
@@ -161,7 +162,7 @@ export function CommentModal({ id, store, initialMediaIndex }: CommentModalProps
   useEffect(() => {
     getComments(id).then((resp: unknown) => {
       const r = resp as { statusCode?: number; data?: Comment[] };
-      if (r?.statusCode === 207 || r?.statusCode === 200) setComments((r.data ?? []).reverse());
+      if (r?.statusCode === 200) setComments((r.data ?? []).reverse());
     });
   }, [id]);
 
@@ -343,12 +344,7 @@ export function CommentModal({ id, store, initialMediaIndex }: CommentModalProps
           </Button>
         </div>
         <div className="bg-background flex items-end gap-4 px-4 pt-2 pb-3 border-t">
-          <Avatar className="size-9">
-            <AvatarImage src={user?.avatar ?? undefined} />
-            <AvatarFallback className="text-[11px]">
-              {user.displayName}
-            </AvatarFallback>
-          </Avatar>
+          <UserAvatar src={user?.avatar} displayName={user?.displayName} className="size-9" />
           <Textarea
             ref={textbox}
             className="w-full max-h-[40vh] resize-none py-2"

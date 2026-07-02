@@ -24,7 +24,6 @@ import {
 import { Input } from "@/shared/components/ui/input";
 import { combineIntoAvatarName, combineIntoDisplayName } from "@/shared/utils/combine-name";
 import { useAdminReports } from "../../hooks/use-admin-reports";
-import { AdminLineChart } from "../molecules/admin-line-chart";
 import {
   analyzeTemplate,
   chartConfigGender,
@@ -34,6 +33,7 @@ import {
   dateClassToISO8601,
   fakeChartDataGender,
 } from "../../utils/admin-report-utils";
+import { AdminLineChart } from "../molecules/admin-line-chart";
 
 export default function AdminReportsDashboard() {
   const {

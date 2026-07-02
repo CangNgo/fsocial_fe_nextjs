@@ -2,10 +2,10 @@ import axios, { type AxiosError, type InternalAxiosRequestConfig } from "axios";
 import { getCookie, setCookie } from "@/shared/utils/cookie";
 
 const PUBLIC_ENDPOINTS = [
-  "/post/auth/login",
-  "/post/auth/register",
-  "/post/auth/send-otp",
-  "/post/auth/valid-otp",
+  "/auth/login",
+  "/auth/register",
+  "/auth/send-otp",
+  "/auth/valid-otp",
 ];
 
 export const API = axios.create({

@@ -5,5 +5,5 @@ import type { LoginResponse } from "../types/login";
 export async function getUserInfoByGoogle(
   code: string,
 ): Promise<ApiResponse<LoginResponse> | null> {
-  return apiPost<LoginResponse>("/post/auth/google/login", { code });
+  return apiPost<LoginResponse>("/auth/google/login", { code });
 }
