@@ -53,7 +53,7 @@ function Button({
       data-slot="button"
       data-variant={variant}
       data-size={size}
-      className={cn(buttonVariants({ variant, size, className }), 'border-0 shadow-none')}
+      className={cn(buttonVariants({ variant, size, className }), "border-0 shadow-none")}
       {...props}
     />
   );

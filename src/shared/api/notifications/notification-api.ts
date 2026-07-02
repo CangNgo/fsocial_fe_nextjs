@@ -1,11 +1,11 @@
 import { apiGet, apiPut } from "../core/api-service";
 
 export async function getNotification(userId: string): Promise<unknown> {
-  return apiGet(`/post/notice/${userId}`);
+  return apiGet(`/notice/${userId}`);
 }
 
 export async function markReadNotification(id: string): Promise<unknown> {
-  return apiPut(`/post/notice/${id}`);
+  return apiPut(`/notice/${id}`);
 }
 
 export async function getNotificationWithPagination({
@@ -19,7 +19,7 @@ export async function getNotificationWithPagination({
   page?: number;
   limit?: number;
 }): Promise<unknown> {
-  return apiGet("/post/notice", {
+  return apiGet("/notice", {
     params: { userId, channelId, page, limit },
   });
 }

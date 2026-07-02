@@ -13,11 +13,11 @@ export const getUserComplaint = async (): Promise<unknown> => {
 };
 
 export const postComplaint = async (userId: string, postId: string): Promise<unknown> => {
-  return apiPost("/post/complaint", { userId, postId });
+  return apiPost("/complaint", { userId, postId });
 };
 
 export const readingComplaint = async (id: string): Promise<unknown> => {
-  return apiPut(`/post/complaint/reading?complaint_id=${id}`);
+  return apiPut(`/complaint/reading?complaint_id=${id}`);
 };
 
 export const searchComplaint = async (keyword: string): Promise<unknown> => {

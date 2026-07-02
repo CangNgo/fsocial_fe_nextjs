@@ -1,12 +1,14 @@
 "use client";
-import { jwtDecode } from "jwt-decode";
 import dynamic from "next/dynamic";
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { Toaster, toast } from "sonner";
 import { getOwnerProfile } from "@/features/profile/api/profile-api";
 import { ExpiredDialog } from "@/shared/components/organisms/expired-dialog";
 import { GlobalPopup } from "@/shared/components/organisms/global-popup";
 import { Header } from "@/shared/components/organisms/header";
 import { Sidebar } from "@/shared/components/organisms/sidebar";
+import { ROUTES } from "@/shared/config/routes";
 // Tạm comment kết nối websocket
 // import { useMessageStore } from "@/shared/stores/message-store";
 // import { useNotificationStore } from "@/shared/stores/notification-store";
@@ -21,59 +23,46 @@ const NotificationPanel = dynamic(
 
 export default function UserLayout({ children }: { children: React.ReactNode }) {
   const { setUser } = ownerAccountStore();
-  // Tạm comment kết nối websocket
-  // const { connectNotificationWebSocket } = useNotificationStore();
-  // const { connectMessageWebSocket } = useMessageStore();
   const { refreshToken } = validRefreshTokenStore();
   const initialized = useRef(false);
+  const router = useRouter();
 
-  // Prevent hydration mismatch: validRefreshTokenStore reads cookies (window-only),
-  // so server renders refreshToken=null while client may have a real value.
-  // Only render the ExpiredDialog after the client has hydrated.
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
+
+  const handleGetProfile = async () => {
+    const res = await getOwnerProfile();
+    if (res?.statusCode != 200) {
+      toast.error("Lỗi khi tải thông tin cá nhân của bạn");
+      router.push(ROUTES.LOGIN);
+      return;
+    } else {
+      return res.data;
+    }
+  };
 
   useEffect(() => {
     const token = getCookie("access-token");
     if (!token) return;
-    let userId: string | null = null;
-    try {
-      const decoded = jwtDecode<{ sub: string }>(token);
-      userId = decoded.sub;
-    } catch {
-      return;
-    }
-    if (!userId) return;
 
-    // Set userId immediately so HomeFeature/other pages can start fetching
-    // without waiting for the full profile response.
-    setUser({ userId });
+    const fetchProfile = async () => {
+      const profile = await handleGetProfile();
+      if (!profile) return;
 
-    // Load full profile details (name, avatar, etc.) asynchronously
-    getOwnerProfile().then((profile: unknown) => {
-      const p = profile as { statusCode?: number; data?: Parameters<typeof setUser>[0] } | null;
-      if (p?.statusCode === 200 && p?.data) setUser(p.data);
-    });
+      setUser({ ...profile });
 
-    if (!initialized.current) {
-      initialized.current = true;
-      // Tạm comment kết nối websocket
-      // connectNotificationWebSocket(userId);
-      // connectMessageWebSocket(userId);
-    }
-  }, [
-    // Set userId immediately so HomeFeature/other pages can start fetching
-    // without waiting for the full profile response.
-    setUser,
-  ]);
+      if (!initialized.current) {
+        initialized.current = true;
+        // Tạm comment kết nối websocket
+        // connectNotificationWebSocket(userId);
+        // connectMessageWebSocket(userId);
+      }
+    };
+
+    fetchProfile();
+  }, [setUser]);
 
   return (
-    /*
-      Root: h-screen + overflow-hidden → toàn bộ trang không scroll theo window
-      Sidebar trái: sticky, không scroll
-      Main giữa: overflow-y-auto → chỉ vùng này scroll
-      Right (sau): sẽ thêm panel thông báo, tự scroll riêng
-    */
     <div className="flex h-screen overflow-hidden">
       <Sidebar />
 
@@ -93,6 +82,7 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
 
       <GlobalPopup />
       <ExpiredDialog open={mounted && !refreshToken} />
+      <Toaster richColors position="bottom-right" />
     </div>
   );
 }

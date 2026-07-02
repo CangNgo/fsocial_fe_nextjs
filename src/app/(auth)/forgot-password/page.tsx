@@ -2,7 +2,7 @@
 import dynamic from "next/dynamic";
 
 const ForgotPasswordForm = dynamic(
-  () => import("@/features/auth/presentation/pages/forgot-password-form"),
+  () => import("@/features/auth/components/pages/forgot-password-form"),
   { ssr: false },
 );
 

@@ -5,17 +5,17 @@ export const getPolicies = async (): Promise<unknown> => {
 };
 
 export const postPolicies = async (listPolicy: unknown): Promise<unknown> => {
-  return apiPost("/post/policy", listPolicy);
+  return apiPost("/policy", listPolicy);
 };
 
 export const getTermOfService = async (): Promise<unknown> => {
-  return apiGet("/post/term_of_service");
+  return apiGet("/term_of_service");
 };
 
 export const removeTermOfService = async (id: string): Promise<unknown> => {
-  return apiDelete(`/post/term_of_service?term_id=${id}`);
+  return apiDelete(`/term_of_service?term_id=${id}`);
 };
 
 export const addTermOfService = async (name: string): Promise<unknown> => {
-  return apiPost("/post/term_of_service", { name });
+  return apiPost("/term_of_service", { name });
 };

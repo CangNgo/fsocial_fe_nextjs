@@ -1,6 +1,7 @@
 "use client";
 import { SearchIcon } from "lucide-react";
 import dynamic from "next/dynamic";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
@@ -10,28 +11,23 @@ import {
   FollowNavIcon,
   HamburgerIcon,
   HomeNavIcon,
-  LogoNoBG,
   MessageNavIcon,
 } from "@/shared/components/atoms/icon/icon";
-import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar";
+import { UserAvatar } from "@/shared/components/molecules/user-avatar";
 import { Button } from "@/shared/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/shared/components/ui/popover";
+import { ROUTES } from "@/shared/config/routes";
 import { cn } from "@/shared/lib/utils";
 import { useMessageStore } from "@/shared/stores/message-store";
 import { useNotificationStore } from "@/shared/stores/notification-store";
 import { ownerAccountStore } from "@/shared/stores/owner-account-store";
 import { popupNotificationtStore, usePopupStore } from "@/shared/stores/popup-store";
-import { getInitialsFromDisplayName } from "@/shared/utils/combine-name";
 
 const NavMoreMenu = dynamic(
-  () =>
-    import("@/shared/components/organisms/nav-more-menu").then((m) => m.NavMoreMenu),
+  () => import("@/shared/components/organisms/nav-more-menu").then((m) => m.NavMoreMenu),
   { ssr: false },
 );
-const CreatePostForm = dynamic(
-  () =>
-    import("@/shared/components/organisms/create-post-form"),
-);
+const CreatePostForm = dynamic(() => import("@/shared/components/organisms/create-post-form"));
 
 // sm-md (72px): icon centered, no gap/padding for text
 // lg+  (260px): icon + text, left-aligned with gap
@@ -97,60 +93,81 @@ export function Sidebar() {
         <div className="flex flex-col gap-0.5 pt-4 px-2">
           {/* Logo */}
           <div className="flex justify-center lg:justify-start lg:pl-1 mb-3 py-1">
-            <Link href="/" onClick={closeNoti}>
-              <LogoNoBG className="h-8" />
+            <Link href={ROUTES.ROOT} onClick={closeNoti}>
+              <Image
+                src="/logo/branch-logo-horizon.png"
+                alt="FlowZone"
+                width={520}
+                height={130}
+                className="h-14 w-full object-contain object-left"
+                sizes="260px"
+                quality={100}
+                priority
+              />
             </Link>
           </div>
 
           {/* Home */}
           <Button
             variant="ghost"
-            className={cn(ITEM, (pathname === "/" || pathname === "/home") && "bg-accent")}
-            onClick={() => handleNavigate("/home")}
+            className={cn(
+              ITEM,
+              (pathname === ROUTES.ROOT || pathname === ROUTES.HOME) && "bg-accent",
+            )}
+            onClick={() => handleNavigate(ROUTES.HOME)}
           >
             <IconSlot>
-              <HomeNavIcon compareVar={pathname === "/" || pathname === "/home"} />
+              <HomeNavIcon compareVar={pathname === ROUTES.ROOT || pathname === ROUTES.HOME} />
             </IconSlot>
-            <span className={cn(LABEL, pathname === "/" && "font-semibold")}>Trang chủ</span>
+            <span className={cn(LABEL, pathname === ROUTES.ROOT && "font-semibold")}>
+              Trang chủ
+            </span>
           </Button>
 
           {/* Follow */}
           <Button
             variant="ghost"
-            className={cn(ITEM, pathname === "/follow" && "bg-accent")}
-            onClick={() => handleNavigate("/follow")}
+            className={cn(ITEM, pathname === ROUTES.FOLLOW && "bg-accent")}
+            onClick={() => handleNavigate(ROUTES.FOLLOW)}
           >
             <IconSlot>
-              <FollowNavIcon compareVar={pathname === "/follow"} />
+              <FollowNavIcon compareVar={pathname === ROUTES.FOLLOW} />
             </IconSlot>
-            <span className={cn(LABEL, pathname === "/follow" && "font-semibold")}>Theo dõi</span>
+            <span className={cn(LABEL, pathname === ROUTES.FOLLOW && "font-semibold")}>
+              Theo dõi
+            </span>
           </Button>
 
           {/* Search */}
           <Button
             variant="ghost"
-            className={cn(ITEM, pathname === "/search" && "bg-accent")}
-            onClick={() => handleNavigate("/search")}
+            className={cn(ITEM, pathname === ROUTES.SEARCH && "bg-accent")}
+            onClick={() => handleNavigate(ROUTES.SEARCH)}
           >
             <IconSlot>
-              <SearchIcon className="size-[26px]" strokeWidth={pathname === "/search" ? 2.2 : 1.6} />
+              <SearchIcon
+                className="size-[26px]"
+                strokeWidth={pathname === ROUTES.SEARCH ? 2.2 : 1.6}
+              />
             </IconSlot>
-            <span className={cn(LABEL, pathname === "/search" && "font-semibold")}>Tìm kiếm</span>
+            <span className={cn(LABEL, pathname === ROUTES.SEARCH && "font-semibold")}>
+              Tìm kiếm
+            </span>
           </Button>
 
           {/* Message */}
           <Button
             variant="ghost"
-            className={cn(ITEM, pathname.startsWith("/message") && "bg-accent")}
-            onClick={() => handleNavigate("/message")}
+            className={cn(ITEM, pathname.startsWith(ROUTES.MESSAGE) && "bg-accent")}
+            onClick={() => handleNavigate(ROUTES.MESSAGE)}
           >
             <IconSlot>
               <span className="relative">
-                <MessageNavIcon compareVar={pathname.startsWith("/message")} />
+                <MessageNavIcon compareVar={pathname.startsWith(ROUTES.MESSAGE)} />
                 {newMessage && <Dot />}
               </span>
             </IconSlot>
-            <span className={cn(LABEL, pathname.startsWith("/message") && "font-semibold")}>
+            <span className={cn(LABEL, pathname.startsWith(ROUTES.MESSAGE) && "font-semibold")}>
               Tin nhắn
             </span>
           </Button>
@@ -181,18 +198,18 @@ export function Sidebar() {
           {/* Profile */}
           <Button
             variant="ghost"
-            className={cn(ITEM, pathname === "/profile" && "bg-accent")}
-            onClick={() => handleNavigate("/profile")}
+            className={cn(ITEM, pathname === ROUTES.PROFILE_BASE && "bg-accent")}
+            onClick={() => handleNavigate(ROUTES.PROFILE_BASE)}
           >
             <IconSlot>
-              <Avatar className="size-[26px]">
-                <AvatarImage src={user.avatar ?? undefined} />
-                <AvatarFallback className="text-[8px] font-semibold">
-                  {getInitialsFromDisplayName(user?.displayName ?? "")}
-                </AvatarFallback>
-              </Avatar>
+              <UserAvatar
+                src={user.avatar}
+                displayName={user?.displayName}
+                className="size-[26px]"
+                fallbackClassName="text-[8px] font-semibold"
+              />
             </IconSlot>
-            <span className={cn(LABEL, pathname === "/profile" && "font-semibold")}>
+            <span className={cn(LABEL, pathname === ROUTES.PROFILE_BASE && "font-semibold")}>
               {user?.displayName ?? ""}
             </span>
           </Button>
@@ -228,18 +245,27 @@ export function Sidebar() {
       {/* ────── MOBILE BOTTOM BAR ────────────────────────────────── */}
       <nav className="sm:hidden fixed bottom-0 inset-x-0 z-20 bg-background border-t h-14 flex items-center">
         {[
-          { href: "/home", icon: <HomeNavIcon compareVar={pathname.startsWith("/home")} /> },
-          { href: "/follow", icon: <FollowNavIcon compareVar={pathname.startsWith("/follow")} /> },
           {
-            href: "/search",
+            href: ROUTES.HOME,
+            icon: <HomeNavIcon compareVar={pathname.startsWith(ROUTES.HOME)} />,
+          },
+          {
+            href: ROUTES.FOLLOW,
+            icon: <FollowNavIcon compareVar={pathname.startsWith(ROUTES.FOLLOW)} />,
+          },
+          {
+            href: ROUTES.SEARCH,
             icon: (
               <SearchIcon
                 className="size-[26px]"
-                strokeWidth={pathname.startsWith("/search") ? 2.2 : 1.6}
+                strokeWidth={pathname.startsWith(ROUTES.SEARCH) ? 2.2 : 1.6}
               />
             ),
           },
-          { href: "/message", icon: <MessageNavIcon compareVar={pathname.startsWith("/message")} /> },
+          {
+            href: ROUTES.MESSAGE,
+            icon: <MessageNavIcon compareVar={pathname.startsWith(ROUTES.MESSAGE)} />,
+          },
         ].map(({ href, icon }) => (
           <Button
             key={href}

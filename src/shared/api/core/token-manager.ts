@@ -6,7 +6,7 @@ export const refreshToken = async (): Promise<unknown> => {
   const setRefreshToken = validRefreshTokenStore.getState().setRefreshToken;
   try {
     const token = getCookie("refresh-token");
-    const data = await apiPost<{ data: { accessToken: string } }>("/post/auth/refresh-token", {
+    const data = await apiPost<{ accessToken: string }>("/auth/refresh-token", {
       refreshToken: token,
     });
     if (data?.data?.accessToken) {

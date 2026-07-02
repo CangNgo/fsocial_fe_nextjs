@@ -28,7 +28,7 @@ interface MessageStore {
   newMessage: Message | null;
 
   setReady: (ready: boolean) => void;
-  setMessages: (messages: Message[]) => void;
+  setMessages: (messages: Message[] | null) => void;
   setConversation: (conversation: Conversation | null) => void;
   connectMessageWebSocket: (userId: string) => void;
   setSubscription: (conversationId: string) => void;
@@ -75,7 +75,7 @@ export const useMessageStore = create<MessageStore>()((set, get) => ({
   },
 
   setSubscription: (conversationId) => {
-    const userId = ownerAccountStore.getState().user?.userId;
+    const userId = ownerAccountStore.getState().user.id;
     const { subscription, stompClientMessage } = get();
 
     if (!stompClientMessage?.connected) {

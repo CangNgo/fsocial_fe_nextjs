@@ -1,21 +1,21 @@
 import { apiGet, apiPost } from "@/shared/api/core/api-service";
 
 export const getComments = async (postId: string): Promise<unknown> => {
-  return apiGet(`/post/comment?postId=${postId}`);
+  return apiGet(`/comment?postId=${postId}`);
 };
 
 export const sendComment = async (data: unknown): Promise<unknown> => {
-  return apiPost("/post/comment", data);
+  return apiPost("/comment", data);
 };
 
 export async function likeComment(sendingData: unknown): Promise<unknown> {
-  return apiPost("/post/comment/like", sendingData, undefined, {});
+  return apiPost("/comment/like", sendingData, undefined, {});
 }
 
 export const replyComment = async (data: unknown): Promise<unknown> => {
-  return apiPost("/post/comment/reply", data);
+  return apiPost("/comment/reply", data);
 };
 
 export const getRepliesComment = async (commentId: string): Promise<unknown> => {
-  return apiGet(`/post/comment/reply?comment_id=${commentId}`);
+  return apiGet(`/comment/reply?comment_id=${commentId}`);
 };

@@ -35,7 +35,7 @@ export function GlobalPopup() {
           <div
             className={cn(
               "absolute z-20 bg-background w-full",
-              heading ? "border-b py-2" : "flex justify-end"
+              heading ? "border-b py-2" : "flex justify-end",
             )}
           >
             {heading && (

@@ -147,10 +147,10 @@ export default function Page() { return <BookmarkList />; }
 import { apiGet, apiPost } from "@/shared/api/apiService";
 
 export const getBookmarks = (userId: string, page = 0) =>
-  apiGet(`/post/bookmark?userId=${userId}&page=${page}`);
+  apiGet(`/bookmark?userId=${userId}&page=${page}`);
 
 export const addBookmark = (postId: string) =>
-  apiPost("/post/bookmark", { postId });
+  apiPost("/bookmark", { postId });
 
 // Gọi: const res = await getBookmarks(id); if (!res) { /* xử lý lỗi */ }
 ```

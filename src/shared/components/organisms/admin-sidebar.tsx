@@ -3,11 +3,12 @@ import { Check, Moon, SunMedium } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
-import { adminNavRoute } from "@/features/admin/config/admin-nav-route";
 import { LogoFSAdmin, LogoutIcon } from "@/shared/components/atoms/icon/icon";
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar";
 import { Button } from "@/shared/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/shared/components/ui/popover";
+import { adminNavRoute } from "@/shared/config/admin-nav-route";
+import { ROUTES } from "@/shared/config/routes";
 import { cn } from "@/shared/lib/utils";
 import { adminStore } from "@/shared/stores/admin-store";
 import { useThemeStore } from "@/shared/stores/theme-store";
@@ -27,7 +28,7 @@ export function AdminSidebar() {
 
   const handleLogout = () => {
     setRefreshToken(null);
-    router.push("/login");
+    router.push(ROUTES.LOGIN);
   };
 
   return (
@@ -46,8 +47,8 @@ export function AdminSidebar() {
           </Link>
         ))}
         <Link
-          href="/admin/profile"
-          className={cn(btnClass, pathname === "/admin/profile" && "bg-accent font-medium")}
+          href={ROUTES.ADMIN.PROFILE}
+          className={cn(btnClass, pathname === ROUTES.ADMIN.PROFILE && "bg-accent font-medium")}
         >
           <Avatar className="size-[26px]">
             <AvatarImage src={user.avatar} />

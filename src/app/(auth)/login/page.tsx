@@ -1,7 +1,7 @@
 "use client";
 import dynamic from "next/dynamic";
 
-const LoginForm = dynamic(() => import("@/features/auth/presentation/pages/login-form"), {
+const LoginForm = dynamic(() => import("@/features/auth/components/pages/login-form"), {
   ssr: false,
 });
 

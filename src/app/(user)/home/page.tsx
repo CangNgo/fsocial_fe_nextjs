@@ -1,7 +1,7 @@
 "use client";
 import dynamic from "next/dynamic";
 
-const Timeline = dynamic(() => import("@/features/home/presentation/pages/timeline"), {
+const Timeline = dynamic(() => import("@/features/home/components/pages/timeline"), {
   ssr: false,
 });
 

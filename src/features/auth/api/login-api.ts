@@ -1,19 +1,7 @@
 import { apiPost } from "@/shared/api/core/api-service";
+import type { ApiResponse } from "@/shared/types/api-response";
+import type { LoginPayload, LoginResponse } from "../types/login";
 
-export interface LoginPayload {
-  username: string;
-  password: string;
-}
-
-export interface LoginResponse {
-  statusCode?: number;
-  message?: string;
-  data?: {
-    accessToken: string;
-    refreshToken: string;
-  };
-}
-
-export const login = async (data: LoginPayload): Promise<LoginResponse | null> => {
-  return apiPost<LoginResponse>("/post/auth/login", data);
+export const login = async (data: LoginPayload): Promise<ApiResponse<LoginResponse> | null> => {
+  return apiPost<LoginResponse>("post/auth/login", data);
 };

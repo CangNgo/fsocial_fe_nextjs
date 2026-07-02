@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import type { TimelinePost } from "../types/post";
+import type { TimelinePost } from "@/shared/types/post";
 
 interface TimelineStoreState {
   posts: TimelinePost[] | null;

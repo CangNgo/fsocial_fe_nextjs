@@ -2,7 +2,7 @@
 import dynamic from "next/dynamic";
 
 const AccountLoginForm = dynamic(
-  () => import("@/features/setting/presentation/pages/account-login-form"),
+  () => import("@/features/setting/components/pages/account-login-form"),
   { ssr: false },
 );
 

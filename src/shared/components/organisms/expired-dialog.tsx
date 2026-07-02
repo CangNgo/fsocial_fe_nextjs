@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/shared/components/ui/dialog";
+import { ROUTES } from "@/shared/config/routes";
 import { validRefreshTokenStore } from "@/shared/stores/valid-refresh-token-store";
 
 interface ExpiredDialogProps {
@@ -31,7 +32,7 @@ export function ExpiredDialog({ open }: ExpiredDialogProps) {
         <img src="/decor/expired_login_decor.svg" alt="" />
         <Link
           className="btn-primary py-2.5 block text-center mt-4"
-          href="/login"
+          href={ROUTES.LOGIN}
           onClick={() => setRefreshToken(null)}
         >
           Xác nhận
