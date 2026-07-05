@@ -23,7 +23,7 @@ export default function LayoutThree({ images, className }: LayoutThreeProps) {
         )}
       </div>
       {images.slice(1).map((src, index) => (
-        <div key={index} className="aspect-square">
+        <div key={src} className="aspect-square">
           <Image
             src={src}
             alt={`Media ${index + 1}`}

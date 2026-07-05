@@ -1,12 +1,7 @@
 import axios, { type AxiosError, type InternalAxiosRequestConfig } from "axios";
 import { getCookie, setCookie } from "@/shared/utils/cookie";
 
-const PUBLIC_ENDPOINTS = [
-  "/auth/login",
-  "/auth/register",
-  "/auth/send-otp",
-  "/auth/valid-otp",
-];
+const PUBLIC_ENDPOINTS = ["/auth/login", "/auth/register", "/auth/send-otp", "/auth/valid-otp"];
 
 export const API = axios.create({
   baseURL: `${process.env.NEXT_PUBLIC_API_DOMAIN}/${process.env.NEXT_PUBLIC_API_VERSION}`,
@@ -49,7 +44,7 @@ API.interceptors.response.use(
       try {
         const refreshToken = getCookie("refresh-token");
         const { data } = await axios.post(
-          `${process.env.NEXT_PUBLIC_API_DOMAIN}/post/auth/refresh-token`,
+          `${process.env.NEXT_PUBLIC_API_DOMAIN}/auth/refresh-token`,
           { refreshToken },
         );
 

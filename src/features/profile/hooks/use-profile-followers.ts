@@ -12,13 +12,15 @@ export function useProfileFollowers(currentTab: number | null) {
   const showFollowers = useCallback(async () => {
     if (followers) return;
     const resp = (await getFollowers()) as ProfileFollowersResponse | null;
-    if (!resp || resp.statusCode !== 200) return;
+    if (resp?.statusCode !== 200) return;
     setFollowers(resp.data ?? []);
   }, [followers]);
 
   useEffect(() => {
     if (currentTab === FOLLOWERS_TAB_INDEX) {
-      showFollowers();
+      queueMicrotask(() => {
+        showFollowers();
+      });
     }
   }, [currentTab, showFollowers]);
 

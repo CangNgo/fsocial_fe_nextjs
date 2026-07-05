@@ -2,7 +2,7 @@
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { Toaster, toast } from "sonner";
+import { toast } from "sonner";
 import { getOwnerProfile } from "@/features/profile/api/profile-api";
 import { ExpiredDialog } from "@/shared/components/organisms/expired-dialog";
 import { GlobalPopup } from "@/shared/components/organisms/global-popup";
@@ -14,6 +14,7 @@ import { ROUTES } from "@/shared/config/routes";
 // import { useNotificationStore } from "@/shared/stores/notification-store";
 import { ownerAccountStore } from "@/shared/stores/owner-account-store";
 import { validRefreshTokenStore } from "@/shared/stores/valid-refresh-token-store";
+import type { AccountResponse } from "@/shared/types/profile";
 import { getCookie } from "@/shared/utils/cookie";
 
 const NotificationPanel = dynamic(
@@ -28,22 +29,29 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
   const router = useRouter();
 
   const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
-
-  const handleGetProfile = async () => {
-    const res = await getOwnerProfile();
-    if (res?.statusCode != 200) {
-      toast.error("Lỗi khi tải thông tin cá nhân của bạn");
-      router.push(ROUTES.LOGIN);
-      return;
-    } else {
-      return res.data;
-    }
-  };
+  useEffect(() => {
+    queueMicrotask(() => {
+      setMounted(true);
+    });
+  }, []);
 
   useEffect(() => {
     const token = getCookie("access-token");
     if (!token) return;
+
+    const handleGetProfile = async (): Promise<AccountResponse | null> => {
+      const res = await getOwnerProfile();
+      if (res?.statusCode !== 200) {
+        toast.error("Lỗi khi tải thông tin cá nhân của bạn");
+        router.push(ROUTES.LOGIN);
+        return null;
+      }
+      if (!res.data) {
+        return null;
+      }
+
+      return res.data;
+    };
 
     const fetchProfile = async () => {
       const profile = await handleGetProfile();
@@ -60,7 +68,7 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
     };
 
     fetchProfile();
-  }, [setUser]);
+  }, [setUser, router]);
 
   return (
     <div className="flex h-screen overflow-hidden">
@@ -82,7 +90,6 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
 
       <GlobalPopup />
       <ExpiredDialog open={mounted && !refreshToken} />
-      <Toaster richColors position="bottom-right" />
     </div>
   );
 }

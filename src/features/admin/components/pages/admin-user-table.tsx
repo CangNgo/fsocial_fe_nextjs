@@ -1,4 +1,3 @@
-// @ts-nocheck
 "use client";
 
 import Link from "next/link";
@@ -37,7 +36,7 @@ export default function AdminUserTable() {
   const [data, setData] = useState<UserItem[]>([]);
   const [filteredData, setFilteredData] = useState<UserItem[]>([]);
   const [loading, setLoading] = useState(false);
-  const [_selected, setSelected] = useState("Tất cả");
+  const [, setSelected] = useState("Tất cả");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -60,7 +59,9 @@ export default function AdminUserTable() {
         val?.toString().toLowerCase().includes(searchValue.toLowerCase()),
       ),
     );
-    setFilteredData(result);
+    queueMicrotask(() => {
+      setFilteredData(result);
+    });
   }, [searchValue, data]);
 
   const handleSelected = (value: number) => {

@@ -1,11 +1,20 @@
-// @ts-nocheck
-/* eslint-disable @typescript-eslint/no-explicit-any */
+interface HeartPostIconProps {
+  compareVar?: boolean;
+  className?: string;
+  fill?: string;
+}
+
 export const HeartPostIcon = ({
   compareVar,
   className = "sm:h-[22px] h-[20px]",
   fill = "fill-primary-text",
-}) => (
-  <svg className={className} viewBox="0 0 25 22" fill="none" aria-hidden="true">
+}: HeartPostIconProps) => (
+  <svg
+    className={className + " sm:size-[24px] size-[22px]"}
+    viewBox="0 0 25 22"
+    fill="none"
+    aria-hidden="true"
+  >
     {/* stroke */}
     <path
       className={compareVar ? "fill-[url(#primary-gradient)]" : `${fill}`}

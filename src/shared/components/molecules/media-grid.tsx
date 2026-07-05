@@ -1,4 +1,3 @@
-// @ts-nocheck
 "use client";
 
 import { Plus } from "lucide-react";
@@ -6,6 +5,7 @@ import { useRouter } from "next/navigation";
 import type React from "react";
 import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { getPost } from "@/shared/api/posts/posts-api";
+import { Image } from "@/shared/components/atoms/image";
 import { Button } from "@/shared/components/ui/button";
 import type { CarouselApi } from "@/shared/components/ui/carousel";
 import {
@@ -35,11 +35,11 @@ export interface MediaGridProps {
   allowCarousel?: boolean;
   mediaCallback?: () => void;
   /** Optional Zustand store with updatePost action */
-  store?: any;
+  store?: unknown;
   blockEvent?: boolean;
   isShared?: boolean;
   /** Render the embedded repost PostCard — pass the component to avoid circular dep */
-  PostCardComponent?: React.ComponentType<any>;
+  PostCardComponent?: React.ComponentType<{ post: Record<string, unknown>; isShared?: boolean }>;
 }
 
 const FALLBACK_LAYOUT = "gap-0.5 grid grid-cols-2 [&>*]:aspect-square";
@@ -126,10 +126,11 @@ const genClassLayout = async (medias: ProcessedMedia[]): Promise<string> => {
     }
 
     case 3: {
-      let { numberHorizontal, numberSquare, numberVertical } = calculateNumberOfScales(dimensions);
-      numberHorizontal += numberSquare;
+      const { numberHorizontal, numberSquare, numberVertical } =
+        calculateNumberOfScales(dimensions);
+      const effectiveHorizontal = numberHorizontal + numberSquare;
       layout =
-        numberHorizontal > numberVertical
+        effectiveHorizontal > numberVertical
           ? "grid gap-0.5 grid-cols-2 aspect-square [&>:nth-child(1)]:col-span-2"
           : "grid gap-0.5 grid-cols-[auto_auto] aspect-square [&>:nth-child(1)]:row-span-2 [&>:nth-child(1)]:w-full [&>:not(:nth-child(1))]:w-full";
       break;
@@ -150,12 +151,12 @@ const genClassLayout = async (medias: ProcessedMedia[]): Promise<string> => {
     }
 
     default: {
-      let { numberHorizontal, numberSquare, numberVertical } = calculateNumberOfScales(
+      const { numberHorizontal, numberSquare, numberVertical } = calculateNumberOfScales(
         dimensions.slice(2, 6),
       );
-      numberHorizontal += numberSquare;
+      const effectiveHorizontal = numberHorizontal + numberSquare;
       layout =
-        numberHorizontal > numberVertical
+        effectiveHorizontal > numberVertical
           ? `
           aspect-square grid gap-0.5 grid-flow-col grid-cols-[auto_auto] grid-rows-6
           [&>:nth-child(1)]:row-span-3
@@ -198,28 +199,33 @@ const MediaGridComponent = ({
   PostCardComponent,
 }: MediaGridProps) => {
   const isPost = medias.length === 1 && medias[0].type === "post";
-  const mediaLayoutCacheKey = useMemo(() => buildMediaLayoutCacheKey(medias), [medias]);
-  const cachedLayout = useMemo(() => getCachedLayout(medias), [medias, mediaLayoutCacheKey]);
-  const fallbackLayout = useMemo(() => genFallbackLayout(medias), [medias, mediaLayoutCacheKey]);
-  const [post, setPost] = useState<any>(null);
+  const cachedLayout = useMemo(() => getCachedLayout(medias), [medias]);
+  const fallbackLayout = useMemo(() => genFallbackLayout(medias), [medias]);
+  const [post, setPost] = useState<Record<string, unknown> | null>(null);
 
   const handleGetPost = useCallback(async (postId: string) => {
     const user = ownerAccountStore.getState().user;
     if (!user) return;
-    const resp = (await getPost(user.userId, postId)) as any;
-    if (!resp || resp.statusCode !== 200) return;
-    setPost(resp.data);
+    const resp = (await getPost(user.id, postId)) as {
+      statusCode?: number;
+      data?: Record<string, unknown>;
+    } | null;
+    if (resp?.statusCode !== 200) return;
+    setPost(resp.data ?? null);
   }, []);
 
   useEffect(() => {
     if (isPost) {
-      handleGetPost(medias[0].src);
+      queueMicrotask(() => {
+        handleGetPost(medias[0].src);
+      });
     }
   }, [handleGetPost, isPost, medias]);
 
   const router = useRouter();
   const handleToOriginPost = useCallback(() => {
-    if (!blockEvent && post) router.push(ROUTES.POST(post.id));
+    const postId = typeof post?.id === "string" ? post.id : null;
+    if (!blockEvent && postId) router.push(ROUTES.POST(postId));
   }, [blockEvent, post, router]);
 
   const effectiveAllowCarousel = allowCarousel && medias.length > 1;
@@ -234,7 +240,9 @@ const MediaGridComponent = ({
 
   useEffect(() => {
     if (!api || isPost || !effectiveAllowCarousel) return;
-    setCurrent(api.selectedScrollSnap() + 1);
+    queueMicrotask(() => {
+      setCurrent(api.selectedScrollSnap() + 1);
+    });
     api.on("select", () => {
       setCurrent(api.selectedScrollSnap() + 1);
     });
@@ -243,22 +251,30 @@ const MediaGridComponent = ({
   const [classLayout, setClassLayout] = useState<string | null>(cachedLayout ?? fallbackLayout);
 
   useEffect(() => {
-    setClassLayout(cachedLayout ?? fallbackLayout);
+    queueMicrotask(() => {
+      setClassLayout(cachedLayout ?? fallbackLayout);
+    });
   }, [cachedLayout, fallbackLayout]);
 
   useEffect(() => {
     if (effectiveAllowCarousel) {
-      setClassLayout(null);
+      queueMicrotask(() => {
+        setClassLayout(null);
+      });
       return;
     }
 
     if (cachedLayout) {
-      setClassLayout(cachedLayout);
+      queueMicrotask(() => {
+        setClassLayout(cachedLayout);
+      });
       return;
     }
 
     let isMounted = true;
-    setClassLayout(fallbackLayout);
+    queueMicrotask(() => {
+      setClassLayout(fallbackLayout);
+    });
 
     genClassLayout(medias).then((layout) => {
       if (isMounted) {
@@ -269,7 +285,7 @@ const MediaGridComponent = ({
     return () => {
       isMounted = false;
     };
-  }, [cachedLayout, effectiveAllowCarousel, fallbackLayout, medias, mediaLayoutCacheKey]);
+  }, [cachedLayout, effectiveAllowCarousel, fallbackLayout, medias]);
 
   if (medias.length === 0) return null;
 
@@ -290,11 +306,12 @@ const MediaGridComponent = ({
           {medias.slice(0, 5).map((media, index) => (
             <div key={media.src} className="relative overflow-hidden size-full">
               {media.type === "image" && (
-                <img
+                <Image
                   src={media.src}
                   alt="Bài đăng"
-                  loading="lazy"
-                  className="size-full object-cover object-center"
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 630px"
+                  className="object-cover object-center"
                 />
               )}
               {media.type === "video" && (
@@ -324,10 +341,12 @@ const MediaGridComponent = ({
               {medias.map((media) => (
                 <CarouselItem key={media.src} className="pl-3">
                   {media.type === "image" && (
-                    <img
+                    <Image
                       src={media.src}
                       alt="Bài đăng"
-                      loading="lazy"
+                      width={0}
+                      height={0}
+                      sizes="80vw"
                       className="size-full object-contain"
                     />
                   )}

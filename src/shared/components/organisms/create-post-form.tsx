@@ -1,4 +1,3 @@
-// @ts-nocheck
 "use client";
 
 import { X } from "lucide-react";
@@ -12,6 +11,7 @@ import {
   PencilChangeImageIcon,
   UploadDecorIcon,
 } from "@/shared/components/atoms/icon/icon";
+import { Image } from "@/shared/components/atoms/image";
 import { UserAvatar } from "@/shared/components/molecules/user-avatar";
 import { Button } from "@/shared/components/ui/button";
 import type { CarouselApi } from "@/shared/components/ui/carousel";
@@ -29,7 +29,7 @@ interface FilePreview {
 }
 
 interface CreatePostFormProps {
-  onPostCreated?: (post: any) => void;
+  onPostCreated?: (post: Record<string, unknown>) => void;
 }
 
 const PREVIEW_HEIGHT = "50vh";
@@ -124,8 +124,12 @@ export default function CreatePostForm({ onPostCreated }: CreatePostFormProps) {
       formData.append("media", file);
     });
 
-    const resp = (await createPost(formData)) as any;
-    if (!resp || ![100, 200, 201].includes(resp.statusCode)) {
+    const resp = (await createPost(formData)) as {
+      statusCode?: number;
+      message?: string;
+      data?: Record<string, unknown>;
+    } | null;
+    if (!resp || ![100, 200, 201].includes(resp.statusCode ?? 0)) {
       toast.error(resp?.message ?? "Đã có lỗi xảy ra khi cố gắng đăng tải bài viết của bạn");
       setSubmitClicked(false);
       return;
@@ -208,13 +212,17 @@ export default function CreatePostForm({ onPostCreated }: CreatePostFormProps) {
                             )}
                           >
                             {preview.type === "image" && (
-                              <img
+                              <Image
                                 src={preview.src}
                                 alt="Bài đăng"
+                                width={0}
+                                height={0}
+                                sizes="50vw"
                                 className={getPreviewMediaClassName(previewCount)}
                               />
                             )}
                             {preview.type === "video" && (
+                              // biome-ignore lint/a11y/useMediaCaption: preview video do người dùng tải lên, không có phụ đề
                               <video
                                 src={preview.src}
                                 controls
@@ -312,13 +320,17 @@ export default function CreatePostForm({ onPostCreated }: CreatePostFormProps) {
                   {filePreviews.map((media, index) => (
                     <div key={media.src} className="relative overflow-hidden">
                       {media.type === "image" && (
-                        <img
+                        <Image
                           src={media.src}
                           alt="Bài đăng"
+                          width={0}
+                          height={0}
+                          sizes="90vw"
                           className="size-full object-cover object-center"
                         />
                       )}
                       {media.type === "video" && (
+                        // biome-ignore lint/a11y/useMediaCaption: preview video do người dùng tải lên, không có phụ đề
                         <video
                           src={media.src}
                           controls

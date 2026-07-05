@@ -1,4 +1,3 @@
-import type { User } from "@/shared/stores/owner-account-store";
 import StoryItem from "../molecules/story-item";
 
 interface StoryListProps {

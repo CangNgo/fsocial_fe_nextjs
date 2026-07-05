@@ -11,7 +11,7 @@ export default function LayoutTwo({ images, className }: LayoutTwoProps) {
     <div className={cn("grid grid-cols-2 ", className)}>
       {images.map((src, index) => (
         <Image
-          key={index}
+          key={src}
           src={src}
           alt={`Media ${index}`}
           width={0}

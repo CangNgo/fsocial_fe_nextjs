@@ -19,7 +19,7 @@ export function useConversations() {
 
   const handleGetAllConversation = useCallback(async () => {
     const resp = (await getConversations()) as ConversationsResponse | null;
-    if (!resp || resp.statusCode !== 200) return;
+    if (resp?.statusCode !== 200) return;
     setConversations(resp.data ?? []);
     if (conversation) setContentActive(2);
   }, [conversation]);
@@ -27,8 +27,10 @@ export function useConversations() {
   // biome-ignore lint/correctness/useExhaustiveDependencies: only re-run when the logged-in user changes, not on every conversation update
   useEffect(() => {
     if (!user.id) return;
-    handleGetAllConversation();
-    setNewMessage(null);
+    queueMicrotask(() => {
+      handleGetAllConversation();
+      setNewMessage(null);
+    });
   }, [user.id]);
 
   return {

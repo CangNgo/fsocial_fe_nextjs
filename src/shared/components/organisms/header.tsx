@@ -22,46 +22,44 @@ export function Header() {
   const closeNotification = () => setIsVisible(false);
 
   return (
-    <>
-      <header
-        className={`z-10 px-3 h-12 bg-background ${
-          !isInMessage ? "sm:hidden" : "hidden"
-        } w-full fixed top-0 flex items-center justify-between border-b`}
-      >
-        <Link href={ROUTES.ROOT}>
-          <Image
-            src="/logo/logo.png"
-            alt="FSocial"
-            width={32}
-            height={32}
-            className="size-8"
-            priority
-          />
-        </Link>
+    <header
+      className={`z-10 px-3 h-12 bg-background ${
+        !isInMessage ? "sm:hidden" : "hidden"
+      } w-full fixed top-0 flex items-center justify-between border-b`}
+    >
+      <Link href={ROUTES.ROOT}>
+        <Image
+          src="/logo/logo.png"
+          alt="FSocial"
+          width={32}
+          height={32}
+          className="size-8"
+          priority
+        />
+      </Link>
 
-        <div className="flex items-center gap-2">
-          <div className="relative w-fit">
-            <Button type="button" className="cursor-pointer" onClick={toggleShowNoti}>
-              <Bell />
-            </Button>
-            {unreadCount > 0 && (
-              <div className="absolute size-2.5 -top-[1px] right-[1px] bg-gradient-to-br from-pink-500 to-orange-400 rounded-full" />
-            )}
-          </div>
-
-          <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
-            <PopoverTrigger onClick={closeNotification}>
-              <HamburgerIcon />
-            </PopoverTrigger>
-            <PopoverContent
-              sideOffset={10}
-              className="bg-background w-screen h-screen rounded-none shadow-xl p-2"
-            >
-              <NavMoreMenu inMobile setPopoverOpen={setPopoverOpen} />
-            </PopoverContent>
-          </Popover>
+      <div className="flex items-center gap-2">
+        <div className="relative w-fit">
+          <Button type="button" className="cursor-pointer" onClick={toggleShowNoti}>
+            <Bell />
+          </Button>
+          {unreadCount > 0 && (
+            <div className="absolute size-2.5 -top-[1px] right-[1px] bg-gradient-to-br from-pink-500 to-orange-400 rounded-full" />
+          )}
         </div>
-      </header>
-    </>
+
+        <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
+          <PopoverTrigger onClick={closeNotification}>
+            <HamburgerIcon />
+          </PopoverTrigger>
+          <PopoverContent
+            sideOffset={10}
+            className="bg-background w-screen h-screen rounded-none shadow-xl p-2"
+          >
+            <NavMoreMenu inMobile setPopoverOpen={setPopoverOpen} />
+          </PopoverContent>
+        </Popover>
+      </div>
+    </header>
   );
 }

@@ -1,6 +1,8 @@
-// @ts-nocheck
-/* eslint-disable @typescript-eslint/no-explicit-any */
-export const ImageIcon = ({ width = 24, height = 24, ...props }) => (
+import type { SVGProps } from "react";
+
+type ImageIconProps = SVGProps<SVGSVGElement>;
+
+export const ImageIcon = ({ width = 24, height = 24, ...props }: ImageIconProps) => (
   <svg
     width={width}
     height={height}

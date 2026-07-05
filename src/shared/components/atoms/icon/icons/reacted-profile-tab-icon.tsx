@@ -1,5 +1,3 @@
-// @ts-nocheck
-/* eslint-disable @typescript-eslint/no-explicit-any */
 export const ReactedProfileTabIcon = () => (
   <svg width="17" height="15" viewBox="0 0 17 15" fill="inherit" aria-hidden="true">
     <path

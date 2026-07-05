@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useEffect } from "react";
+import { Image } from "@/shared/components/atoms/image";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/shared/components/ui/dialog";
 import { ROUTES } from "@/shared/config/routes";
 import { validRefreshTokenStore } from "@/shared/stores/valid-refresh-token-store";
@@ -29,7 +30,14 @@ export function ExpiredDialog({ open }: ExpiredDialogProps) {
         <DialogHeader>
           <DialogTitle className="text-center">Phiên đăng nhập đã hết hạn</DialogTitle>
         </DialogHeader>
-        <img src="/decor/expired_login_decor.svg" alt="" />
+        <Image
+          src="/decor/expired_login_decor.svg"
+          alt=""
+          width={0}
+          height={0}
+          sizes="400px"
+          className="w-full h-auto"
+        />
         <Link
           className="btn-primary py-2.5 block text-center mt-4"
           href={ROUTES.LOGIN}

@@ -1,4 +1,3 @@
-// @ts-nocheck
 "use client";
 
 import { Check, PlusIcon } from "lucide-react";
@@ -26,7 +25,7 @@ export default function AdminPolicyEditor() {
   useEffect(() => {
     const fetchPolicy = async () => {
       const res = await getTermOfService();
-      if (!res || res.statusCode !== 200) return;
+      if (res.statusCode !== 200) return;
       setPolicies(res.data);
     };
     fetchPolicy();
@@ -49,7 +48,7 @@ export default function AdminPolicyEditor() {
     }
 
     const res = await addTermOfService(inputAddPolicy.current.value);
-    if (!res || res.statusCode !== 200) {
+    if (res.statusCode !== 200) {
       toast.error("Thêm chính sách thất bại");
       return;
     }
@@ -69,7 +68,7 @@ export default function AdminPolicyEditor() {
 
   const handleRemovePolicy = async (id: string) => {
     const res = await removeTermOfService(id);
-    if (!res || res.statusCode !== 200) {
+    if (res.statusCode !== 200) {
       toast.error("Xóa chính sách thất bại");
       return;
     }
@@ -150,9 +149,6 @@ export default function AdminPolicyEditor() {
           ))}
         </div>
       </div>
-
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img className="w-full mt-auto" src="/decor/rocket-launching.svg" alt="Rocket Illustration" />
     </div>
   );
 }

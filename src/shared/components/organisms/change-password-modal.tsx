@@ -51,7 +51,7 @@ export function ChangePasswordModal() {
       newPassword: formData.newPassword,
     })) as { statusCode?: number } | null;
     setSubmitClicked(false);
-    if (!resp || resp.statusCode !== 200) {
+    if (resp?.statusCode !== 200) {
       toast.error("Đã có lỗi xảy ra trong quá trình đổi mật khẩu");
       return;
     }

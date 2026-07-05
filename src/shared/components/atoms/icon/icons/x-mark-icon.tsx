@@ -1,7 +1,8 @@
-// @ts-nocheck
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { X } from "lucide-react";
+import type { ComponentProps } from "react";
 
-export const XMarkIcon = ({ className, ...props }) => (
+type XMarkIconProps = ComponentProps<typeof X>;
+
+export const XMarkIcon = ({ className, ...props }: XMarkIconProps) => (
   <X className={className} strokeWidth={2} {...props} />
 );

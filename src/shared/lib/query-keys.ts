@@ -6,7 +6,6 @@ export const queryKeys = {
     detail: (id: string) => ["posts", "detail", id] as const,
     profile: (userId: string) => ["posts", "profile", userId] as const,
     search: (keyword: string) => ["posts", "search", keyword] as const,
-    comments: (postId: string) => ["posts", "comments", postId] as const,
   },
   profile: {
     owner: (userId: string) => ["profile", "owner", userId] as const,

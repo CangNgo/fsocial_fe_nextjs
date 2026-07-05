@@ -1,7 +1,7 @@
-// @ts-nocheck
 "use client";
 
 import { PencilChangeImageIcon } from "@/shared/components/atoms/icon/icon";
+import { Image } from "@/shared/components/atoms/image";
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
@@ -40,7 +40,13 @@ export default function AccountBasicForm() {
           )}
         >
           {user.banner ? (
-            <img src={user.banner} className="size-full" alt="" />
+            <Image
+              src={user.banner}
+              alt=""
+              fill
+              sizes="(max-width: 1024px) 100vw, 630px"
+              className="object-cover"
+            />
           ) : (
             <div className="size-full grid place-content-center">
               <p>Cập nhật ảnh bìa của bạn</p>

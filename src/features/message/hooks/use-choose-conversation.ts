@@ -39,7 +39,7 @@ export function useChooseConversation({
         controllerGetmsgs.current.signal,
       )) as MessagesResponse | null;
 
-      if (!resp || resp.statusCode !== 200) return;
+      if (resp?.statusCode !== 200) return;
       setMessages([...(resp.data?.listMessages ?? [])].reverse());
     },
     [contentActive, conversation, setContentActive, setConversation, setMessages, setSubscription],

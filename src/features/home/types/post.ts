@@ -1,13 +1,8 @@
-import type { useTimelineStore } from "../store/timeline-store";
+import type { useTimelineStore } from "../stores/timeline-store";
 
-export type {
-  AspectType,
-  GridLayout,
-  LayoutSlot,
-  MediaResponse,
-} from "@/shared/types/media";
 export { MediaType } from "@/shared/types/media";
-export type { PostContent, PostsResponse, TimelinePost } from "@/shared/types/post";
+export type { AspectType, GridLayout, LayoutSlot, MediaResponse } from "@/shared/types/media";
+export type { PostContent, PostResponse, PostsResponse } from "@/shared/types/post";
 
 export const selectTimelineState = (state: ReturnType<typeof useTimelineStore.getState>) => ({
   posts: state.posts,

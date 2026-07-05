@@ -1,6 +1,8 @@
-// @ts-nocheck
-/* eslint-disable @typescript-eslint/no-explicit-any */
-export const Bell = ({ active = false }) => (
+interface BellProps {
+  active?: boolean;
+}
+
+export const Bell = ({ active = false }: BellProps) => (
   <svg className="md:size-[28px] size-6" viewBox="0 0 26 26" fill="none" aria-hidden="true">
     <path
       className={`${active && "fill-primary-text"} stroke-primary-text`}

@@ -22,7 +22,9 @@ export function PostMediaCarousel({ media, initialIndex = 0, className }: PostMe
 
   useEffect(() => {
     if (!api) return;
-    setCurrent(api.selectedScrollSnap());
+    queueMicrotask(() => {
+      setCurrent(api.selectedScrollSnap());
+    });
     api.on("select", () => setCurrent(api.selectedScrollSnap()));
   }, [api]);
 

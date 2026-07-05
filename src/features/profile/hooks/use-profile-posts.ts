@@ -21,7 +21,7 @@ export function useProfilePosts(profilePostUserId?: string | null, currentTab?: 
     )) as ProfilePostsResponse | null;
     isFetchingPostsRef.current = false;
 
-    if (!resp || resp.statusCode !== 200) return;
+    if (resp?.statusCode !== 200) return;
 
     const newPosts = resp.data ?? [];
 
@@ -54,8 +54,10 @@ export function useProfilePosts(profilePostUserId?: string | null, currentTab?: 
   }, []);
 
   useEffect(() => {
-    resetPostsUserState();
-  }, [resetPostsUserState, profilePostUserId]);
+    queueMicrotask(() => {
+      resetPostsUserState();
+    });
+  }, [resetPostsUserState]);
 
   useEffect(() => {
     if (currentTab === 0 && profilePostUserId) {

@@ -1,5 +1,3 @@
-// @ts-nocheck
-/* eslint-disable @typescript-eslint/no-explicit-any */
 export const FollowerProfileTabIcon = () => (
   <svg width="21" height="20" viewBox="0 0 21 20" fill="inherit" aria-hidden="true">
     <g clipPath="url(#clip0_460_11053)">

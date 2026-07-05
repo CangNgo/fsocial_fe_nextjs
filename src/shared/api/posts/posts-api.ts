@@ -1,12 +1,20 @@
 import { ownerAccountStore } from "@/shared/stores/owner-account-store";
+import type { ApiResponse } from "@/shared/types/api-response";
+import type { PostResponse } from "@/shared/types/post";
 import { apiDelete, apiGet, apiPost, apiPut } from "../core/api-service";
 
-export const getPosts = async (userId: string, page = 0): Promise<unknown> => {
-  return apiGet(`/actions?userId=${userId}&page=${page}`);
+export const getPosts = async (
+  userId: string,
+  page = 0,
+): Promise<ApiResponse<PostResponse[]> | null> => {
+  return apiGet<PostResponse[]>(`/actions?userId=${userId}&page=${page}`);
 };
 
-export const getPost = async (userId: string, postId: string): Promise<unknown> => {
-  return apiGet(`/actions/getpost_id?user_id=${userId}&post_id=${postId}`);
+export const getPost = async (
+  userId: string,
+  postId: string,
+): Promise<ApiResponse<PostResponse> | null> => {
+  return apiGet<PostResponse>(`/actions/getpost_id?user_id=${userId}&post_id=${postId}`);
 };
 
 export const likePost = async (postId: string): Promise<unknown> => {

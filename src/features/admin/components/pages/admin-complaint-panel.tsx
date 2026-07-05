@@ -1,4 +1,3 @@
-// @ts-nocheck
 "use client";
 
 import { Pen } from "lucide-react";
@@ -38,7 +37,7 @@ export default function AdminComplaintPanel() {
   const [data, setData] = useState<ComplaintItem[]>([]);
   const [filteredData, setFilteredData] = useState<ComplaintItem[]>([]);
   const [loading, setLoading] = useState(false);
-  const [_selected, setSelected] = useState("Tất cả");
+  const [, setSelected] = useState("Tất cả");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -61,7 +60,9 @@ export default function AdminComplaintPanel() {
         val?.toString().toLowerCase().includes(searchValue.toLowerCase()),
       ),
     );
-    setFilteredData(result);
+    queueMicrotask(() => {
+      setFilteredData(result);
+    });
   }, [searchValue, data]);
 
   const handleSelected = (value: number) => {

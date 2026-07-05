@@ -3,7 +3,7 @@ import { Ellipsis } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import type React from "react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { PostList } from "@/features/post";
 import {
   FollowerProfileTabIcon,
@@ -13,6 +13,7 @@ import {
   ReactedProfileTabIcon,
   VideoProfileTabIcon,
 } from "@/shared/components/atoms/icon/icon";
+import { Image } from "@/shared/components/atoms/image";
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
@@ -37,6 +38,8 @@ import type { AttachmentsResponse } from "../../types/attachments";
 import type { ProfileType } from "../../types/profile";
 import type { ProfileFollower } from "../../types/profile-tabs";
 
+const MAX_PREVIEW_FRIENDS_AVATAR = 7;
+
 const listTabs = [
   { label: "Bài đăng", icon: <PostProfileTabIcon /> },
   { label: "Hình ảnh", icon: <PictureProfileTabIcon /> },
@@ -51,7 +54,6 @@ export default function Profile() {
 
   const { user } = ownerAccountStore();
   const [accountInfo, setAccountInfo] = useState<ProfileType | undefined>();
-  const maxPreviewFriendsAvatar = useRef(7);
   const [pictures, setPictures] = useState<AttachmentsResponse[]>([]);
 
   const { showPopup, hidePopup } = usePopupStore();
@@ -84,7 +86,14 @@ export default function Profile() {
     showPopup(
       "Cập nhật ảnh bìa",
       <div className="p-4 text-center">
-        <img src={previewURL} alt="preview" className="max-h-64 mx-auto rounded" />
+        <Image
+          src={previewURL}
+          alt="preview"
+          width={0}
+          height={0}
+          sizes="100vw"
+          className="max-h-64 w-auto mx-auto rounded"
+        />
         <Button
           type="button"
           className="btn-primary mt-4 px-6"
@@ -115,7 +124,13 @@ export default function Profile() {
     showPopup(
       "Cập nhật ảnh đại diện",
       <div className="p-4 text-center">
-        <img src={previewURL} alt="preview" className="size-32 rounded-full mx-auto object-cover" />
+        <Image
+          src={previewURL}
+          alt="preview"
+          width={128}
+          height={128}
+          className="size-32 rounded-full mx-auto object-cover"
+        />
         <Button
           type="button"
           className="btn-primary mt-4 px-6"
@@ -136,12 +151,14 @@ export default function Profile() {
   };
 
   const handleRequestFollow = () => {
-    requestFollow(userId!);
+    if (!userId) return;
+    requestFollow(userId);
     setAccountInfo((prev) => (prev ? { ...prev, relationship: true } : prev));
   };
 
   const handleUnfollow = () => {
-    unfollow(userId!);
+    if (!userId) return;
+    unfollow(userId);
     setAccountInfo((prev) => (prev ? { ...prev, relationship: false } : prev));
   };
 
@@ -149,35 +166,46 @@ export default function Profile() {
 
   const handleGetProfile = useCallback(async () => {
     if (!userId) return;
-    const resp = (await getProfile(userId)) as any;
-    if (!resp || resp.statusCode !== 200) return;
+    const resp = (await getProfile(userId)) as { statusCode?: number; data?: ProfileType } | null;
+    if (resp?.statusCode !== 200 || !resp.data) return;
     setAccountInfo(resp.data);
   }, [userId]);
 
   const handleGetPictures = useCallback(async () => {
     if (!user?.id) return;
-    const resp = (await getPictures({ postId: user.id, type: "image" })) as any;
-    if (!resp || resp.statusCode !== 200) return;
-    setPictures(resp.data);
+    const resp = (await getPictures({ postId: user.id, type: "image" })) as {
+      statusCode?: number;
+      data?: AttachmentsResponse[];
+    } | null;
+    if (resp?.statusCode !== 200) return;
+    setPictures(resp.data ?? []);
   }, [user?.id]);
 
   useEffect(() => {
     if (!user?.id) return;
     setCurrentTab(0);
     if (isOwner) {
-      setAccountInfo({
-        ...user,
-        followers: [],
-        relationship: false,
-        background: (user as any).background ?? "",
-      } as unknown as ProfileType);
+      queueMicrotask(() => {
+        setAccountInfo({
+          bio: user.bio ?? "",
+          background: user.banner ?? "",
+          avatar: user.avatar ?? "",
+          displayName: user.displayName ?? "",
+          followers: [],
+          relationship: false,
+        });
+      });
     } else {
-      handleGetProfile();
+      queueMicrotask(() => {
+        handleGetProfile();
+      });
     }
-  }, [user, isOwner, handleGetProfile]);
+  }, [user, isOwner, handleGetProfile, setCurrentTab]);
 
   useEffect(() => {
-    handleGetPictures();
+    queueMicrotask(() => {
+      handleGetPictures();
+    });
   }, [handleGetPictures]);
 
   // ─── render ────────────────────────────────────────────────────────────────
@@ -193,10 +221,12 @@ export default function Profile() {
           )}
         >
           {accountInfo?.background ? (
-            <img
+            <Image
               src={accountInfo.background}
               alt="Ảnh bìa"
-              className="object-cover size-full object-center"
+              fill
+              sizes="(max-width: 1024px) 100vw, 630px"
+              className="object-cover object-center"
             />
           ) : (
             isOwner && (
@@ -260,7 +290,7 @@ export default function Profile() {
               <p>{accountInfo?.followers?.length} người theo dõi</p>
               <div className="mt-1 flex -space-x-2">
                 {accountInfo?.followers
-                  ?.slice(0, maxPreviewFriendsAvatar.current)
+                  ?.slice(0, MAX_PREVIEW_FRIENDS_AVATAR)
                   .map((friend: ProfileFollower, index: number) => (
                     <div key={friend.userId ?? friend.firstName} className="relative">
                       <Avatar className="size-7 ring-[2px] ring-background transition">
@@ -270,10 +300,7 @@ export default function Profile() {
                         </AvatarFallback>
                       </Avatar>
                       {index + 1 ===
-                        Math.min(
-                          maxPreviewFriendsAvatar.current,
-                          accountInfo?.followers?.length,
-                        ) && (
+                        Math.min(MAX_PREVIEW_FRIENDS_AVATAR, accountInfo?.followers?.length) && (
                         <Button
                           type="button"
                           className="absolute top-0 size-full bg-black/50 grid place-content-center rounded-full hover:bg-black/60"
@@ -386,8 +413,17 @@ export default function Profile() {
                 {/* Tab 1: Pictures */}
                 <div className="snap-start grid grid-cols-3 gap-[1px] w-full">
                   {pictures.map((picture) => (
-                    <div key={picture.url} className="aspect-square w-full overflow-hidden">
-                      <img src={picture.url} alt="" className="w-full object-cover object-center" />
+                    <div
+                      key={picture.url}
+                      className="relative aspect-square w-full overflow-hidden"
+                    >
+                      <Image
+                        src={picture.url}
+                        alt=""
+                        fill
+                        sizes="(max-width: 1024px) 33vw, 210px"
+                        className="object-cover object-center"
+                      />
                     </div>
                   ))}
                   <div className="col-span-3 text-center text-gray-light mt-32">

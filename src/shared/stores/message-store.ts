@@ -58,7 +58,7 @@ export const useMessageStore = create<MessageStore>()((set, get) => ({
       process.env.NEXT_PUBLIC_WS_HOST ??
       "localhost:8888";
     const wsProtocol = process.env.NEXT_PUBLIC_WS_PROTOCOL ?? "ws";
-    const messageBaseURL = `${wsProtocol}://${wsHost}/post/ws`;
+    const messageBaseURL = `${wsProtocol}://${wsHost}/ws`;
 
     const client = new Client({
       brokerURL: messageBaseURL,

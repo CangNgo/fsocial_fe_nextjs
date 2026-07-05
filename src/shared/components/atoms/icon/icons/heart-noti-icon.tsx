@@ -1,6 +1,6 @@
-// @ts-nocheck
-/* eslint-disable @typescript-eslint/no-explicit-any */
-export const HeartNotiIcon = (props) => (
+import type { SVGProps } from "react";
+
+export const HeartNotiIcon = (props: SVGProps<SVGSVGElement>) => (
   <svg width="22" height="19" {...props} viewBox="0 0 22 19" fill="none" aria-hidden="true">
     <path
       className="fill-logo"

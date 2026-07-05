@@ -1,6 +1,8 @@
-// @ts-nocheck
-/* eslint-disable @typescript-eslint/no-explicit-any */
-export const SmileIcon = ({ className }) => (
+interface SmileIconProps {
+  className?: string;
+}
+
+export const SmileIcon = ({ className }: SmileIconProps) => (
   <svg className={`w-7 ${className}`} viewBox="0 0 24 24" fill="none" aria-hidden="true">
     <circle cx="12" cy="12" r="12" className="fill-[url(#primary-gradient)]" />
     <path

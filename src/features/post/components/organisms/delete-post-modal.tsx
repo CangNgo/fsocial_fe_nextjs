@@ -3,6 +3,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { deletePost } from "@/shared/api/posts/posts-api";
 import { LoadingIcon, TrashCanIcon } from "@/shared/components/atoms/icon/icon";
+import { Image } from "@/shared/components/atoms/image";
 import { Button } from "@/shared/components/ui/button";
 import { usePopupStore } from "@/shared/stores/popup-store";
 
@@ -34,7 +35,13 @@ export function DeletePostModal({ id, store }: DeletePostModalProps) {
   return (
     <div className="pt-10 sm:w-[500px] w-[90vw]">
       <div className="flex justify-center my-4">
-        <img src="/decor/delete_post_decor.svg" alt="" className="w-36 h-36" />
+        <Image
+          src="/decor/delete_post_decor.svg"
+          alt=""
+          width={144}
+          height={144}
+          className="w-36 h-36"
+        />
       </div>
       <h5 className="font-normal text-center">
         Sau khi xóa, bài viết sẽ <span className="text-primary font-semibold">không thể</span> khôi

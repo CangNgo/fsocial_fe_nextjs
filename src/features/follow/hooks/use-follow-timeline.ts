@@ -15,8 +15,9 @@ export function useFollowTimeline() {
   const pageRef = useRef(0);
   const isFetchingRef = useRef(false);
 
-  const handlePostCreated = useCallback((post: FollowPost) => {
-    setPosts((prev) => (prev ? [post, ...prev] : [post]));
+  const handlePostCreated = useCallback((post: Record<string, unknown>) => {
+    const normalizedPost = post as unknown as FollowPost;
+    setPosts((prev) => (prev ? [normalizedPost, ...prev] : [normalizedPost]));
   }, []);
 
   const fetchPosts = useCallback(async () => {
@@ -25,7 +26,7 @@ export function useFollowTimeline() {
     const resp = (await getFollowingPosts(pageRef.current)) as FollowPostsResponse | null;
     isFetchingRef.current = false;
 
-    if (!resp || resp.statusCode !== 200) return;
+    if (resp?.statusCode !== 200) return;
     const newPosts = resp.data ?? [];
     if (newPosts.length === 0) return;
     setPosts((prev) => (prev ? [...prev, ...newPosts] : newPosts));

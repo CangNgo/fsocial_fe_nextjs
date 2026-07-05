@@ -123,7 +123,7 @@ export function useForgotPassword() {
     `col-span-2 relative h-[1px] bg-gradient-to-r from-transparent from-50% to-muted to-50% bg-[length:20px_100%]
      before:absolute before:left-0 before:h-full ${
        currentStep >= threshold ? "before:w-full" : "before:w-0"
-} before:bg-gradient-to-r before:from-transparent before:from-50% before:to-pink-500 before:to-50% before:bg-[length:20px_100%]
+     } before:bg-gradient-to-r before:from-transparent before:from-50% before:to-pink-500 before:to-50% before:bg-[length:20px_100%]
      before:transition-all before:duration-700 before:ease-out`;
 
   return {

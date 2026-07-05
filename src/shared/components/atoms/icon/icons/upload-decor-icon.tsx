@@ -1,6 +1,8 @@
-// @ts-nocheck
-/* eslint-disable @typescript-eslint/no-explicit-any */
-export const UploadDecorIcon = ({ className }) => (
+interface UploadDecorIconProps {
+  className?: string;
+}
+
+export const UploadDecorIcon = ({ className }: UploadDecorIconProps) => (
   <svg
     className={className}
     width="100"

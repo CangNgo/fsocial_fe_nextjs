@@ -33,7 +33,7 @@ export function ModalRepost({ id, store }: ModalRepostProps) {
     formData.append("originPostId", id);
     const resp = (await repostPost(formData)) as { statusCode?: number } | null;
     setSubmitClicked(false);
-    if (!resp || resp.statusCode !== 200) {
+    if (resp?.statusCode !== 200) {
       toast.error("Đăng bài viết thất bại");
       return;
     }

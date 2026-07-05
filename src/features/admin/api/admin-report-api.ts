@@ -30,8 +30,7 @@ export const getNumberOfComplaint = async (
   let endpoint: string;
   if (startDate && endDate)
     endpoint = `/complaint/statistics_complaint_start_end?startDate=${startDate}&endDate=${endDate}`;
-  else if (startDate)
-    endpoint = `/complaint/statistics_complaint_today?date_time=${startDate}`;
+  else if (startDate) endpoint = `/complaint/statistics_complaint_today?date_time=${startDate}`;
   else return null;
 
   return apiGet(endpoint);

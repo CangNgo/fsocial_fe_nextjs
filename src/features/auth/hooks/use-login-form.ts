@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { ROUTES } from "@/shared/config/routes";
 import { login } from "../api/login-api";
@@ -24,7 +24,7 @@ export function useLoginForm() {
   const [submitClicked, setSubmitClicked] = useState(false);
   const [loginErr, setLoginErr] = useState("");
 
-  const handleSubmitLogin = async () => {
+  const handleSubmitLogin = useCallback(async () => {
     await trigger();
     if (!isValid) return;
     setSubmitClicked(true);
@@ -35,7 +35,7 @@ export function useLoginForm() {
     });
     setSubmitClicked(false);
 
-    if (!result || result.statusCode !== 200) {
+    if (result?.statusCode !== 200) {
       setLoginErr(result?.message ?? "Có lỗi xảy ra trong quá trình đăng nhập");
       return;
     }
@@ -45,7 +45,7 @@ export function useLoginForm() {
       setToken(tokens.accessToken, tokens.refreshToken);
       router.push(ROUTES.HOME);
     }
-  };
+  }, [getValues, isValid, router, trigger]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -56,8 +56,7 @@ export function useLoginForm() {
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-    // biome-ignore lint/correctness/useExhaustiveDependencies: handleSubmitLogin intentionally omitted to avoid re-binding the listener every keystroke
-  }, [submitClicked]);
+  }, [submitClicked, handleSubmitLogin]);
 
   return {
     form,

@@ -1,4 +1,3 @@
-// @ts-nocheck
 "use client";
 
 import { AtSign, Eye, EyeOff, UserRoundIcon } from "lucide-react";

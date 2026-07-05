@@ -74,7 +74,7 @@ export function useSignupWizard() {
     const duplicateResp = (await checkDuplicate(data.username)) as SignupApiResponse | null;
     setCheckDuplicateClicked(false);
 
-    if (!duplicateResp || duplicateResp.statusCode !== 200) {
+    if (duplicateResp?.statusCode !== 200) {
       if (duplicateResp?.data?.username) {
         setErrorStep2("username", { message: duplicateResp.data.username });
       }
@@ -86,7 +86,7 @@ export function useSignupWizard() {
     }
 
     const otpResp = (await requestOTP(data.email)) as SignupApiResponse | null;
-    if (!otpResp || otpResp.statusCode !== 200) {
+    if (otpResp?.statusCode !== 200) {
       setStep2Err(otpResp?.message ?? "Gửi OTP thất bại");
       return;
     }
@@ -105,7 +105,7 @@ export function useSignupWizard() {
 
     setValidOTPClicked(true);
     const otpResp = (await validOTP(otpValue)) as SignupApiResponse | null;
-    if (!otpResp || otpResp.statusCode !== 200) {
+    if (otpResp?.statusCode !== 200) {
       setValidOTPClicked(false);
       setStep3Err(otpResp?.message ?? "Xác minh OTP thất bại");
       return;
@@ -119,7 +119,7 @@ export function useSignupWizard() {
     })) as SignupApiResponse | null;
 
     setValidOTPClicked(false);
-    if (!createResp || createResp.statusCode !== 200) {
+    if (createResp?.statusCode !== 200) {
       setStep3Err(createResp?.message ?? "Tạo tài khoản thất bại");
       return;
     }

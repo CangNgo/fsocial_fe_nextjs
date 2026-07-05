@@ -1,9 +1,5 @@
 "use client";
 
-import type React from "react";
-import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
-import { toast } from "sonner";
 import {
   type UpdateProfile,
   updateAvatar,
@@ -12,26 +8,12 @@ import {
 } from "@/shared/api/profile/update-profile-api";
 import { useProfileImageUpload } from "@/shared/hooks/use-profile-image-upload";
 import { ownerAccountStore } from "@/shared/stores/owner-account-store";
-
-export interface ProfileInfo {
-  firstName: string;
-  lastName: string;
-  bio: string;
-  gender: string;
-  day: string;
-  month: string;
-  year: string;
-  address: string;
-}
-
-export const genderOptions: Record<string, string> = {
-  "0": "Nam",
-  "1": "Nữ",
-  "2": "Khác",
-  "3": "Không muốn tiết lộ",
-};
-
-const defaultValues: ProfileInfo = {
+import type React from "react";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { ProfileInfo } from "../types/profile";
+export const defaultValues: ProfileInfo = {
   firstName: "",
   lastName: "",
   bio: "",
@@ -41,7 +23,6 @@ const defaultValues: ProfileInfo = {
   year: "2000",
   address: "",
 };
-
 function getDobParts(dob?: string | null) {
   let day = "1";
   let month = "1";
@@ -56,7 +37,7 @@ function getDobParts(dob?: string | null) {
       month = String(dobDate.getMonth() + 1);
       year = String(dobDate.getFullYear());
     }
-  } catch (_error) {}
+  } catch {}
 
   return { day, month, year };
 }
@@ -142,7 +123,7 @@ export function useAccountBasicForm() {
       } else {
         toast.error("Cập nhật thông tin thất bại");
       }
-    } catch (_error) {
+    } catch {
       toast.error("Cập nhật thông tin thất bại");
     }
   };

@@ -18,24 +18,15 @@ import {
 import { Avatar, AvatarFallback } from "@/shared/components/ui/avatar";
 import { Button } from "@/shared/components/ui/button";
 import { regexInMessage, regexInSetting } from "@/shared/config/regex";
-import { useNotificationStore } from "@/shared/stores/notification-store";
+import { type Notification, useNotificationStore } from "@/shared/stores/notification-store";
 import { ownerAccountStore } from "@/shared/stores/owner-account-store";
 import { popupExpandNoti3DotStore, popupNotificationtStore } from "@/shared/stores/popup-store";
 import { dateTimeToNotiTime } from "@/shared/utils/convert-date-time";
 
-export interface Notification {
-  id: string;
-  title: string;
-  message: string;
-  deeplink: string;
-  email: string[];
-  ownerId: string;
-  type: string;
-  receiverId: string;
-  read: boolean;
-  createdAt?: string;
-  textTime?: string;
-  labelType?: number;
+interface NotificationWithMeta extends Notification {
+  createdAt: string;
+  textTime: string;
+  labelType: number;
 }
 
 interface NotiProps {
@@ -90,6 +81,14 @@ const Noti = ({ notification }: NotiProps) => {
       content: <span className="fs-sm">đã bắt đầu theo dõi bạn</span>,
     },
   };
+  const notificationType = typeof notification.type === "string" ? notification.type : "";
+  const notificationTitle = typeof notification.title === "string" ? notification.title : "i";
+  const notificationEmail = Array.isArray(notification.email)
+    ? notification.email.join(", ")
+    : typeof notification.email === "string"
+      ? notification.email
+      : "";
+  const notificationIcon = notiMap[notificationType]?.icon ?? null;
 
   return (
     <div
@@ -106,19 +105,17 @@ const Noti = ({ notification }: NotiProps) => {
               <AvatarFallback className="fs-sm transition" />
             </Avatar>
           </div>
-          <div className="absolute size-fit -top-1 -left-0.5">
-            {notiMap[notification.type]?.icon ?? ""}
-          </div>
+          <div className="absolute size-fit -top-1 -left-0.5">{notificationIcon}</div>
         </div>
 
         <div>
           <p className={`fs-sm text-left ${notification.read && "opacity-60"}`}>
             <span className="font-semibold me-1" />
-            {notification.title || "i"}
+            {notificationTitle}
           </p>
           <div className="flex items-center gap-2">
             <span className={`fs-xs ${notification.read && "opacity-60"}`}>
-              {notification.email}
+              {notificationEmail}
             </span>
             {!notification.read && <span className="size-2 bg-primary-gradient rounded-full" />}
           </div>
@@ -172,8 +169,7 @@ export default function NotificationPanel() {
 
   const user = ownerAccountStore((state) => state.user);
 
-  const { notifications, setNotifications, appendNotifications, unreadCount, setUnreadCount } =
-    useNotificationStore();
+  const { notifications, appendNotifications, unreadCount } = useNotificationStore();
 
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
@@ -215,18 +211,22 @@ export default function NotificationPanel() {
       channelId: "INBOX",
       page: nextPage,
       limit: 10,
-    })) as any;
+    })) as { statusCode?: number; data?: Notification[] | null } | null;
 
-    if (!resp || resp.statusCode !== 200) {
+    if (resp?.statusCode !== 200) {
       setIsLoading(false);
       return;
     }
 
     const data = resp.data;
-    const processData = (Array.isArray(data) ? data : []).map((noti: any) => {
-      const { textTime, labelType } = dateTimeToNotiTime(noti.createdAt);
-      return { ...noti, textTime, labelType };
-    });
+    const processData: NotificationWithMeta[] = (Array.isArray(data) ? data : [])
+      .filter(
+        (noti): noti is Notification & { createdAt: string } => typeof noti?.createdAt === "string",
+      )
+      .map((noti) => {
+        const { textTime, labelType } = dateTimeToNotiTime(noti.createdAt);
+        return { ...noti, textTime, labelType };
+      });
 
     if (processData.length > 0) {
       appendNotifications(processData);
@@ -247,17 +247,19 @@ export default function NotificationPanel() {
     }
   };
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: initial notification bootstrap should only rerun when logged-in user changes
   useEffect(() => {
     if (!user.id) return;
     handleGetNotification();
-  }, [user.id, handleGetNotification]);
+  }, [user.id]);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: listener must stay stable per mounted container; internal guards use latest state via re-rendered handler
   useEffect(() => {
     const scrollContainer = scrollContainerRef.current;
     if (!scrollContainer) return;
     scrollContainer.addEventListener("scroll", handleScroll);
     return () => scrollContainer.removeEventListener("scroll", handleScroll);
-  }, [handleScroll]);
+  }, []);
 
   const closeNotificationPanel = () => setIsVisible(false);
 

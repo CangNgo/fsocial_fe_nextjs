@@ -1,6 +1,8 @@
-// @ts-nocheck
-/* eslint-disable @typescript-eslint/no-explicit-any */
-export const FollowNavIcon = ({ compareVar }) => (
+interface FollowNavIconProps {
+  compareVar?: boolean;
+}
+
+export const FollowNavIcon = ({ compareVar }: FollowNavIconProps) => (
   <svg className="h-[26px]" viewBox="0 0 26 26" fill="none" aria-hidden="true">
     <path
       className={`stroke-primary-text ${compareVar ? "fill-primary-text" : ""}`}

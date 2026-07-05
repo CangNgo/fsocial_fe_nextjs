@@ -1,6 +1,8 @@
-// @ts-nocheck
-/* eslint-disable @typescript-eslint/no-explicit-any */
-export const CloseCollapseIcon = ({ className }) => (
+interface CloseCollapseIconProps {
+  className?: string;
+}
+
+export const CloseCollapseIcon = ({ className }: CloseCollapseIconProps) => (
   <svg
     className={className}
     width="28"

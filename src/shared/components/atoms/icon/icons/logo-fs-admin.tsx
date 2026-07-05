@@ -1,5 +1,3 @@
-// @ts-nocheck
-/* eslint-disable @typescript-eslint/no-explicit-any */
 export const LogoFSAdmin = () => (
   <svg width="119" height="25" viewBox="0 0 119 25" fill="none" aria-hidden="true">
     <path

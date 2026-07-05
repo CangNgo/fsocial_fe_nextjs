@@ -26,7 +26,9 @@ export function usePostForModal({ id, store }: UsePostForModalOptions) {
   useEffect(() => {
     const found = storeApi?.getState?.()?.findPost?.(id);
     if (found) {
-      setPost(found as Record<string, unknown>);
+      queueMicrotask(() => {
+        setPost(found as Record<string, unknown>);
+      });
       return;
     }
 

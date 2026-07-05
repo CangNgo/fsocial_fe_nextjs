@@ -1,5 +1,3 @@
-// @ts-nocheck
-/* eslint-disable @typescript-eslint/no-explicit-any */
 export const RepostPostIcon = () => (
   <svg className="sm:size-[26px] size-[24px]" viewBox="0 0 24 24" fill="none" aria-hidden="true">
     <g transform="translate(0, 4)">

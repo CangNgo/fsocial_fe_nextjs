@@ -69,7 +69,9 @@ export function useAdminReports() {
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: fetch reports once on mount; date changes are applied by the accept button
   useEffect(() => {
-    fetchReports();
+    queueMicrotask(() => {
+      fetchReports();
+    });
   }, []);
 
   const handleOnSelectDateFrom = (value: string) => {

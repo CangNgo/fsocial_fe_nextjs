@@ -1,13 +1,12 @@
 "use client";
 
-import { useCallback, useEffect } from "react";
-import { useShallow } from "zustand/react/shallow";
 import { getPosts } from "@/shared/api/posts/posts-api";
 import { ownerAccountStore } from "@/shared/stores/owner-account-store";
-import type { TimelinePost } from "@/shared/types/post";
-import { useTimelineStore } from "../store/timeline-store";
+import type { PostResponse } from "@/shared/types/post";
+import { useCallback, useEffect } from "react";
+import { useShallow } from "zustand/react/shallow";
+import { useTimelineStore } from "../stores/timeline-store";
 import { selectTimelineState } from "../types/post";
-import { getUniquePosts, isPostsResponse, normalizePost } from "../utils/normalize-post";
 
 export function useTimeline() {
   const {
@@ -28,12 +27,7 @@ export function useTimeline() {
   }, [user.id, reset]);
 
   const fetchPosts = useCallback(async () => {
-    const {
-      isFetching: fetching,
-      hasMore: more,
-      page: currentPage,
-      posts: currentPosts,
-    } = useTimelineStore.getState();
+    const { isFetching: fetching, hasMore: more, page: currentPage } = useTimelineStore.getState();
 
     if (fetching || !more || !user.id) return;
 
@@ -41,24 +35,21 @@ export function useTimeline() {
     const response = await getPosts(user.id, currentPage);
     setIsFetching(false);
 
-    if (!isPostsResponse(response) || response.statusCode !== 200) {
+    if (response?.statusCode !== 200) {
       setHasMore(false);
       return;
     }
 
-    const newPosts = Array.isArray(response.data) ? response.data.map(normalizePost) : [];
+    //PostResponse[]
+    const postResponse = response?.data ? response.data : [];
 
-    if (newPosts.length === 0) {
+    if (postResponse.length === 0) {
       setHasMore(false);
       return;
+    } else {
+      appendPosts(postResponse);
+      incrementPage();
     }
-
-    const uniquePosts = getUniquePosts(currentPosts, newPosts);
-    if (uniquePosts.length > 0) {
-      appendPosts(uniquePosts);
-    }
-
-    incrementPage();
   }, [user.id, appendPosts, incrementPage, setHasMore, setIsFetching]);
 
   useEffect(() => {
@@ -70,11 +61,12 @@ export function useTimeline() {
   }, [fetchPosts, user.id]);
 
   const handlePostCreated = useCallback(
-    (post: TimelinePost) => {
+    (post: Record<string, unknown>) => {
+      const normalizedPost = post as unknown as PostResponse;
       prependPost({
-        ...normalizePost(post),
-        displayName: post.displayName ?? user?.displayName ?? "",
-        avatar: post.avatar ?? user?.avatar ?? null,
+        ...normalizedPost,
+        displayName: normalizedPost.displayName ?? user?.displayName ?? "",
+        avatar: normalizedPost.avatar ?? user?.avatar ?? null,
       });
     },
     [prependPost, user?.avatar, user?.displayName],

@@ -1,5 +1,3 @@
-// @ts-nocheck
-/* eslint-disable @typescript-eslint/no-explicit-any */
 export const SharePostIcon = () => (
   <svg className="sm:h-[22px] h-[20px]" viewBox="0 0 19 22" fill="none" aria-hidden="true">
     <path

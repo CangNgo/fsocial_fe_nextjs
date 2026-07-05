@@ -1,6 +1,6 @@
-// @ts-nocheck
-/* eslint-disable @typescript-eslint/no-explicit-any */
-export const CommentNotiIcon = (props) => (
+import type { SVGProps } from "react";
+
+export const CommentNotiIcon = (props: SVGProps<SVGSVGElement>) => (
   <svg width="21" height="21" {...props} viewBox="0 0 21 21" fill="none" aria-hidden="true">
     <path
       className="fill-logo"

@@ -10,7 +10,7 @@ export default function LayoutFour({ images, className }: LayoutFourProps) {
   return (
     <div className={cn("grid grid-cols-2", className)}>
       {images.map((src, index) => (
-        <div key={index} className="aspect-square overflow-hidden">
+        <div key={src} className="aspect-square overflow-hidden">
           <Image
             src={src}
             alt={`Media ${index}`}

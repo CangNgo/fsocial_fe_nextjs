@@ -2,6 +2,7 @@
 import { AtSign } from "lucide-react";
 import Link from "next/link";
 import { ArrowLeftIcon, LoadingIcon } from "@/shared/components/atoms/icon/icon";
+import { Image } from "@/shared/components/atoms/image";
 import { FormInput } from "@/shared/components/molecules/form-input";
 import { OtpInputGroup } from "@/shared/components/molecules/otp-input-group";
 import { Button } from "@/shared/components/ui/button";
@@ -48,7 +49,7 @@ export default function ForgotPasswordForm() {
 
   return (
     <div className="lg:w-[min(85%,1440px)] md:h-fit h-screen mx-auto relative bg-background xl:px-20 lg:px-12 lg:my-6 md:px-4 py-8 rounded-md">
-      <img
+      <Image
         className="w-[max(72px,8%)] absolute bottom-0 left-0"
         src="/decor/form_decor.svg"
         alt=""
@@ -243,7 +244,7 @@ export default function ForgotPasswordForm() {
         </div>
 
         <div className="relative overflow-hidden flex-grow">
-          <img
+          <Image
             className={cn(
               "absolute w-full left-0 mt-20 transition duration-300",
               [1, 2].includes(currentStep)
@@ -264,7 +265,14 @@ export default function ForgotPasswordForm() {
               🎉🎉🎉
             </h1>
             <h3 className="text-muted-foreground">Đang chuyển hướng về trang đăng nhập...</h3>
-            <img src="/decor/signup_step_4_decor.svg" alt="" />
+            <Image
+              src="/decor/signup_step_4_decor.svg"
+              alt=""
+              width={0}
+              height={0}
+              sizes="50vw"
+              className="w-full h-auto"
+            />
           </div>
         </div>
       </div>
