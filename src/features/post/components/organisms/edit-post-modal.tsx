@@ -1,13 +1,13 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
-import { toast } from "sonner";
-import { updatePost } from "@/shared/api/posts/posts-api";
+import { updatePost } from "@/services/posts/posts-api";
 import { LoadingIcon } from "@/shared/components/atoms/icon/icon";
 import { UserAvatar } from "@/shared/components/molecules/user-avatar";
 import { Button } from "@/shared/components/ui/button";
 import { Textarea } from "@/shared/components/ui/textarea";
 import { usePopupStore } from "@/shared/stores/popup-store";
 import { dateTimeToPostTime } from "@/shared/utils/convert-date-time";
+import { useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
 import type { PostCardStore } from "../../hooks/use-post-card-actions";
 import { usePostForModal } from "../../hooks/use-post-for-modal";
 
@@ -21,11 +21,14 @@ export function EditPostModal({ id, store }: EditPostModalProps) {
   const textbox = useRef<HTMLTextAreaElement>(null);
   const [content, setContent] = useState("");
   const [submitClicked, setSubmitClicked] = useState(false);
-  const { post } = usePostForModal({ id, store });
+  const { post, updateStoredPost } = usePostForModal({ id, store });
 
   useEffect(() => {
     if (!post) return;
-    setContent((post.text as string) ?? "");
+    const postContent = post.content as { text?: string; htmltext?: string } | undefined;
+    queueMicrotask(() => {
+      setContent(postContent?.text ?? postContent?.htmltext ?? (post.text as string) ?? "");
+    });
   }, [post]);
 
   const handleUpdate = async () => {
@@ -38,11 +41,12 @@ export function EditPostModal({ id, store }: EditPostModalProps) {
     formData.append("postId", id);
     const resp = (await updatePost(formData)) as { statusCode?: number; data?: unknown } | null;
     setSubmitClicked(false);
-    if (!resp || resp.statusCode !== 200) {
+    if (resp?.statusCode !== 200) {
       toast.error("Cập nhật bài viết thất bại");
       return;
     }
     toast.success("Đã cập nhật bài viết");
+    updateStoredPost({ content: { text: content, htmltext: content } });
     hidePopup();
   };
 

@@ -1,6 +1,5 @@
 import { cn } from "@/shared/lib/utils";
 import { type MediaResponse, MediaType } from "@/shared/types/media";
-import LayoutFive from "./layout-five";
 import LayoutFour from "./layout-four";
 import LayoutOne from "./layout-one";
 import LayoutThree from "./layout-three";

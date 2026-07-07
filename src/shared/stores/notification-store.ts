@@ -43,7 +43,7 @@ export const useNotificationStore = create<NotificationStore>()((set, get) => ({
       process.env.NEXT_PUBLIC_WS_HOST ??
       "localhost:8888";
     const wsProtocol = process.env.NEXT_PUBLIC_WS_PROTOCOL ?? "ws";
-    const notificationBaseURL = `${wsProtocol}://${wsHost}/post/ws`;
+    const notificationBaseURL = `${wsProtocol}://${wsHost}/ws`;
 
     const client = new Client({
       brokerURL: notificationBaseURL,

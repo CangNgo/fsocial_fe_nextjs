@@ -13,9 +13,3 @@ export interface SignupStep2FormData {
   password: string;
   rePassword: string;
 }
-
-export interface SignupApiResponse {
-  statusCode?: number;
-  message?: string;
-  data?: Record<string, string>;
-}

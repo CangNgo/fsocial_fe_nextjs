@@ -1,7 +1,7 @@
-// @ts-nocheck
 "use client";
 
 import { PencilChangeImageIcon } from "@/shared/components/atoms/icon/icon";
+import { Image } from "@/shared/components/atoms/image";
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
@@ -10,7 +10,8 @@ import { Textarea } from "@/shared/components/ui/textarea";
 import { dayOptions, monthOptions, yearOptions } from "@/shared/config/global-variables";
 import { cn } from "@/shared/lib/utils";
 import { getInitialsFromDisplayName } from "@/shared/utils/combine-name";
-import { genderOptions, useAccountBasicForm } from "../../hooks/use-account-basic-form";
+import { useAccountBasicForm } from "../../hooks/use-account-basic-form";
+import { genderOptions } from "../../types/profile";
 
 export default function AccountBasicForm() {
   const {
@@ -40,7 +41,13 @@ export default function AccountBasicForm() {
           )}
         >
           {user.banner ? (
-            <img src={user.banner} className="size-full" alt="" />
+            <Image
+              src={user.banner}
+              alt=""
+              fill
+              sizes="(max-width: 1024px) 100vw, 630px"
+              className="object-cover"
+            />
           ) : (
             <div className="size-full grid place-content-center">
               <p>Cập nhật ảnh bìa của bạn</p>
@@ -71,9 +78,9 @@ export default function AccountBasicForm() {
         <p className="font-medium">Ảnh đại diện</p>
         <div className="relative bg-background border-4 rounded-full p-1 w-fit transition">
           <Avatar className="size-[120px]">
-            <AvatarImage src={user.avatar} />
+            <AvatarImage src={user.avatar ?? undefined} />
             <AvatarFallback className="text-[40px] transition">
-              {getInitialsFromDisplayName(user.displayName)}
+              {getInitialsFromDisplayName(user.displayName ?? "")}
             </AvatarFallback>
           </Avatar>
           {isEditing && (

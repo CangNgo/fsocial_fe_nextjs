@@ -1,7 +1,7 @@
 "use client";
 
 import type { Dispatch, SetStateAction } from "react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Virtuoso } from "react-virtuoso";
 import { PostSkeleton } from "@/shared/components/skeletons/post-skeleton";
 import { cn } from "@/shared/lib/utils";
@@ -53,7 +53,11 @@ export function PostList({
   const [scrollParent, setScrollParent] = useState<HTMLElement | null>(null);
   useEffect(() => {
     const el = document.getElementById(scrollContainerId);
-    if (el) setScrollParent(el);
+    if (el) {
+      queueMicrotask(() => {
+        setScrollParent(el);
+      });
+    }
   }, [scrollContainerId]);
 
   if (!posts) {
@@ -74,7 +78,7 @@ export function PostList({
     <Virtuoso
       customScrollParent={scrollParent ?? undefined}
       data={safeData}
-      computeItemKey={(index, post) => post?.id ?? `${index}`}
+      computeItemKey={(index) => `${index}`}
       increaseViewportBy={{ top: 1200, bottom: 600 }}
       itemContent={(_, post) => (
         <div className={cardStyle ? "mb-3" : ""}>

@@ -1,8 +1,8 @@
-// @ts-nocheck
 "use client";
 
 import { AtSign, UserRound } from "lucide-react";
 import { useEffect } from "react";
+import { Image } from "@/shared/components/atoms/image";
 import { useForm } from "react-hook-form";
 import { ChangePasswordModal } from "@/shared/components/organisms/change-password-modal";
 import { Button } from "@/shared/components/ui/button";
@@ -117,8 +117,14 @@ export default function AccountLoginForm() {
           </div>
         </form>
       </div>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img className="max-w-80" src="/decor/account_login_info_decor.svg" alt="" />
+      <Image
+        className="max-w-80 h-auto"
+        src="/decor/account_login_info_decor.svg"
+        alt=""
+        width={0}
+        height={0}
+        sizes="320px"
+      />
     </div>
   );
 }

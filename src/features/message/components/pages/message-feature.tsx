@@ -11,24 +11,19 @@ import { dateTimeToMessageTime } from "@/shared/utils/convert-date-time";
 import { useChooseConversation } from "../../hooks/use-choose-conversation";
 import { useConversations } from "../../hooks/use-conversations";
 import { useMessageSubscription } from "../../hooks/use-message-subscription";
-import type { Conversation } from "../../types/conversation";
+import type { Conversation } from "@/shared/types/message";
 
 export default function MessageFeature() {
   const { conversation } = useMessageStore();
   const currentConversation = conversation as Conversation | null;
-  const {
-    contentActive,
-    setContentActive,
-    conversations,
-    setConversations,
-    handleOpenCreateConversation,
-  } = useConversations();
+  const { contentActive, setContentActive, conversations, handleOpenCreateConversation } =
+    useConversations();
   const { handleChooseConversation, handleGoBack } = useChooseConversation({
     contentActive,
     setContentActive,
   });
 
-  useMessageSubscription({ conversations, setConversations });
+  useMessageSubscription({ conversations });
 
   return (
     <div

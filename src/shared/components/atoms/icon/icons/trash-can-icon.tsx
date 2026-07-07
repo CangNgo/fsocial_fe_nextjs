@@ -1,6 +1,8 @@
-// @ts-nocheck
-/* eslint-disable @typescript-eslint/no-explicit-any */
-export const TrashCanIcon = ({ className = "size-[24px]" }) => (
+interface TrashCanIconProps {
+  className?: string;
+}
+
+export const TrashCanIcon = ({ className = "size-[24px]" }: TrashCanIconProps) => (
   <svg className={className} viewBox="0 0 28 28" fill="none" aria-hidden="true">
     <path
       className="fill-primary-text stroke-primary-text"

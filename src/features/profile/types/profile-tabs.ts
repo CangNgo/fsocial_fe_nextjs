@@ -1,6 +1,6 @@
-import type { TimelinePost } from "@/shared/types/post";
+import type { PostResponse } from "@/shared/types/post";
 
-export type ProfilePost = TimelinePost;
+export type ProfilePost = PostResponse;
 
 export interface ProfilePostsResponse {
   statusCode?: number;

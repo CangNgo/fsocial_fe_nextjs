@@ -2,8 +2,8 @@
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { Toaster, toast } from "sonner";
-import { getOwnerProfile } from "@/features/profile/api/profile-api";
+import { toast } from "sonner";
+import { useOwnerProfile } from "@/features/profile/hooks/use-profile";
 import { ExpiredDialog } from "@/shared/components/organisms/expired-dialog";
 import { GlobalPopup } from "@/shared/components/organisms/global-popup";
 import { Header } from "@/shared/components/organisms/header";
@@ -28,39 +28,34 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
   const router = useRouter();
 
   const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
+  useEffect(() => {
+    queueMicrotask(() => {
+      setMounted(true);
+    });
+  }, []);
 
-  const handleGetProfile = async () => {
-    const res = await getOwnerProfile();
-    if (res?.statusCode != 200) {
+  const hasToken = mounted && !!getCookie("access-token");
+  const { data: res } = useOwnerProfile(hasToken);
+
+  useEffect(() => {
+    if (!hasToken || !res) return;
+
+    if (res.statusCode !== 200) {
       toast.error("Lỗi khi tải thông tin cá nhân của bạn");
       router.push(ROUTES.LOGIN);
       return;
-    } else {
-      return res.data;
     }
-  };
+    if (!res.data) return;
 
-  useEffect(() => {
-    const token = getCookie("access-token");
-    if (!token) return;
+    setUser({ ...res.data });
 
-    const fetchProfile = async () => {
-      const profile = await handleGetProfile();
-      if (!profile) return;
-
-      setUser({ ...profile });
-
-      if (!initialized.current) {
-        initialized.current = true;
-        // Tạm comment kết nối websocket
-        // connectNotificationWebSocket(userId);
-        // connectMessageWebSocket(userId);
-      }
-    };
-
-    fetchProfile();
-  }, [setUser]);
+    if (!initialized.current) {
+      initialized.current = true;
+      // Tạm comment kết nối websocket
+      // connectNotificationWebSocket(userId);
+      // connectMessageWebSocket(userId);
+    }
+  }, [hasToken, res, setUser, router]);
 
   return (
     <div className="flex h-screen overflow-hidden">
@@ -82,7 +77,6 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
 
       <GlobalPopup />
       <ExpiredDialog open={mounted && !refreshToken} />
-      <Toaster richColors position="bottom-right" />
     </div>
   );
 }

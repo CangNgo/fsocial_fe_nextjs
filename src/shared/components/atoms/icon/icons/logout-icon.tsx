@@ -1,5 +1,3 @@
-// @ts-nocheck
-/* eslint-disable @typescript-eslint/no-explicit-any */
 export const LogoutIcon = () => (
   <svg className="size-[26px]" viewBox="0 0 26 26" fill="none" aria-hidden="true">
     <path

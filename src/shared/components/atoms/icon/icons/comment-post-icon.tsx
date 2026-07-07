@@ -1,5 +1,3 @@
-// @ts-nocheck
-/* eslint-disable @typescript-eslint/no-explicit-any */
 export const CommentPostIcon = () => (
   <svg className="sm:size-[22px] size-[20px]" viewBox="0 0 22 22" fill="none" aria-hidden="true">
     <path

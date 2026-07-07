@@ -1,146 +1,24 @@
 "use client";
-import { Send } from "lucide-react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
-import { toast } from "sonner";
-import { HeartPostIcon, LoadingIcon, XMarkIcon } from "@/shared/components/atoms/icon/icon";
+import { LoadingIcon, XMarkIcon } from "@/shared/components/atoms/icon/icon";
 import { UserAvatar } from "@/shared/components/molecules/user-avatar";
 import { Button } from "@/shared/components/ui/button";
 import { Textarea } from "@/shared/components/ui/textarea";
-import { ROUTES } from "@/shared/config/routes";
 import { ownerAccountStore } from "@/shared/stores/owner-account-store";
-import { usePopupStore } from "@/shared/stores/popup-store";
-import { combineIntoAvatarName, combineIntoDisplayName } from "@/shared/utils/combine-name";
-import { dateTimeToNotiTime } from "@/shared/utils/convert-date-time";
+import { combineIntoDisplayName } from "@/shared/utils/combine-name";
+import { Send } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
 import {
-  getComments,
-  getRepliesComment,
-  likeComment,
-  replyComment,
-  sendComment,
-} from "../../api/comments-api";
+  useRepliesComment,
+  useReplyComment,
+  useSendComment,
+} from "../../hooks/mutations/use-comment-mutations";
+import { useComments } from "../../hooks/queries/use-comments";
 import type { PostCardPost, PostCardStore } from "../../hooks/use-post-card-actions";
 import { usePostForModal } from "../../hooks/use-post-for-modal";
+import type { Comment, CommentReply } from "@/shared/types/comment";
 import PostCard from "../molecules/post-card";
-
-interface Comment {
-  id: string;
-  commentId?: string;
-  userId: string;
-  firstName: string;
-  lastName: string;
-  avatar?: string;
-  content: { htmltext?: string; text?: string };
-  createDatetime: string;
-  countLikes: number;
-  like?: boolean;
-  reply?: boolean | Comment[];
-}
-
-interface CommentReply {
-  id: string;
-  reply: Comment[];
-}
-
-function RenderComment({
-  comment,
-  selectCommentToReply,
-  handleShowReplyComment,
-  replies,
-}: {
-  comment: Comment;
-  selectCommentToReply: (c: Comment) => void;
-  handleShowReplyComment: (id: string) => void;
-  replies?: CommentReply;
-}) {
-  const router = useRouter();
-  const user = ownerAccountStore((state) => state.user);
-  const { hidePopup } = usePopupStore();
-  const [like, setLike] = useState(comment.like ?? false);
-  const [countLikes, setCountLikes] = useState(comment.countLikes ?? 0);
-
-  const handleClickLike = async () => {
-    setLike(!like);
-    setCountLikes(like ? countLikes - 1 : countLikes + 1);
-    await likeComment({ commentId: comment.id, userId: user.id });
-  };
-
-  const handleDirectToProfile = () => {
-    hidePopup();
-    router.push(ROUTES.PROFILE(comment.userId));
-  };
-
-  return (
-    <div className="flex gap-3">
-      <UserAvatar
-        src={comment.avatar}
-        initials={combineIntoAvatarName(comment.firstName, comment.lastName)}
-        className="size-9 cursor-pointer"
-        onClick={handleDirectToProfile}
-      />
-      <div>
-        <div className="space-y-1">
-          <Link
-            href={`/profile?id=${comment.userId}`}
-            onClick={hidePopup}
-            className="block font-semibold text-muted-foreground text-xs hover:underline hover:text-foreground"
-          >
-            {combineIntoDisplayName(comment.firstName, comment.lastName)}
-          </Link>
-          {/* biome-ignore lint/security/noDangerouslySetInnerHtml: renders pre-sanitized formatted comment content */}
-          <div dangerouslySetInnerHTML={{ __html: comment.content?.htmltext ?? "" }} />
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <span className="text-xs">{dateTimeToNotiTime(comment.createDatetime).textTime}</span>
-            <Button
-              type="button"
-              variant="outline"
-              size="xs"
-              className="flex items-center gap-1"
-              onClick={handleClickLike}
-            >
-              <HeartPostIcon compareVar={like} className="sm:h-[15px] h-[13px]" fill="fill-gray" />
-              <span className={`text-xs ${like ? "text-primary" : ""}`}>{countLikes}</span>
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              size="xs"
-              className="text-xs hover:text-foreground"
-              onClick={() => selectCommentToReply(comment)}
-            >
-              Phản hồi
-            </Button>
-          </div>
-        </div>
-        {comment.reply && (
-          <div className="mt-3 space-y-2">
-            {!replies ? (
-              <Button
-                type="button"
-                variant="outline"
-                size="xs"
-                className="text-xs ps-2 font-semibold text-muted-foreground hover:underline"
-                onClick={() => handleShowReplyComment(comment.id)}
-              >
-                Xem phản hồi
-              </Button>
-            ) : (
-              replies.reply.map((cmtReply) => (
-                <RenderComment
-                  key={cmtReply.id}
-                  comment={cmtReply}
-                  selectCommentToReply={selectCommentToReply}
-                  handleShowReplyComment={handleShowReplyComment}
-                />
-              ))
-            )}
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
+import { RenderComment } from "./render-comment";
 
 interface CommentModalProps {
   id: string;
@@ -158,13 +36,19 @@ export function CommentModal({ id, store, initialMediaIndex }: CommentModalProps
   const [submitCmtClicked, setSubmitCmtClicked] = useState(false);
   const [selectReply, setSelectReply] = useState<Partial<Comment>>({});
   const [commentsReply, setCommentsReply] = useState<CommentReply[]>([]);
+  const { data: commentsResp } = useComments(id);
+  const { mutateAsync: sendComment } = useSendComment(id);
+  const { mutateAsync: replyComment } = useReplyComment(id);
+  const { mutateAsync: getRepliesComment } = useRepliesComment();
 
   useEffect(() => {
-    getComments(id).then((resp: unknown) => {
-      const r = resp as { statusCode?: number; data?: Comment[] };
-      if (r?.statusCode === 200) setComments((r.data ?? []).reverse());
-    });
-  }, [id]);
+    if (commentsResp?.statusCode === 200) {
+      queueMicrotask(() => {
+        setComments(commentsResp.data ?? []);
+      });
+    }
+    console.log("commentsResp", commentsResp);
+  }, [commentsResp]);
 
   useEffect(() => {
     if (!textbox.current) return;
@@ -172,7 +56,7 @@ export function CommentModal({ id, store, initialMediaIndex }: CommentModalProps
     textbox.current.focus();
     const nextPosition = textbox.current.value.length;
     textbox.current.setSelectionRange(nextPosition, nextPosition);
-  }, [replyPrefix]);
+  }, []);
 
   const selectCommentToReply = (selectedComment: Comment) => {
     const mentionText = `${combineIntoDisplayName(
@@ -207,7 +91,7 @@ export function CommentModal({ id, store, initialMediaIndex }: CommentModalProps
     formData.append("text", innerText);
     formData.append("HTMLText", innerHTML);
 
-    let resp: unknown;
+    let resp: Awaited<ReturnType<typeof sendComment>>;
     if (selectReply.id) {
       formData.append("commentId", selectReply.commentId ?? selectReply.id ?? "");
       resp = await replyComment(formData);
@@ -216,8 +100,7 @@ export function CommentModal({ id, store, initialMediaIndex }: CommentModalProps
       resp = await sendComment(formData);
     }
 
-    const r = resp as { statusCode?: number; data?: Comment };
-    if (!resp || r.statusCode !== 200) {
+    if (resp?.statusCode !== 200) {
       toast.error("Bình luận thất bại");
       setSubmitCmtClicked(false);
       return;
@@ -228,7 +111,7 @@ export function CommentModal({ id, store, initialMediaIndex }: CommentModalProps
     const now = new Date();
     now.setHours(now.getHours() + 7);
     const newCmt: Comment = {
-      ...(r.data ?? {}),
+      ...(resp.data ?? {}),
       firstName: user?.firstName ?? "",
       lastName: user?.lastName ?? "",
       avatar: user?.avatar,
@@ -271,11 +154,8 @@ export function CommentModal({ id, store, initialMediaIndex }: CommentModalProps
   };
 
   const handleShowReplyComment = async (commentId: string) => {
-    const resp = (await getRepliesComment(commentId)) as {
-      statusCode?: number;
-      data?: Comment[];
-    } | null;
-    if (!resp || resp.statusCode !== 200) {
+    const resp = await getRepliesComment(commentId);
+    if (resp?.statusCode !== 200) {
       toast.error("Lấy phản hồi bình luận thất bại");
       return;
     }

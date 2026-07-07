@@ -7,20 +7,21 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "biome lint ./src",
-    "lint:fix": "biome lint --write ./src",
-    "format": "biome format --write ./src",
-    "check": "biome check --write ./src",
+    "lint": "eslint ./src",
+    "lint:fix": "eslint ./src --fix",
+    "format": "prettier --write ./src",
+    "check": "prettier --write ./src && eslint ./src --fix",
     "type-check": "tsc --noEmit",
     "prepare": "husky",
     "analyze": "ANALYZE=true next build"
   },
   "lint-staged": {
     "*.{ts,tsx}": [
-      "biome check --write --no-errors-on-unmatched"
+      "prettier --write",
+      "eslint --fix"
     ],
     "*.{json,css,md}": [
-      "biome format --write --no-errors-on-unmatched"
+      "prettier --write"
     ]
   },
   "dependencies": {
@@ -59,7 +60,6 @@
     "zustand": "^5.0.13"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.4.15",
     "@commitlint/cli": "^21.0.1",
     "@commitlint/config-conventional": "^21.0.1",
     "@tailwindcss/postcss": "^4.3.0",
@@ -70,8 +70,10 @@
     "@types/react-dom": "^19.2.3",
     "eslint": "^9.39.4",
     "eslint-config-next": "16.2.6",
+    "eslint-config-prettier": "^10.1.8",
     "husky": "^9.1.7",
     "lint-staged": "^17.0.5",
+    "prettier": "^3.9.4",
     "sass": "^1.99.0",
     "tailwindcss": "^4.3.0",
     "typescript": "^5.9.3"

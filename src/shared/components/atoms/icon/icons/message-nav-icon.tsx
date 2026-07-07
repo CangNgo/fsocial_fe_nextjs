@@ -1,6 +1,8 @@
-// @ts-nocheck
-/* eslint-disable @typescript-eslint/no-explicit-any */
-export const MessageNavIcon = ({ compareVar }) => (
+interface MessageNavIconProps {
+  compareVar?: boolean;
+}
+
+export const MessageNavIcon = ({ compareVar }: MessageNavIconProps) => (
   <svg className="size-[26px]" viewBox="0 0 26 26" fill="none" aria-hidden="true">
     <path
       className={`stroke-primary-text ${compareVar ? "fill-primary-text" : ""} `}

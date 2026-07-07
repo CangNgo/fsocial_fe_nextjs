@@ -11,7 +11,7 @@ export default function LayoutFive({ images, className }: LayoutFiveProps) {
     <div className={cn("flex flex-col gap-3", className)}>
       {images.map((src, index) => (
         <Image
-          key={index}
+          key={src}
           src={src}
           alt={`Media ${index}`}
           fill

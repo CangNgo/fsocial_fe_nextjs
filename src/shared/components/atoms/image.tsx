@@ -9,5 +9,12 @@ interface IImageProps extends Omit<ImageProps, "src"> {
 export const Image = ({ src, ...props }: IImageProps) => {
   const resolvedSrc = src && src !== "" ? src : DEFAULT_IMAGE_SRC;
 
-  return <NextImage {...props} src={resolvedSrc} />;
+  /* SVG bị optimizer từ chối (image/svg+xml), blob:/data: là URL cục bộ (preview upload)
+   * nên không đi qua /_next/image được — render thẳng như <img>. */
+  const unoptimized =
+    resolvedSrc.startsWith("blob:") ||
+    resolvedSrc.startsWith("data:") ||
+    resolvedSrc.split("?")[0].toLowerCase().endsWith(".svg");
+
+  return <NextImage unoptimized={unoptimized} {...props} src={resolvedSrc} />;
 };

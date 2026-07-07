@@ -1,5 +1,3 @@
-// @ts-nocheck
-/* eslint-disable @typescript-eslint/no-explicit-any */
 export const SwitchIcon = () => (
   <svg width="26" height="27" viewBox="0 0 26 27" fill="none" aria-hidden="true">
     <path

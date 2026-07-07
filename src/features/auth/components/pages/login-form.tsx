@@ -6,6 +6,7 @@ import { LoadingIcon } from "@/shared/components/atoms/icon/icon";
 import { FormInput } from "@/shared/components/molecules/form-input";
 import { Button } from "@/shared/components/ui/button";
 import { ROUTES } from "@/shared/config/routes";
+import GoogleSignInButton from "../molecules/google-sign-in-button";
 import { useLoginForm } from "../../hooks/use-login-form";
 
 export default function LoginForm() {
@@ -86,9 +87,7 @@ export default function LoginForm() {
           </div>
 
           <div className="mb-4">
-            <div id="google-signin-btn" className="w-full mb-4">
-              Đăng nhập với google
-            </div>
+            <GoogleSignInButton />
           </div>
 
           <div className="flex justify-center items-center">

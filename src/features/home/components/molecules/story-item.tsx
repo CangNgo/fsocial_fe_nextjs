@@ -1,5 +1,4 @@
 import { PlusIcon } from "lucide-react";
-import React from "react";
 import { Image } from "@/shared/components/atoms/image";
 import { Card } from "@/shared/components/ui/card";
 import { ownerAccountStore, type User } from "@/shared/stores/owner-account-store";

@@ -1,0 +1,10 @@
+node_modules
+.next
+dist
+build
+public
+*.config.js
+*.config.ts
+pnpm-lock.yaml
+yarn.lock
+tsconfig.tsbuildinfo

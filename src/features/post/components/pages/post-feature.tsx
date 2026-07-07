@@ -1,35 +1,39 @@
 "use client";
-import { useParams } from "next/navigation";
-import { useEffect, useState } from "react";
-import { getPost } from "@/shared/api/posts/posts-api";
+import { getPost } from "@/services/posts/posts-api";
 import { ownerAccountStore } from "@/shared/stores/owner-account-store";
+import type { PostResponse } from "@/shared/types/post";
+import { useParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
+
+interface GetPostResponse {
+  statusCode?: number;
+  data?: PostResponse;
+}
 
 const messageNotFoundPost = "Không tìm thấy bài viết";
-
-interface Post {
-  id: string;
-  content?: string;
-  [key: string]: unknown;
-}
 
 export default function PostFeature() {
   const params = useParams<{ id: string }>();
   const postId = params?.id ?? "";
   const user = ownerAccountStore((state) => state.user);
-  const [posts, setPosts] = useState<Post[] | null>(null);
+  const [posts, setPosts] = useState<PostResponse[] | null>(null);
 
-  const handleGetPost = async () => {
+  const handleGetPost = useCallback(async () => {
     if (!user.id || !postId) return;
-    const resp = (await getPost(user.id, postId)) as any;
-    if (!resp || resp.statusCode !== 200) {
+    const resp = (await getPost(user.id, postId)) as GetPostResponse | null;
+    if (resp?.statusCode !== 200 || !resp.data) {
       setPosts([]);
       return;
     }
     setPosts([resp.data]);
-  };
+  }, [postId, user.id]);
 
   useEffect(() => {
-    if (user.id) handleGetPost();
+    if (user.id) {
+      queueMicrotask(() => {
+        handleGetPost();
+      });
+    }
   }, [user.id, handleGetPost]);
 
   return (

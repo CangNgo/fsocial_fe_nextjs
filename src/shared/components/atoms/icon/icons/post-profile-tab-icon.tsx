@@ -1,6 +1,8 @@
-// @ts-nocheck
-/* eslint-disable @typescript-eslint/no-explicit-any */
-export const PostProfileTabIcon = ({ className = "size-5" }) => (
+interface PostProfileTabIconProps {
+  className?: string;
+}
+
+export const PostProfileTabIcon = ({ className = "size-5" }: PostProfileTabIconProps) => (
   <svg className={className} viewBox="0 0 20 20" fill="inherit" aria-hidden="true">
     <path fill="inherit" d="M8.75 15H2.5V16.25H8.75V15Z" strokeWidth={0} />
     <path fill="inherit" d="M8.75 11.25H2.5V12.5H8.75V11.25Z" strokeWidth={0} />

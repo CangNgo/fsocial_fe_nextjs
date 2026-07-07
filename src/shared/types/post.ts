@@ -7,7 +7,7 @@ export interface PostContent {
   media?: MediaResponse[];
 }
 
-export interface TimelinePost {
+export interface PostResponse {
   id: string;
   userId: string;
   originPostId: string | null;
@@ -25,5 +25,5 @@ export interface TimelinePost {
 
 export interface PostsResponse {
   statusCode?: number;
-  data?: TimelinePost[];
+  data?: PostResponse[];
 }

@@ -1,8 +1,7 @@
-// @ts-nocheck
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import { CalendarIcon, TrashCanIcon } from "@/shared/components/atoms/icon/icon";
 import { ButtonGroup } from "@/shared/components/molecules/button-group";
 import { DataTable } from "@/shared/components/molecules/data-table";
@@ -10,17 +9,8 @@ import { SearchBar } from "@/shared/components/molecules/search-bar";
 import { Button } from "@/shared/components/ui/button";
 import { Switch } from "@/shared/components/ui/switch";
 import { cn } from "@/shared/lib/utils";
-import { getBanUser, getManageUser } from "../../api/admin-manage-user-api";
-
-interface UserItem {
-  id: string;
-  displayName: string;
-  userName: string;
-  complaint: string;
-  createDate: string;
-  onlineLated: string;
-  status: boolean;
-}
+import { useBanUser } from "../../hooks/mutations/use-manage-user-mutations";
+import { useManageUsers } from "../../hooks/queries/use-manage-users";
 
 const buttonItems = ["Tất cả", "Bị cấm", "Bình thường"];
 
@@ -33,70 +23,40 @@ const headers = [
 ];
 
 export default function AdminUserTable() {
+  const { users, loading } = useManageUsers();
+  const { mutate: mutateBanUser } = useBanUser();
+
   const [searchValue, setSearchValue] = useState("");
-  const [data, setData] = useState<UserItem[]>([]);
-  const [filteredData, setFilteredData] = useState<UserItem[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [_selected, setSelected] = useState("Tất cả");
+  const [selectedType, setSelectedType] = useState("Tất cả");
+  const [removedIds, setRemovedIds] = useState<string[]>([]);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const res = await getManageUser();
-        const fetched: UserItem[] = res?.data ?? [];
-        setData(fetched);
-        setFilteredData(fetched);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
-  }, []);
-
-  useEffect(() => {
-    const result = data.filter((item) =>
-      Object.values(item).some((val) =>
-        val?.toString().toLowerCase().includes(searchValue.toLowerCase()),
-      ),
-    );
-    setFilteredData(result);
-  }, [searchValue, data]);
+  const filteredData = useMemo(() => {
+    return users
+      .filter((item) => !removedIds.includes(item.id))
+      .filter((item) => {
+        if (selectedType.toLowerCase() === buttonItems[1].toLowerCase())
+          return item.status === true;
+        if (selectedType.toLowerCase() === buttonItems[2].toLowerCase())
+          return item.status === false;
+        return true;
+      })
+      .filter((item) =>
+        Object.values(item).some((val) =>
+          val?.toString().toLowerCase().includes(searchValue.toLowerCase()),
+        ),
+      );
+  }, [users, removedIds, selectedType, searchValue]);
 
   const handleSelected = (value: number) => {
-    const currentSelected = buttonItems[value];
-    if (currentSelected.toLowerCase() !== buttonItems[0].toLowerCase()) {
-      setFilteredData(
-        data.filter((item) => {
-          if (currentSelected.toLowerCase() === buttonItems[1].toLowerCase()) {
-            return item.status === true;
-          } else {
-            return item.status === false;
-          }
-        }),
-      );
-    } else {
-      setFilteredData(data);
-    }
-    setSelected(currentSelected);
+    setSelectedType(buttonItems[value]);
   };
 
-  const handleToggleBan = async (id: string) => {
-    setData((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, status: !item.status } : { ...item })),
-    );
-    try {
-      await getBanUser(id);
-    } catch {
-      // revert optimistic update on error
-      setData((prev) =>
-        prev.map((item) => (item.id === id ? { ...item, status: !item.status } : { ...item })),
-      );
-    }
+  const handleToggleBan = (id: string) => {
+    mutateBanUser(id);
   };
 
   const handleRemoveUser = (id: string) => {
-    setData((prev) => prev.filter((item) => item.id !== id));
+    setRemovedIds((prev) => [...prev, id]);
   };
 
   return (

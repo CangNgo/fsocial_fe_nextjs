@@ -1,6 +1,9 @@
-// @ts-nocheck
-/* eslint-disable @typescript-eslint/no-explicit-any */
-export const LogoNoBG = ({ className, fill = "fill-logo" }) => (
+interface LogoNoBGProps {
+  className?: string;
+  fill?: string;
+}
+
+export const LogoNoBG = ({ className, fill = "fill-logo" }: LogoNoBGProps) => (
   <svg
     className={className}
     width="49"

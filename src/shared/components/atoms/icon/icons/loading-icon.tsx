@@ -1,6 +1,9 @@
-// @ts-nocheck
-/* eslint-disable @typescript-eslint/no-explicit-any */
-export const LoadingIcon = ({ stroke = "stroke-txtWhite", size = "size-6" }) => (
+interface LoadingIconProps {
+  stroke?: string;
+  size?: string;
+}
+
+export const LoadingIcon = ({ stroke = "stroke-txtWhite", size = "size-6" }: LoadingIconProps) => (
   <svg
     className={`${size}`}
     preserveAspectRatio="xMidYMid"

@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { getPost } from "@/shared/api/posts/posts-api";
+import { getPost } from "@/services/posts/posts-api";
 import { ownerAccountStore } from "@/shared/stores/owner-account-store";
+import { useEffect, useMemo, useState } from "react";
 
 interface PostModalStoreState {
   findPost?: (id: string) => unknown;
@@ -26,7 +26,9 @@ export function usePostForModal({ id, store }: UsePostForModalOptions) {
   useEffect(() => {
     const found = storeApi?.getState?.()?.findPost?.(id);
     if (found) {
-      setPost(found as Record<string, unknown>);
+      queueMicrotask(() => {
+        setPost(found as Record<string, unknown>);
+      });
       return;
     }
 

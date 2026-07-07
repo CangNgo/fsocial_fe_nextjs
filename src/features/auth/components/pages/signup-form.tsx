@@ -2,6 +2,7 @@
 import { AtSign, UserRoundIcon } from "lucide-react";
 import Link from "next/link";
 import { ArrowLeftIcon, LoadingIcon } from "@/shared/components/atoms/icon/icon";
+import { Image } from "@/shared/components/atoms/image";
 import { FormInput } from "@/shared/components/molecules/form-input";
 import { OtpInputGroup } from "@/shared/components/molecules/otp-input-group";
 import { Button } from "@/shared/components/ui/button";
@@ -235,7 +236,13 @@ export default function SignupForm() {
                 className="btn-outline mb-5 gap-3 py-3 w-full flex items-center justify-center"
                 onClick={handleGoogleSignup}
               >
-                <img className="size-6" src="/decor/google_icon.svg" alt="" />
+                <Image
+                  className="size-6"
+                  src="/decor/google_icon.svg"
+                  alt=""
+                  width={24}
+                  height={24}
+                />
                 Đăng ký với Google
               </Button>
               <p className="text-muted-foreground text-center text-sm">
@@ -249,32 +256,41 @@ export default function SignupForm() {
         </div>
 
         <div className="relative overflow-hidden flex-grow">
-          <img
-            className={`absolute w-full left-0 mt-20 transition duration-300 ${
+          <Image
+            className={`absolute w-full h-auto left-0 mt-20 transition duration-300 ${
               currentStep === 1
                 ? "translate-y-0 opacity-100"
                 : "translate-y-1/4 opacity-0 invisible"
             }`}
             src="/decor/signup_step_1_decor.svg"
             alt=""
+            width={0}
+            height={0}
+            sizes="50vw"
           />
-          <img
-            className={`absolute w-11/12 left-1/2 -translate-x-1/2 transition duration-300 ${
+          <Image
+            className={`absolute w-11/12 h-auto left-1/2 -translate-x-1/2 transition duration-300 ${
               currentStep === 2
                 ? "translate-y-0 opacity-100"
                 : "translate-y-1/4 opacity-0 invisible"
             }`}
             src="/decor/signup_step_2_decor.svg"
             alt=""
+            width={0}
+            height={0}
+            sizes="50vw"
           />
-          <img
-            className={`absolute w-11/12 left-1/2 -translate-x-1/2 mt-12 ${
+          <Image
+            className={`absolute w-11/12 h-auto left-1/2 -translate-x-1/2 mt-12 ${
               currentStep === 3
                 ? "translate-y-0 opacity-100 transition duration-300"
                 : "translate-y-1/4 opacity-0 invisible"
             }`}
             src="/decor/signup_step_3_decor.svg"
             alt=""
+            width={0}
+            height={0}
+            sizes="50vw"
           />
           <div
             className={
@@ -287,7 +303,14 @@ export default function SignupForm() {
               🎉🎉🎉
             </h1>
             <h3 className="text-muted-foreground">Đang chuyển hướng về trang đăng nhập...</h3>
-            <img src="/decor/signup_step_4_decor.svg" alt="" />
+            <Image
+              src="/decor/signup_step_4_decor.svg"
+              alt=""
+              width={0}
+              height={0}
+              sizes="50vw"
+              className="w-full h-auto"
+            />
           </div>
         </div>
       </div>

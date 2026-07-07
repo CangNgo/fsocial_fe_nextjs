@@ -1,5 +1,3 @@
-// @ts-nocheck
-/* eslint-disable @typescript-eslint/no-explicit-any */
 export const CrownTop2Icon = () => (
   <svg width="23" height="23" viewBox="0 0 23 23" fill="none" aria-hidden="true">
     <g clipPath="url(#clip0_1349_10638)">

@@ -50,7 +50,6 @@ function PostCardComponent({
 }: PostCardProps) {
   const {
     user,
-    likes,
     liked,
     popoverOpen,
     setPopoverOpen,
@@ -128,7 +127,6 @@ function PostCardComponent({
         {post.content?.htmltext && post.content.htmltext !== "null" ? (
           <div
             className={cn("px-5 mb-1.5", isShared && "px-7")}
-            // biome-ignore lint/security/noDangerouslySetInnerHtml: renders pre-sanitized formatted post content
             dangerouslySetInnerHTML={{ __html: post.content.htmltext }}
           />
         ) : (
@@ -155,58 +153,39 @@ function PostCardComponent({
       </div>
 
       {showReact && (
-        <div className="px-4 sm:py-4 py-3 flex justify-between">
-          <div
-            className="flex items-center sm:gap-2 gap-1 cursor-pointer"
-            onClick={handleLike}
-            onKeyDown={(event) => {
-              if (event.key === "Enter" || event.key === " ") {
-                event.preventDefault();
-                handleLike();
-              }
-            }}
-            role="button"
-            tabIndex={0}
-          >
-            <HeartPostIcon compareVar={liked} />
-            <p className={liked ? "text-primary" : ""}>
-              {likes > 0 ? likes : <span className="fs-sm sm:inline hidden">Tim</span>}
-            </p>
+        <div className="px-4 sm:py-2 py-3 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Button
+              variant={"outline"}
+              className="flex items-center sm:gap-2 gap-1 cursor-pointer hover:bg-transparent"
+              onClick={handleLike}
+            >
+              <HeartPostIcon compareVar={liked} />
+              <span className="sm:block hidden">{post.countLikes}</span>
+            </Button>
+
+            <Button
+              variant={"outline"}
+              className="flex items-center sm:gap-2 gap-1 cursor-pointer hover:bg-transparent"
+              onClick={() => showCommentPopup()}
+            >
+              <CommentPostIcon />
+              <span className="sm:block hidden">{post.countComments}</span>
+            </Button>
           </div>
 
-          <Button
-            variant={"outline"}
-            className="flex items-center sm:gap-2 gap-1 cursor-pointer hover:bg-transparent"
-            onClick={() => showCommentPopup()}
-          >
-            <CommentPostIcon />
-            <p>
-              {post.countComments > 0 ? (
-                post.countComments
-              ) : (
-                <span className="fs-sm sm:inline hidden">Bình luận</span>
-              )}
-            </p>
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              variant={"outline"}
+              className="flex items-center sm:gap-2 gap-1 cursor-pointer hover:bg-transparent"
+              onClick={showRepostPopup}
+            >
+              <RepostPostIcon />
+            </Button>
 
-          <Button
-            variant={"outline"}
-            className="flex items-center sm:gap-2 gap-1 cursor-pointer hover:bg-transparent"
-            onClick={showRepostPopup}
-          >
-            <RepostPostIcon />
-            <p>
-              {post.repost && post.repost > 0 ? (
-                post.repost
-              ) : (
-                <span className="fs-sm sm:inline hidden">Đăng lại</span>
-              )}
-            </p>
-          </Button>
-
-          <div className="flex items-center gap-2 cursor-pointer">
-            <SharePostIcon />
-            <span className="fs-sm sm:inline hidden">Chia sẻ</span>
+            <div className="flex items-center gap-2 cursor-pointer">
+              <SharePostIcon />
+            </div>
           </div>
         </div>
       )}

@@ -1,6 +1,8 @@
-// @ts-nocheck
-/* eslint-disable @typescript-eslint/no-explicit-any */
-export const ArrowLeftIcon = ({ className }) => (
+interface ArrowLeftIconProps {
+  className?: string;
+}
+
+export const ArrowLeftIcon = ({ className }: ArrowLeftIconProps) => (
   <svg className={`w-7 ${className}`} viewBox="0 0 28 28" fill="none" aria-hidden="true">
     <path
       className="fill-primary-text"
