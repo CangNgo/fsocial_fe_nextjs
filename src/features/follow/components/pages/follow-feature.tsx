@@ -7,7 +7,7 @@ import { getInitialsFromDisplayName } from "@/shared/utils/combine-name";
 import { useFollowTimeline } from "../../hooks/use-follow-timeline";
 
 export default function FollowFeature() {
-  const { user, posts, fetchPosts, handleOpenCreatePost } = useFollowTimeline();
+  const { user, posts, fetchPosts, hasMore, handleOpenCreatePost } = useFollowTimeline();
   const displayName = user?.displayName ?? "";
 
   return (
@@ -28,7 +28,7 @@ export default function FollowFeature() {
             {displayName ? `${displayName}, bạn đang nghĩ gì?` : "Bạn đang nghĩ gì?"}
           </span>
         </Button>
-        <PostList posts={posts} fetchPosts={fetchPosts} cardStyle />
+        <PostList posts={posts} fetchPosts={fetchPosts} hasMore={hasMore} cardStyle />
       </div>
     </div>
   );

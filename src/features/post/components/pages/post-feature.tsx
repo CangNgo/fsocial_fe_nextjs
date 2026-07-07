@@ -1,9 +1,9 @@
 "use client";
-import { useParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
-import { getPost } from "@/shared/api/posts/posts-api";
+import { getPost } from "@/services/posts/posts-api";
 import { ownerAccountStore } from "@/shared/stores/owner-account-store";
 import type { PostResponse } from "@/shared/types/post";
+import { useParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 
 interface GetPostResponse {
   statusCode?: number;

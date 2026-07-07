@@ -2,24 +2,14 @@
 
 import { Pen } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import { CalendarIcon, TrashCanIcon } from "@/shared/components/atoms/icon/icon";
 import { ButtonGroup } from "@/shared/components/molecules/button-group";
 import { DataTable } from "@/shared/components/molecules/data-table";
 import { SearchBar } from "@/shared/components/molecules/search-bar";
 import { Button } from "@/shared/components/ui/button";
-import { getComplaint, readingComplaint } from "../../api/admin-complaint-api";
-
-interface ComplaintItem {
-  id: string;
-  displayName: string;
-  userName: string;
-  complaintType: string;
-  profileId: string;
-  termOfService: string;
-  dateTime: string;
-  readding?: boolean;
-}
+import { useReadComplaint } from "../../hooks/mutations/use-complaint-mutations";
+import { useComplaints } from "../../hooks/queries/use-complaints";
 
 const buttonItems = ["Tất cả", "Bài viết", "Người dùng"];
 
@@ -33,66 +23,38 @@ const headers = [
 ];
 
 export default function AdminComplaintPanel() {
+  const { complaints, loading } = useComplaints();
+  const { mutate: mutateReadComplaint } = useReadComplaint();
+
   const [searchValue, setSearchValue] = useState("");
-  const [data, setData] = useState<ComplaintItem[]>([]);
-  const [filteredData, setFilteredData] = useState<ComplaintItem[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [, setSelected] = useState("Tất cả");
+  const [selectedType, setSelectedType] = useState("Tất cả");
+  const [removedIds, setRemovedIds] = useState<string[]>([]);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const res = await getComplaint();
-        const fetched: ComplaintItem[] = res?.data ?? [];
-        setData(fetched);
-        setFilteredData(fetched);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
-  }, []);
-
-  useEffect(() => {
-    const result = data.filter((item) =>
-      Object.values(item).some((val) =>
-        val?.toString().toLowerCase().includes(searchValue.toLowerCase()),
-      ),
-    );
-    queueMicrotask(() => {
-      setFilteredData(result);
-    });
-  }, [searchValue, data]);
-
-  const handleSelected = (value: number) => {
-    const currentSelected = buttonItems[value];
-    if (currentSelected.toLowerCase() !== "tất cả") {
-      setFilteredData(
-        data.filter(
-          (item) => item.complaintType.toLowerCase() === currentSelected.toLocaleLowerCase(),
+  const filteredData = useMemo(() => {
+    return complaints
+      .filter((item) => !removedIds.includes(item.id))
+      .filter((item) =>
+        selectedType.toLowerCase() === "tất cả"
+          ? true
+          : item.complaintType.toLowerCase() === selectedType.toLowerCase(),
+      )
+      .filter((item) =>
+        Object.values(item).some((val) =>
+          val?.toString().toLowerCase().includes(searchValue.toLowerCase()),
         ),
       );
-    } else {
-      setFilteredData(data);
-    }
-    setSelected(currentSelected);
-  };
+  }, [complaints, removedIds, selectedType, searchValue]);
 
-  const handleReadingComplaint = async (id: string) => {
-    const res = await readingComplaint(id);
-    return res?.data;
+  const handleSelected = (value: number) => {
+    setSelectedType(buttonItems[value]);
   };
 
   const handleReadComplaint = (id: string) => {
-    handleReadingComplaint(id);
-    setData((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, readding: true } : { ...item })),
-    );
+    mutateReadComplaint(id);
   };
 
   const handleRemoveComplaint = (id: string) => {
-    setData((prev) => prev.filter((item) => item.id !== id));
+    setRemovedIds((prev) => [...prev, id]);
   };
 
   return (

@@ -1,34 +1,36 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useState } from "react";
+import { messageKeys } from "@/services/message/message.key";
+import { getConversations } from "@/services/message/message-api";
 import { useMessageStore } from "@/shared/stores/message-store";
 import { ownerAccountStore } from "@/shared/stores/owner-account-store";
-import { getConversations } from "../api/message-api";
-import type { Conversation, ConversationsResponse } from "../types/conversation";
 
 export function useConversations() {
   const user = ownerAccountStore((state) => state.user);
   const { conversation, setNewMessage } = useMessageStore();
 
   const [contentActive, setContentActive] = useState(0);
-  const [conversations, setConversations] = useState<Conversation[] | null>(null);
+
+  const query = useQuery({
+    queryKey: messageKeys.conversations(user.id ?? ""),
+    queryFn: () => getConversations(user.id ?? ""),
+    enabled: Boolean(user.id),
+    select: (resp) => (resp?.statusCode === 200 ? (resp.data ?? []) : []),
+  });
+
+  const conversations = query.data ?? null;
 
   const handleOpenCreateConversation = useCallback(() => {
     setContentActive(1);
-  }, []);
-
-  const handleGetAllConversation = useCallback(async () => {
-    const resp = (await getConversations()) as ConversationsResponse | null;
-    if (resp?.statusCode !== 200) return;
-    setConversations(resp.data ?? []);
-    if (conversation) setContentActive(2);
-  }, [conversation]);
+  }, [setContentActive]);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: only re-run when the logged-in user changes, not on every conversation update
   useEffect(() => {
     if (!user.id) return;
     queueMicrotask(() => {
-      handleGetAllConversation();
+      if (conversation) setContentActive(2);
       setNewMessage(null);
     });
   }, [user.id]);
@@ -37,7 +39,6 @@ export function useConversations() {
     contentActive,
     setContentActive,
     conversations,
-    setConversations,
     handleOpenCreateConversation,
   };
 }

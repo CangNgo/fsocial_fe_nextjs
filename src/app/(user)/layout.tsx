@@ -3,7 +3,7 @@ import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { getOwnerProfile } from "@/features/profile/api/profile-api";
+import { useOwnerProfile } from "@/features/profile/hooks/use-profile";
 import { ExpiredDialog } from "@/shared/components/organisms/expired-dialog";
 import { GlobalPopup } from "@/shared/components/organisms/global-popup";
 import { Header } from "@/shared/components/organisms/header";
@@ -14,7 +14,6 @@ import { ROUTES } from "@/shared/config/routes";
 // import { useNotificationStore } from "@/shared/stores/notification-store";
 import { ownerAccountStore } from "@/shared/stores/owner-account-store";
 import { validRefreshTokenStore } from "@/shared/stores/valid-refresh-token-store";
-import type { AccountResponse } from "@/shared/types/profile";
 import { getCookie } from "@/shared/utils/cookie";
 
 const NotificationPanel = dynamic(
@@ -35,40 +34,28 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
     });
   }, []);
 
+  const hasToken = mounted && !!getCookie("access-token");
+  const { data: res } = useOwnerProfile(hasToken);
+
   useEffect(() => {
-    const token = getCookie("access-token");
-    if (!token) return;
+    if (!hasToken || !res) return;
 
-    const handleGetProfile = async (): Promise<AccountResponse | null> => {
-      const res = await getOwnerProfile();
-      if (res?.statusCode !== 200) {
-        toast.error("Lỗi khi tải thông tin cá nhân của bạn");
-        router.push(ROUTES.LOGIN);
-        return null;
-      }
-      if (!res.data) {
-        return null;
-      }
+    if (res.statusCode !== 200) {
+      toast.error("Lỗi khi tải thông tin cá nhân của bạn");
+      router.push(ROUTES.LOGIN);
+      return;
+    }
+    if (!res.data) return;
 
-      return res.data;
-    };
+    setUser({ ...res.data });
 
-    const fetchProfile = async () => {
-      const profile = await handleGetProfile();
-      if (!profile) return;
-
-      setUser({ ...profile });
-
-      if (!initialized.current) {
-        initialized.current = true;
-        // Tạm comment kết nối websocket
-        // connectNotificationWebSocket(userId);
-        // connectMessageWebSocket(userId);
-      }
-    };
-
-    fetchProfile();
-  }, [setUser, router]);
+    if (!initialized.current) {
+      initialized.current = true;
+      // Tạm comment kết nối websocket
+      // connectNotificationWebSocket(userId);
+      // connectMessageWebSocket(userId);
+    }
+  }, [hasToken, res, setUser, router]);
 
   return (
     <div className="flex h-screen overflow-hidden">

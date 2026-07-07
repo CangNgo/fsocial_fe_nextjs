@@ -1,10 +1,5 @@
 "use client";
-import { Eye, EyeOff } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { toast } from "sonner";
-import { changePassword } from "@/shared/api/auth/change-password-api";
+import { changePassword } from "@/services/auth/change-password-api";
 import { LoadingIcon } from "@/shared/components/atoms/icon/icon";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
@@ -12,6 +7,11 @@ import { regexPassword } from "@/shared/config/regex";
 import { ROUTES } from "@/shared/config/routes";
 import { cn } from "@/shared/lib/utils";
 import { usePopupStore } from "@/shared/stores/popup-store";
+import { Eye, EyeOff } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 
 interface ChangePasswordForm {
   oldPassword: string;

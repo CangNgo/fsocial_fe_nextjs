@@ -6,9 +6,14 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { ROUTES } from "@/shared/config/routes";
-import { checkDuplicate, requestOTP, sendingCreateAccount, validOTP } from "../api/signup-api";
+import {
+  useCheckDuplicateMutation,
+  useCreateAccountMutation,
+  useSignupRequestOtpMutation,
+  useSignupValidOtpMutation,
+} from "./mutations/use-signup-mutations";
 import { signupStep1Schema, signupStep2Schema } from "../schemas/signup-schema";
-import type { SignupApiResponse, SignupStep1FormData, SignupStep2FormData } from "../types/signup";
+import type { SignupStep1FormData, SignupStep2FormData } from "../types/signup";
 import { removeVietnameseAccents } from "../utils/remove-special-word";
 import { useStepCarousel } from "./use-step-carousel";
 
@@ -41,12 +46,17 @@ export function useSignupWizard() {
     getValues: getValuesStep2,
   } = step2Form;
 
-  const [checkDuplicateClicked, setCheckDuplicateClicked] = useState(false);
   const [step2Err, setStep2Err] = useState("");
-
   const [otpValue, setOtpValue] = useState("");
-  const [validOTPClicked, setValidOTPClicked] = useState(false);
   const [step3Err, setStep3Err] = useState("");
+
+  const { mutateAsync: checkDuplicate, isPending: checkDuplicateClicked } =
+    useCheckDuplicateMutation();
+  const { mutateAsync: requestOTP } = useSignupRequestOtpMutation();
+  const { mutateAsync: validOTP, isPending: validOTPClickedRaw } = useSignupValidOtpMutation();
+  const { mutateAsync: sendingCreateAccount, isPending: createAccountClicked } =
+    useCreateAccountMutation();
+  const validOTPClicked = validOTPClickedRaw || createAccountClicked;
 
   const handleStep1 = async () => {
     await triggerValidStep1();
@@ -70,9 +80,7 @@ export function useSignupWizard() {
     if (!isValidStep2) return;
 
     const data = getValuesStep2();
-    setCheckDuplicateClicked(true);
-    const duplicateResp = (await checkDuplicate(data.username)) as SignupApiResponse | null;
-    setCheckDuplicateClicked(false);
+    const duplicateResp = await checkDuplicate(data.username);
 
     if (duplicateResp?.statusCode !== 200) {
       if (duplicateResp?.data?.username) {
@@ -85,7 +93,7 @@ export function useSignupWizard() {
       return;
     }
 
-    const otpResp = (await requestOTP(data.email)) as SignupApiResponse | null;
+    const otpResp = await requestOTP(data.email);
     if (otpResp?.statusCode !== 200) {
       setStep2Err(otpResp?.message ?? "Gửi OTP thất bại");
       return;
@@ -103,22 +111,19 @@ export function useSignupWizard() {
       return;
     }
 
-    setValidOTPClicked(true);
-    const otpResp = (await validOTP(otpValue)) as SignupApiResponse | null;
+    const otpResp = await validOTP(otpValue);
     if (otpResp?.statusCode !== 200) {
-      setValidOTPClicked(false);
       setStep3Err(otpResp?.message ?? "Xác minh OTP thất bại");
       return;
     }
 
     const data1 = getValuesStep1();
     const data2 = getValuesStep2();
-    const createResp = (await sendingCreateAccount({
+    const createResp = await sendingCreateAccount({
       ...data1,
       ...data2,
-    })) as SignupApiResponse | null;
+    });
 
-    setValidOTPClicked(false);
     if (createResp?.statusCode !== 200) {
       setStep3Err(createResp?.message ?? "Tạo tài khoản thất bại");
       return;

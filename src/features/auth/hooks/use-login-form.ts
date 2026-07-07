@@ -5,10 +5,9 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { ROUTES } from "@/shared/config/routes";
-import { login } from "../api/login-api";
+import { useLoginMutation } from "./mutations/use-login-mutations";
 import { type LoginFormData, loginSchema } from "../schemas/login-schema";
 import { setToken } from "./set-token";
-import { useGoogleAuth } from "./use-google-auth";
 
 export function useLoginForm() {
   const router = useRouter();
@@ -18,22 +17,19 @@ export function useLoginForm() {
     trigger,
     getValues,
   } = form;
-  useGoogleAuth();
 
   const [isShowPassword, setIsShowPassword] = useState(false);
-  const [submitClicked, setSubmitClicked] = useState(false);
   const [loginErr, setLoginErr] = useState("");
+  const { mutateAsync: login, isPending: submitClicked } = useLoginMutation();
 
   const handleSubmitLogin = useCallback(async () => {
     await trigger();
     if (!isValid) return;
-    setSubmitClicked(true);
     const data = getValues();
     const result = await login({
       username: data.loginName.trim(),
       password: data.password.trim(),
     });
-    setSubmitClicked(false);
 
     if (result?.statusCode !== 200) {
       setLoginErr(result?.message ?? "Có lỗi xảy ra trong quá trình đăng nhập");
@@ -45,7 +41,7 @@ export function useLoginForm() {
       setToken(tokens.accessToken, tokens.refreshToken);
       router.push(ROUTES.HOME);
     }
-  }, [getValues, isValid, router, trigger]);
+  }, [getValues, isValid, login, router, trigger]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {

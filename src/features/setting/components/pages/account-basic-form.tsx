@@ -10,7 +10,8 @@ import { Textarea } from "@/shared/components/ui/textarea";
 import { dayOptions, monthOptions, yearOptions } from "@/shared/config/global-variables";
 import { cn } from "@/shared/lib/utils";
 import { getInitialsFromDisplayName } from "@/shared/utils/combine-name";
-import { genderOptions, useAccountBasicForm } from "../../hooks/use-account-basic-form";
+import { useAccountBasicForm } from "../../hooks/use-account-basic-form";
+import { genderOptions } from "../../types/profile";
 
 export default function AccountBasicForm() {
   const {
@@ -77,9 +78,9 @@ export default function AccountBasicForm() {
         <p className="font-medium">Ảnh đại diện</p>
         <div className="relative bg-background border-4 rounded-full p-1 w-fit transition">
           <Avatar className="size-[120px]">
-            <AvatarImage src={user.avatar} />
+            <AvatarImage src={user.avatar ?? undefined} />
             <AvatarFallback className="text-[40px] transition">
-              {getInitialsFromDisplayName(user.displayName)}
+              {getInitialsFromDisplayName(user.displayName ?? "")}
             </AvatarFallback>
           </Avatar>
           {isEditing && (

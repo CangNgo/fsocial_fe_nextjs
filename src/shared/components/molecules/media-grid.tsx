@@ -1,10 +1,6 @@
 "use client";
 
-import { Plus } from "lucide-react";
-import { useRouter } from "next/navigation";
-import type React from "react";
-import { memo, useCallback, useEffect, useMemo, useState } from "react";
-import { getPost } from "@/shared/api/posts/posts-api";
+import { getPost } from "@/services/posts/posts-api";
 import { Image } from "@/shared/components/atoms/image";
 import { Button } from "@/shared/components/ui/button";
 import type { CarouselApi } from "@/shared/components/ui/carousel";
@@ -19,6 +15,10 @@ import { ROUTES } from "@/shared/config/routes";
 import { cn } from "@/shared/lib/utils";
 import { ownerAccountStore } from "@/shared/stores/owner-account-store";
 import { getImageSize, getVideoSize } from "@/shared/utils/get-size-element";
+import { Plus } from "lucide-react";
+import { useRouter } from "next/navigation";
+import type React from "react";
+import { memo, useCallback, useEffect, useMemo, useState } from "react";
 
 export interface ProcessedMedia {
   src: string;
@@ -39,7 +39,15 @@ export interface MediaGridProps {
   blockEvent?: boolean;
   isShared?: boolean;
   /** Render the embedded repost PostCard — pass the component to avoid circular dep */
-  PostCardComponent?: React.ComponentType<{ post: Record<string, unknown>; isShared?: boolean }>;
+  PostCardComponent?: React.ComponentType<{
+    post: Record<string, unknown>;
+    isChildren?: boolean;
+    showReact?: boolean;
+    className?: string;
+    isShared?: boolean;
+    store?: unknown;
+    blockEvent?: boolean;
+  }>;
 }
 
 const FALLBACK_LAYOUT = "gap-0.5 grid grid-cols-2 [&>*]:aspect-square";
@@ -205,7 +213,7 @@ const MediaGridComponent = ({
 
   const handleGetPost = useCallback(async (postId: string) => {
     const user = ownerAccountStore.getState().user;
-    if (!user) return;
+    if (!user?.id) return;
     const resp = (await getPost(user.id, postId)) as {
       statusCode?: number;
       data?: Record<string, unknown>;
@@ -315,7 +323,6 @@ const MediaGridComponent = ({
                 />
               )}
               {media.type === "video" && (
-                // biome-ignore lint/a11y/useMediaCaption: user-uploaded media has no caption track available
                 <video
                   src={media.src}
                   preload="metadata"

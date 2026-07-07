@@ -1,45 +1,37 @@
 "use client";
-import { useEffect, useState } from "react";
+
+import { useState } from "react";
 import { toast } from "sonner";
-import { getTermOfService } from "@/shared/api/admin/admin-policy-setting-api";
 import { LoadingIcon } from "@/shared/components/atoms/icon/icon";
 import { Button } from "@/shared/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/shared/components/ui/radio-group";
 import { ownerAccountStore } from "@/shared/stores/owner-account-store";
 import { usePopupStore } from "@/shared/stores/popup-store";
-import { complaint } from "../../api/complaint-api";
-
-interface TermOption {
-  id: string;
-  name: string;
-}
+import { useCreateReport } from "../../hooks/mutations/use-report-mutations";
+import { useReportReasons } from "../../hooks/queries/use-report-reasons";
 
 export function ReportModal({ id }: { id: string }) {
   const { hidePopup } = usePopupStore();
   const user = ownerAccountStore.getState().user;
+  const { reportOptions } = useReportReasons();
+  const { mutate: createReport, isPending } = useCreateReport();
   const [selectedReason, setSelectedReason] = useState<string>("");
-  const [reportOptions, setReportOptions] = useState<TermOption[]>([]);
-  const [submitClicked, setSubmitClicked] = useState(false);
 
-  useEffect(() => {
-    getTermOfService().then((resp: unknown) => {
-      const r = resp as { data?: TermOption[] };
-      if (r?.data) setReportOptions(r.data);
-    });
-  }, []);
-
-  const submitReport = async () => {
-    setSubmitClicked(true);
-    await complaint({
-      postId: id,
-      userId: user.id,
-      complaintType: "Bài viết",
-      termOfServiceId: selectedReason,
-    });
-    setTimeout(() => {
-      toast.success("Đã gửi báo cáo");
-      hidePopup();
-    }, 1000);
+  const submitReport = () => {
+    createReport(
+      {
+        postId: id,
+        userId: user.id,
+        complaintType: "Bài viết",
+        termOfServiceId: selectedReason,
+      },
+      {
+        onSuccess: () => {
+          toast.success("Đã gửi báo cáo");
+          hidePopup();
+        },
+      },
+    );
   };
 
   return (
@@ -64,10 +56,10 @@ export function ReportModal({ id }: { id: string }) {
         <Button
           type="button"
           variant="ghost"
-          className={`btn-primary py-2.5 w-full ${submitClicked ? "opacity-50" : ""}`}
+          className={`btn-primary py-2.5 w-full ${isPending ? "opacity-50" : ""}`}
           onClick={submitReport}
         >
-          {submitClicked ? <LoadingIcon /> : "Gửi báo cáo"}
+          {isPending ? <LoadingIcon /> : "Gửi báo cáo"}
         </Button>
       </div>
     </div>

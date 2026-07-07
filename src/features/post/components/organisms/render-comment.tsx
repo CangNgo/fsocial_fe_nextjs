@@ -1,4 +1,4 @@
-import { Comment, CommentReply } from "../../types/comment";
+import { Comment, CommentReply } from "@/shared/types/comment";
 import { ownerAccountStore } from "@/shared/stores/owner-account-store";
 import { usePopupStore } from "@/shared/stores/popup-store";
 import { useState } from "react";

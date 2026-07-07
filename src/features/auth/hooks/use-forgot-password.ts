@@ -6,13 +6,16 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { ROUTES } from "@/shared/config/routes";
-import { requestOTP, resetPassword, validOTP } from "../api/forgot-password-api";
+import {
+  useRequestOtpMutation,
+  useResetPasswordMutation,
+  useValidOtpMutation,
+} from "./mutations/use-forgot-password-mutations";
 import {
   forgotPasswordStep1Schema,
   forgotPasswordStep2Schema,
 } from "../schemas/forgot-password-schema";
 import type {
-  ForgotPasswordApiResponse,
   ForgotPasswordStep1FormData,
   ForgotPasswordStep2FormData,
 } from "../types/forgot-password";
@@ -37,9 +40,11 @@ export function useForgotPassword() {
 
   const [otpValue, setOtpValue] = useState("");
   const [otpErrMessage, setOtpErrMessage] = useState("");
-  const [validOTPClicked, setValidOTPClicked] = useState(false);
 
   const { disableResendOTP, cooldownSeconds, startCooldown } = useOtpCooldown(isValidStep1);
+  const { mutateAsync: requestOTP } = useRequestOtpMutation();
+  const { mutateAsync: validOTP, isPending: validOTPClicked } = useValidOtpMutation();
+  const { mutateAsync: resetPassword, isPending: step2Submitting } = useResetPasswordMutation();
 
   const handleRequireOTP = () => {
     if (!startCooldown()) return;
@@ -56,15 +61,12 @@ export function useForgotPassword() {
       return;
     }
     setOtpErrMessage("");
-    setValidOTPClicked(true);
 
-    const resp = (await validOTP({
+    const resp = await validOTP({
       email: getValuesStep1("email"),
       otp: otpValue,
       type: "RESET",
-    })) as ForgotPasswordApiResponse;
-
-    setValidOTPClicked(false);
+    });
 
     if (resp?.statusCode === 200) {
       setCurrentStep(2);
@@ -78,7 +80,6 @@ export function useForgotPassword() {
   const [step2Err, setStep2Err] = useState("");
   const [isShowPassword, setIsShowPassword] = useState(false);
   const [isShowRePassword, setIsShowRePassword] = useState(false);
-  const [step2Submitting, setStep2Submitting] = useState(false);
 
   const step2Form = useForm<ForgotPasswordStep2FormData>({
     mode: "all",
@@ -94,23 +95,20 @@ export function useForgotPassword() {
 
   const handleStep2 = async () => {
     if (!isValidStep2) return;
-    setStep2Submitting(true);
 
-    const resp = (await resetPassword({
+    const resp = await resetPassword({
       email: getValuesStep1("email"),
       newPassword: getValuesStep2("password"),
-    })) as ForgotPasswordApiResponse;
-
-    setStep2Submitting(false);
+    });
 
     if (resp?.statusCode === 200) {
       setCurrentStep(3);
-      toast.success("Äá»•i máº­t kháº©u thÃ nh cÃ´ng, Ä‘ang chuyá»ƒn hÆ°á»›ng...");
+      toast.success("Đổi mật khẩu thành công, đang chuyển hướng...");
       setTimeout(() => {
         router.push(ROUTES.LOGIN);
       }, 2500);
     } else {
-      setStep2Err(resp?.message ?? "ÄÃ£ cÃ³ lá»—i xáº£y ra trong quÃ¡ trÃ¬nh reset máº­t kháº©u");
+      setStep2Err(resp?.message ?? "Đã có lỗi xảy ra trong quá trình reset mật khẩu");
     }
   };
 

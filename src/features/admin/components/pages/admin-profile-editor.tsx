@@ -46,7 +46,7 @@ export default function AdminProfileEditor() {
         {hours >= 12 && hours <= 18 && "Chào buổi chiều"}
         {hours > 18 && "Chào buổi tối"},{" "}
         <span className="text-primary-gradient">
-          {combineIntoDisplayName(user.firstName, user.lastName)}
+          {combineIntoDisplayName(user.firstName ?? "", user.lastName ?? "")}
         </span>{" "}
         👋
       </h5>
@@ -166,7 +166,7 @@ export default function AdminProfileEditor() {
               <Avatar className="size-32">
                 <AvatarImage src={avatarURL} />
                 <AvatarFallback>
-                  {combineIntoAvatarName(user.firstName, user.lastName)}
+                  {combineIntoAvatarName(user.firstName ?? "", user.lastName ?? "")}
                 </AvatarFallback>
               </Avatar>
             </div>

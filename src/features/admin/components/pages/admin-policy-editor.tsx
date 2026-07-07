@@ -1,35 +1,24 @@
 "use client";
 
 import { Check, PlusIcon } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { toast } from "sonner";
-import {
-  addTermOfService,
-  getTermOfService,
-  removeTermOfService,
-} from "@/shared/api/admin/admin-policy-setting-api";
 import { TrashCanIcon } from "@/shared/components/atoms/icon/icon";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
-
-interface Policy {
-  id: string;
-  name: string;
-}
+import {
+  useAddTermOfService,
+  useRemoveTermOfService,
+} from "../../hooks/mutations/use-terms-of-service-mutations";
+import { useTermsOfService } from "../../hooks/queries/use-terms-of-service";
 
 export default function AdminPolicyEditor() {
-  const [policies, setPolicies] = useState<Policy[]>([]);
+  const { policies } = useTermsOfService();
+  const { mutateAsync: addTermOfService } = useAddTermOfService();
+  const { mutate: removeTermOfService } = useRemoveTermOfService();
+
   const inputAddPolicy = useRef<HTMLInputElement>(null);
   const [addPolicyClicked, setAddPolicyClicked] = useState(false);
-
-  useEffect(() => {
-    const fetchPolicy = async () => {
-      const res = await getTermOfService();
-      if (res.statusCode !== 200) return;
-      setPolicies(res.data);
-    };
-    fetchPolicy();
-  }, []);
 
   const handleAddPolicy = () => {
     setAddPolicyClicked(true);
@@ -47,14 +36,7 @@ export default function AdminPolicyEditor() {
       return;
     }
 
-    const res = await addTermOfService(inputAddPolicy.current.value);
-    if (res.statusCode !== 200) {
-      toast.error("Thêm chính sách thất bại");
-      return;
-    }
-    toast.success("Thêm chính sách thành công");
-    const data = res.data as Policy;
-    setPolicies((prev) => [{ id: data.id, name: data.name }, ...prev]);
+    await addTermOfService(inputAddPolicy.current.value);
     setAddPolicyClicked(false);
     inputAddPolicy.current.value = "";
   };
@@ -66,14 +48,8 @@ export default function AdminPolicyEditor() {
     setAddPolicyClicked(false);
   };
 
-  const handleRemovePolicy = async (id: string) => {
-    const res = await removeTermOfService(id);
-    if (res.statusCode !== 200) {
-      toast.error("Xóa chính sách thất bại");
-      return;
-    }
-    toast.success("Xóa chính sách thành công");
-    setPolicies((prev) => prev.filter((item) => item.id !== id));
+  const handleRemovePolicy = (id: string) => {
+    removeTermOfService(id);
   };
 
   return (

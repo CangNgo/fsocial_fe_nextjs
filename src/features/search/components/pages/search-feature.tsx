@@ -6,7 +6,7 @@ import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { useSearch } from "../../hooks/use-search";
-import type { SearchTab } from "../../types/search";
+import type { SearchTab } from "@/shared/types/search";
 import { messageNotFoundPost, messageNotFoundUser } from "../../utils/search-messages";
 
 const searchTabs: SearchTab[] = ["all", "users", "posts"];

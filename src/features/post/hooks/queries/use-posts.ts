@@ -1,31 +1,23 @@
 "use client";
+import { getPost, getPosts } from "@/services/posts/posts-api";
+import { postKeys } from "@/services/posts/post.key";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
-import { apiGet } from "@/shared/api/core/api-service";
-import { queryKeys } from "@/shared/lib/query-keys";
-
-async function getPosts(userId: string, page: number) {
-  return apiGet<unknown[]>(`/posts`, { params: { userId, page } });
-}
-
-async function getPost(postId: string) {
-  return apiGet(`/posts/${postId}`);
-}
 
 export function useHomePosts(userId: string) {
   return useInfiniteQuery({
-    queryKey: queryKeys.posts.home(),
+    queryKey: postKeys.home(),
     queryFn: ({ pageParam }) => getPosts(userId, pageParam as number),
     initialPageParam: 0,
     getNextPageParam: (lastPage, _allPages, lastPageParam) =>
-      Array.isArray(lastPage) && lastPage.length > 0 ? (lastPageParam as number) + 1 : undefined,
+      lastPage?.data && lastPage.data.length > 0 ? (lastPageParam as number) + 1 : undefined,
     enabled: !!userId,
   });
 }
 
-export function usePostDetail(postId: string) {
+export function usePostDetail(userId: string, postId: string) {
   return useQuery({
-    queryKey: queryKeys.posts.detail(postId),
-    queryFn: () => getPost(postId),
-    enabled: !!postId,
+    queryKey: postKeys.detail(postId),
+    queryFn: () => getPost(userId, postId),
+    enabled: !!userId && !!postId,
   });
 }

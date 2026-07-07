@@ -1,12 +1,8 @@
 "use client";
-import { CheckCheck, EllipsisVertical, PawPrint } from "lucide-react";
-import { usePathname, useRouter } from "next/navigation";
-import type React from "react";
-import { useEffect, useRef, useState } from "react";
 import {
   getNotificationWithPagination,
   markReadNotification,
-} from "@/shared/api/notifications/notification-api";
+} from "@/services/notifications/notification-api";
 import {
   Bell,
   CloseCollapseIcon,
@@ -22,6 +18,10 @@ import { type Notification, useNotificationStore } from "@/shared/stores/notific
 import { ownerAccountStore } from "@/shared/stores/owner-account-store";
 import { popupExpandNoti3DotStore, popupNotificationtStore } from "@/shared/stores/popup-store";
 import { dateTimeToNotiTime } from "@/shared/utils/convert-date-time";
+import { CheckCheck, EllipsisVertical, PawPrint } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import type React from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface NotificationWithMeta extends Notification {
   createdAt: string;

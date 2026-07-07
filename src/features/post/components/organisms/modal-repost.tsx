@@ -1,13 +1,13 @@
 "use client";
-import { useRef, useState } from "react";
-import { toast } from "sonner";
-import { repostPost } from "@/shared/api/posts/posts-api";
+import { repostPost } from "@/services/posts/posts-api";
 import { LoadingIcon } from "@/shared/components/atoms/icon/icon";
 import { UserAvatar } from "@/shared/components/molecules/user-avatar";
 import { Button } from "@/shared/components/ui/button";
 import { Textarea } from "@/shared/components/ui/textarea";
 import { ownerAccountStore } from "@/shared/stores/owner-account-store";
 import { usePopupStore } from "@/shared/stores/popup-store";
+import { useRef, useState } from "react";
+import { toast } from "sonner";
 import type { PostCardStore } from "../../hooks/use-post-card-actions";
 import { usePostForModal } from "../../hooks/use-post-for-modal";
 

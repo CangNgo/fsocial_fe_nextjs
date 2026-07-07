@@ -1,64 +1,94 @@
 "use client";
 
-import { getPosts } from "@/shared/api/posts/posts-api";
+import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
+import { useCallback, useEffect } from "react";
+import { getPosts } from "@/services/posts/posts-api";
+import { postKeys } from "@/services/posts/post.key";
 import { ownerAccountStore } from "@/shared/stores/owner-account-store";
 import type { PostResponse } from "@/shared/types/post";
-import { useCallback, useEffect } from "react";
-import { useShallow } from "zustand/react/shallow";
 import { useTimelineStore } from "../stores/timeline-store";
-import { selectTimelineState } from "../types/post";
 
 export function useTimeline() {
-  const {
-    posts,
-    hasMore,
-    prependPost,
-    appendPosts,
-    setHasMore,
-    setIsFetching,
-    incrementPage,
-    reset,
-  } = useTimelineStore(useShallow(selectTimelineState));
   const user = ownerAccountStore((state) => state.user);
+  const queryClient = useQueryClient();
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: reset must rerun when the user changes
+  const query = useInfiniteQuery({
+    queryKey: postKeys.home(),
+    queryFn: ({ pageParam }) => getPosts(user.id as string, pageParam as number),
+    initialPageParam: 0,
+    getNextPageParam: (lastPage, _allPages, lastPageParam) =>
+      lastPage?.data && lastPage.data.length > 0 ? (lastPageParam as number) + 1 : undefined,
+    enabled: !!user.id,
+  });
+
+  const posts = query.data ? query.data.pages.flatMap((page) => page?.data ?? []) : null;
+
+  const updatePost = useCallback(
+    (id: string, values: Partial<PostResponse>) => {
+      queryClient.setQueryData(postKeys.home(), (data: typeof query.data) =>
+        data
+          ? {
+              ...data,
+              pages: data.pages.map((page) =>
+                page
+                  ? {
+                      ...page,
+                      data: page.data?.map((post) =>
+                        post.id === id
+                          ? {
+                              ...post,
+                              ...values,
+                              content: values.content
+                                ? { ...post.content, ...values.content }
+                                : post.content,
+                            }
+                          : post,
+                      ),
+                    }
+                  : page,
+              ),
+            }
+          : data,
+      );
+    },
+    [queryClient],
+  );
+
+  const deletePost = useCallback(
+    (id: string) => {
+      queryClient.setQueryData(postKeys.home(), (data: typeof query.data) =>
+        data
+          ? {
+              ...data,
+              pages: data.pages.map((page) =>
+                page ? { ...page, data: page.data?.filter((post) => post.id !== id) } : page,
+              ),
+            }
+          : data,
+      );
+    },
+    [queryClient],
+  );
+
   useEffect(() => {
-    reset();
-  }, [user.id, reset]);
+    useTimelineStore.setState({ updatePost, deletePost });
+  }, [updatePost, deletePost]);
 
-  const fetchPosts = useCallback(async () => {
-    const { isFetching: fetching, hasMore: more, page: currentPage } = useTimelineStore.getState();
-
-    if (fetching || !more || !user.id) return;
-
-    setIsFetching(true);
-    const response = await getPosts(user.id, currentPage);
-    setIsFetching(false);
-
-    if (response?.statusCode !== 200) {
-      setHasMore(false);
-      return;
-    }
-
-    //PostResponse[]
-    const postResponse = response?.data ? response.data : [];
-
-    if (postResponse.length === 0) {
-      setHasMore(false);
-      return;
-    } else {
-      appendPosts(postResponse);
-      incrementPage();
-    }
-  }, [user.id, appendPosts, incrementPage, setHasMore, setIsFetching]);
-
-  useEffect(() => {
-    if (!user.id) return;
-    const { posts: currentPosts, page: currentPage } = useTimelineStore.getState();
-    if (currentPosts !== null || currentPage !== 0) return;
-
-    fetchPosts();
-  }, [fetchPosts, user.id]);
+  const prependPost = useCallback(
+    (post: PostResponse) => {
+      queryClient.setQueryData(postKeys.home(), (data: typeof query.data) =>
+        data
+          ? {
+              ...data,
+              pages: data.pages.map((page, index) =>
+                index === 0 ? { ...page, data: [post, ...(page?.data ?? [])] } : page,
+              ),
+            }
+          : data,
+      );
+    },
+    [queryClient],
+  );
 
   const handlePostCreated = useCallback(
     (post: Record<string, unknown>) => {
@@ -72,5 +102,10 @@ export function useTimeline() {
     [prependPost, user?.avatar, user?.displayName],
   );
 
-  return { posts, hasMore, fetchPosts, handlePostCreated };
+  return {
+    posts,
+    hasMore: query.hasNextPage,
+    fetchPosts: () => query.fetchNextPage(),
+    handlePostCreated,
+  };
 }

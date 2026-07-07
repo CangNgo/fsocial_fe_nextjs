@@ -1,39 +1,42 @@
 "use client";
 
+import { useQueryClient } from "@tanstack/react-query";
 import { usePathname } from "next/navigation";
-import type { Dispatch, SetStateAction } from "react";
 import { useCallback, useEffect } from "react";
+import { messageKeys } from "@/services/message/message.key";
 import { regexInMessage } from "@/shared/config/regex";
 import { useMessageStore } from "@/shared/stores/message-store";
-import type { Conversation, Message } from "../types/conversation";
+import { ownerAccountStore } from "@/shared/stores/owner-account-store";
+import type { Conversation, Message } from "@/shared/types/message";
 
 interface UseMessageSubscriptionOptions {
   conversations: Conversation[] | null;
-  setConversations: Dispatch<SetStateAction<Conversation[] | null>>;
 }
 
-export function useMessageSubscription({
-  conversations,
-  setConversations,
-}: UseMessageSubscriptionOptions) {
+export function useMessageSubscription({ conversations }: UseMessageSubscriptionOptions) {
   const pathname = usePathname();
   const { conversation, newMessage, setNewMessage } = useMessageStore();
+  const queryClient = useQueryClient();
+  const userId = ownerAccountStore((state) => state.user.id);
 
   const updateConversations = useCallback(
     (baseConversation: Partial<Conversation>) => {
-      setConversations((prevConversations) => {
-        if (!prevConversations) return prevConversations;
-        const existConversation = prevConversations.find(
-          (conver) => conver.id === baseConversation.id,
-        );
-        if (existConversation) {
-          const updated = { ...existConversation, lastMessage: baseConversation.lastMessage };
-          return [updated, ...prevConversations.filter((item) => item.id !== existConversation.id)];
-        }
-        return [baseConversation as Conversation, ...prevConversations];
-      });
+      queryClient.setQueryData(
+        messageKeys.conversations(userId ?? ""),
+        (resp: { statusCode?: number; data?: Conversation[] } | null | undefined) => {
+          if (!resp?.data) return resp;
+          const existConversation = resp.data.find((conver) => conver.id === baseConversation.id);
+          const nextData = existConversation
+            ? [
+                { ...existConversation, lastMessage: baseConversation.lastMessage },
+                ...resp.data.filter((item) => item.id !== existConversation.id),
+              ]
+            : [baseConversation as Conversation, ...resp.data];
+          return { ...resp, data: nextData };
+        },
+      );
     },
-    [setConversations],
+    [queryClient, userId],
   );
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: excludes `conversations` — it changes inside this effect via updateConversations and would retrigger it

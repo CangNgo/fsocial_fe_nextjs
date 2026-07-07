@@ -16,7 +16,7 @@ import {
 import { useComments } from "../../hooks/queries/use-comments";
 import type { PostCardPost, PostCardStore } from "../../hooks/use-post-card-actions";
 import { usePostForModal } from "../../hooks/use-post-for-modal";
-import type { Comment, CommentReply } from "../../types/comment";
+import type { Comment, CommentReply } from "@/shared/types/comment";
 import PostCard from "../molecules/post-card";
 import { RenderComment } from "./render-comment";
 

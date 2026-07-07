@@ -1,11 +1,11 @@
 "use client";
 
-import type { Dispatch, SetStateAction } from "react";
-import { createElement, useCallback, useState } from "react";
-import { likePost } from "@/shared/api/posts/posts-api";
+import { likePost } from "@/services/posts/posts-api";
 import { ownerAccountStore } from "@/shared/stores/owner-account-store";
 import { usePopupStore } from "@/shared/stores/popup-store";
 import type { MediaResponse } from "@/shared/types/media";
+import type { Dispatch, SetStateAction } from "react";
+import { createElement, useCallback, useState } from "react";
 import { CommentModal } from "../components/organisms/comment-modal";
 import { DeletePostModal } from "../components/organisms/delete-post-modal";
 import { EditPostModal } from "../components/organisms/edit-post-modal";

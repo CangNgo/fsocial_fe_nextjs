@@ -3,8 +3,9 @@ import { Ellipsis } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import type React from "react";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { PostList } from "@/features/post";
+import { updateAvatar, updateBanner } from "@/services/profile/update-profile-api";
 import {
   FollowerProfileTabIcon,
   PencilChangeImageIcon,
@@ -27,14 +28,13 @@ import {
   combineIntoDisplayName,
   getInitialsFromDisplayName,
 } from "@/shared/utils/combine-name";
-import { getPictures } from "../../api/attachments-api";
-import { getProfile, requestFollow, unfollow } from "../../api/profile-api";
-import { updateAvatar, updateBanner } from "../../api/update-profile-info-api";
 import { userProfileOptions } from "../../config/user-profile-options";
-import { useProfileFollowers } from "../../hooks/use-profile-followers";
+import { useAttachments } from "../../hooks/use-attachments";
+import { useFollowers } from "../../hooks/use-followers";
+import { useProfile } from "../../hooks/use-profile";
+import { useRequestFollow, useUnfollow } from "../../hooks/use-profile-mutations";
 import { useProfilePosts } from "../../hooks/use-profile-posts";
 import { useTabNavigation } from "../../hooks/use-tab-navigation";
-import type { AttachmentsResponse } from "../../types/attachments";
 import type { ProfileType } from "../../types/profile";
 import type { ProfileFollower } from "../../types/profile-tabs";
 
@@ -54,7 +54,6 @@ export default function Profile() {
 
   const { user } = ownerAccountStore();
   const [accountInfo, setAccountInfo] = useState<ProfileType | undefined>();
-  const [pictures, setPictures] = useState<AttachmentsResponse[]>([]);
 
   const { showPopup, hidePopup } = usePopupStore();
   const { selectImageFile, uploadImage } = useProfileImageUpload();
@@ -75,7 +74,11 @@ export default function Profile() {
     profilePostUserId,
     currentTab,
   );
-  const { followers } = useProfileFollowers(currentTab);
+  const { followers } = useFollowers(currentTab);
+  const { pictures } = useAttachments(user?.id);
+  const { data: profileData } = useProfile(isOwner ? null : userId);
+  const { mutate: mutateRequestFollow } = useRequestFollow();
+  const { mutate: mutateUnfollow } = useUnfollow();
 
   // ─── handlers ─────────────────────────────────────────────────────────────
 
@@ -152,34 +155,17 @@ export default function Profile() {
 
   const handleRequestFollow = () => {
     if (!userId) return;
-    requestFollow(userId);
+    mutateRequestFollow(userId);
     setAccountInfo((prev) => (prev ? { ...prev, relationship: true } : prev));
   };
 
   const handleUnfollow = () => {
     if (!userId) return;
-    unfollow(userId);
+    mutateUnfollow(userId);
     setAccountInfo((prev) => (prev ? { ...prev, relationship: false } : prev));
   };
 
   // ─── initial data load ─────────────────────────────────────────────────────
-
-  const handleGetProfile = useCallback(async () => {
-    if (!userId) return;
-    const resp = (await getProfile(userId)) as { statusCode?: number; data?: ProfileType } | null;
-    if (resp?.statusCode !== 200 || !resp.data) return;
-    setAccountInfo(resp.data);
-  }, [userId]);
-
-  const handleGetPictures = useCallback(async () => {
-    if (!user?.id) return;
-    const resp = (await getPictures({ postId: user.id, type: "image" })) as {
-      statusCode?: number;
-      data?: AttachmentsResponse[];
-    } | null;
-    if (resp?.statusCode !== 200) return;
-    setPictures(resp.data ?? []);
-  }, [user?.id]);
 
   useEffect(() => {
     if (!user?.id) return;
@@ -195,18 +181,17 @@ export default function Profile() {
           relationship: false,
         });
       });
-    } else {
-      queueMicrotask(() => {
-        handleGetProfile();
-      });
     }
-  }, [user, isOwner, handleGetProfile, setCurrentTab]);
+  }, [user, isOwner, setCurrentTab]);
 
   useEffect(() => {
+    if (isOwner) return;
+    const data = profileData?.data;
+    if (profileData?.statusCode !== 200 || !data) return;
     queueMicrotask(() => {
-      handleGetPictures();
+      setAccountInfo(data as unknown as ProfileType);
     });
-  }, [handleGetPictures]);
+  }, [isOwner, profileData]);
 
   // ─── render ────────────────────────────────────────────────────────────────
 

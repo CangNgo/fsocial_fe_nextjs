@@ -1,50 +1,48 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
-import { searchPosts, searchUsers } from "../api/search-api";
-import type { PostResult, SearchResponse, SearchTab, UserResult } from "../types/search";
+import { useQuery } from "@tanstack/react-query";
+import { useEffect, useRef, useState } from "react";
+import { searchKeys } from "@/services/search/search.key";
+import { searchPosts, searchUsers } from "@/services/search/search-api";
+import { ownerAccountStore } from "@/shared/stores/owner-account-store";
+import type { SearchTab } from "@/shared/types/search";
 
 const SEARCH_DEBOUNCE_MS = 800;
 
 export function useSearch() {
+  const userId = ownerAccountStore((state) => state.user.id);
   const [query, setQuery] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState("");
   const [tab, setTab] = useState<SearchTab>("all");
-  const [users, setUsers] = useState<UserResult[] | null>(null);
-  const [posts, setPosts] = useState<PostResult[] | null>(null);
-  const [searchAction, setSearchAction] = useState(false);
   const timeout = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  const handleSendKeyword = useCallback(async () => {
-    if (!query.trim()) {
-      setUsers(null);
-      setPosts(null);
-      return;
-    }
-
-    setSearchAction(true);
-    try {
-      const [respUsers, respPosts] = await Promise.all([
-        searchUsers(query) as Promise<SearchResponse<UserResult> | null>,
-        searchPosts(query) as Promise<SearchResponse<PostResult> | null>,
-      ]);
-      setUsers(respUsers?.data ?? []);
-      setPosts(respPosts?.data ?? []);
-    } catch (error) {
-      console.log("Lỗi tìm kiếm: ", error);
-    } finally {
-      setSearchAction(false);
-    }
-  }, [query]);
 
   useEffect(() => {
     if (timeout.current) clearTimeout(timeout.current);
     timeout.current = setTimeout(() => {
-      handleSendKeyword();
+      setDebouncedQuery(query.trim());
     }, SEARCH_DEBOUNCE_MS);
     return () => {
       if (timeout.current) clearTimeout(timeout.current);
     };
-  }, [handleSendKeyword]);
+  }, [query]);
+
+  const usersQuery = useQuery({
+    queryKey: searchKeys.users(debouncedQuery),
+    queryFn: () => searchUsers(debouncedQuery),
+    enabled: debouncedQuery.length > 0,
+    select: (resp) => (resp?.statusCode === 200 ? (resp.data ?? []) : []),
+  });
+
+  const postsQuery = useQuery({
+    queryKey: searchKeys.posts(debouncedQuery),
+    queryFn: () => searchPosts(debouncedQuery, userId ?? ""),
+    enabled: debouncedQuery.length > 0 && Boolean(userId),
+    select: (resp) => (resp?.statusCode === 200 ? (resp.data ?? []) : []),
+  });
+
+  const users = debouncedQuery.length > 0 ? (usersQuery.data ?? null) : null;
+  const posts = debouncedQuery.length > 0 ? (postsQuery.data ?? null) : null;
+  const searchAction = usersQuery.isFetching || postsQuery.isFetching;
 
   return {
     query,
