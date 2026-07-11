@@ -1,14 +1,14 @@
 "use client";
-import dynamic from "next/dynamic";
-import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
-import { toast } from "sonner";
 import { useOwnerProfile } from "@/features/profile/hooks/use-profile";
 import { ExpiredDialog } from "@/shared/components/organisms/expired-dialog";
 import { GlobalPopup } from "@/shared/components/organisms/global-popup";
 import { Header } from "@/shared/components/organisms/header";
 import { Sidebar } from "@/shared/components/organisms/sidebar";
 import { ROUTES } from "@/shared/config/routes";
+import dynamic from "next/dynamic";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
 // Tạm comment kết nối websocket
 // import { useMessageStore } from "@/shared/stores/message-store";
 // import { useNotificationStore } from "@/shared/stores/notification-store";
@@ -17,7 +17,7 @@ import { validRefreshTokenStore } from "@/shared/stores/valid-refresh-token-stor
 import { getCookie } from "@/shared/utils/cookie";
 
 const NotificationPanel = dynamic(
-  () => import("@/shared/components/organisms/notification-panel"),
+  () => import("@/features/notifications/components/organisms/notification-panel"),
   { ssr: false },
 );
 
@@ -26,6 +26,7 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
   const { refreshToken } = validRefreshTokenStore();
   const initialized = useRef(false);
   const router = useRouter();
+  const pathname = usePathname();
 
   const [mounted, setMounted] = useState(false);
   useEffect(() => {

@@ -1,10 +1,5 @@
 "use client";
-import { SearchIcon } from "lucide-react";
-import dynamic from "next/dynamic";
-import Image from "next/image";
-import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { useState } from "react";
+import { fetchUnreadNotification } from "@/features/notifications/hooks/use-notification";
 import {
   Bell,
   CreatePostNavIcon,
@@ -19,9 +14,14 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/shared/components/ui/
 import { ROUTES } from "@/shared/config/routes";
 import { cn } from "@/shared/lib/utils";
 import { useMessageStore } from "@/shared/stores/message-store";
-import { useNotificationStore } from "@/shared/stores/notification-store";
 import { ownerAccountStore } from "@/shared/stores/owner-account-store";
 import { popupNotificationtStore, usePopupStore } from "@/shared/stores/popup-store";
+import { SearchIcon } from "lucide-react";
+import dynamic from "next/dynamic";
+import Image from "next/image";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import { useState } from "react";
 
 const NavMoreMenu = dynamic(
   () => import("@/shared/components/organisms/nav-more-menu").then((m) => m.NavMoreMenu),
@@ -29,8 +29,6 @@ const NavMoreMenu = dynamic(
 );
 const CreatePostForm = dynamic(() => import("@/shared/components/organisms/create-post-form"));
 
-// sm-md (72px): icon centered, no gap/padding for text
-// lg+  (260px): icon + text, left-aligned with gap
 const ITEM = [
   "flex items-center w-full rounded-xl transition-colors duration-150",
   "hover:bg-accent active:bg-accent/80 cursor-pointer select-none",
@@ -40,14 +38,6 @@ const ITEM = [
 ].join(" ");
 
 const LABEL = "hidden lg:block text-sm font-medium";
-
-function IconSlot({ children }: { children: React.ReactNode }) {
-  return (
-    <span className="flex-shrink-0 w-[26px] h-[26px] flex items-center justify-center">
-      {children}
-    </span>
-  );
-}
 
 function Dot() {
   return (
@@ -66,7 +56,7 @@ export function Sidebar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const { showPopup } = usePopupStore();
   const newMessage = useMessageStore((s) => s.newMessage);
-  const unreadCount = useNotificationStore((s) => s.unreadCount);
+  const { data: unReadNotification } = fetchUnreadNotification()
 
   const handleNavigate = (href: string) => {
     closeNoti();
@@ -181,7 +171,7 @@ export function Sidebar() {
             <IconSlot>
               <span className="relative">
                 <Bell active={notiOpen} />
-                {unreadCount > 0 && <Dot />}
+                {Number(unReadNotification) > 0 && <Dot />}
               </span>
             </IconSlot>
             <span className={LABEL}>Thông báo</span>
@@ -283,7 +273,7 @@ export function Sidebar() {
           onClick={handleToggleNotification}
         >
           <Bell active={notiOpen} />
-          {unreadCount > 0 && (
+          {Number(unReadNotification) > 0 && (
             <span className="absolute top-2 right-3 size-2.5 rounded-full bg-gradient-to-br from-pink-500 to-orange-400" />
           )}
         </Button>
@@ -292,5 +282,13 @@ export function Sidebar() {
       {/* Spacer for mobile so content isn't under bottom bar */}
       <div className="sm:hidden h-14" aria-hidden />
     </>
+  );
+}
+
+function IconSlot({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="flex-shrink-0 w-[26px] h-[26px] flex items-center justify-center">
+      {children}
+    </span>
   );
 }

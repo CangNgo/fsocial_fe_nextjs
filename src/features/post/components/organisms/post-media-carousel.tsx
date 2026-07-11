@@ -1,13 +1,13 @@
 "use client";
 
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useEffect, useState } from "react";
 import { Image } from "@/shared/components/atoms/image";
 import { Button } from "@/shared/components/ui/button";
 import type { CarouselApi } from "@/shared/components/ui/carousel";
 import { Carousel, CarouselContent, CarouselItem } from "@/shared/components/ui/carousel";
 import { cn } from "@/shared/lib/utils";
-import { type MediaResponse, MediaType } from "@/shared/types/media";
+import { MediaResponse, MediaType } from "@/shared/types/post";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useEffect, useState } from "react";
 
 interface PostMediaCarouselProps {
   media: MediaResponse[];
@@ -46,7 +46,7 @@ export function PostMediaCarousel({ media, initialIndex = 0, className }: PostMe
                   src={m.url}
                   alt="Image"
                   fill
-                  sizes="100vw"
+                  sizes="(max-width: 640px) 100vw, 640px"
                   quality={100}
                   className="object-contain"
                 />

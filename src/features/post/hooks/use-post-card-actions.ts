@@ -3,7 +3,7 @@
 import { likePost } from "@/services/posts/posts-api";
 import { ownerAccountStore } from "@/shared/stores/owner-account-store";
 import { usePopupStore } from "@/shared/stores/popup-store";
-import type { MediaResponse } from "@/shared/types/media";
+import { MediaResponse } from "@/shared/types/post";
 import type { Dispatch, SetStateAction } from "react";
 import { createElement, useCallback, useState } from "react";
 import { CommentModal } from "../components/organisms/comment-modal";

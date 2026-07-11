@@ -1,9 +1,9 @@
 import Providers from "@/shared/components/providers";
 import "@/styles/globals.css";
 import type { Metadata } from "next";
-import { Roboto } from "next/font/google";
+import { Inter } from "next/font/google";
 
-const roboto = Roboto({
+const inter = Inter({
   subsets: ["latin", "vietnamese"],
   weight: ["300", "400", "500", "600", "700"],
   display: "swap",
@@ -21,7 +21,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="vi" suppressHydrationWarning>
-      <body className={`${roboto.className} antialiased`}>
+      <body className={`${inter.className} antialiased`}>
         <Providers>{children}</Providers>
       </body>
     </html>

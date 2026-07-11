@@ -1,13 +1,12 @@
 "use client";
 
-import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
-import { createElement, useCallback } from "react";
 import { postKeys } from "@/services/posts/post.key";
 import { getFollowingPosts } from "@/services/posts/posts-api";
 import CreatePostForm from "@/shared/components/organisms/create-post-form";
 import { ownerAccountStore } from "@/shared/stores/owner-account-store";
 import { usePopupStore } from "@/shared/stores/popup-store";
-import type { FollowPost } from "../types/follow";
+import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
+import { createElement, useCallback } from "react";
 
 export function useFollowTimeline() {
   const user = ownerAccountStore((state) => state.user);
@@ -24,26 +23,26 @@ export function useFollowTimeline() {
 
   const posts = query.data ? query.data.pages.flatMap((page) => page?.data ?? []) : null;
 
-  const handlePostCreated = useCallback(
-    (post: Record<string, unknown>) => {
-      const normalizedPost = post as unknown as FollowPost;
-      queryClient.setQueryData(postKeys.follow(), (data: typeof query.data) =>
-        data
-          ? {
-              ...data,
-              pages: data.pages.map((page, index) =>
-                index === 0 ? { ...page, data: [normalizedPost, ...(page?.data ?? [])] } : page,
-              ),
-            }
-          : data,
-      );
-    },
-    [queryClient],
-  );
+  // const handlePostCreated = useCallback(
+  //   (post: Record<string, unknown>) => {
+  //     const normalizedPost = post as unknown as FollowPost;
+  //     queryClient.setQueryData(postKeys.follow(), (data: typeof query.data) =>
+  //       data
+  //         ? {
+  //             ...data,
+  //             pages: data.pages.map((page, index) =>
+  //               index === 0 ? { ...page, data: [normalizedPost, ...(page?.data ?? [])] } : page,
+  //             ),
+  //           }
+  //         : data,
+  //     );
+  //   },
+  //   [queryClient],
+  // );
 
   const handleOpenCreatePost = useCallback(() => {
-    showPopup("Tạo bài viết", createElement(CreatePostForm, { onPostCreated: handlePostCreated }));
-  }, [handlePostCreated, showPopup]);
+    showPopup("Tạo bài viết", createElement(CreatePostForm));
+  }, [showPopup]);
 
   return {
     user,

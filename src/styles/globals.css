@@ -65,7 +65,7 @@
   --radius-xl: calc(var(--radius) + 4px);
 
   /* Font */
-  --font-sans: "Roboto", sans-serif;
+  --font-sans: "Inter", sans-serif;
 
   /* Animations */
   --animate-caret-blink: caret-blink 1.25s ease-out infinite;
@@ -227,7 +227,7 @@
   body {
     background-color: var(--background-clr);
     color: var(--text-primary-clr);
-    font-family: "Roboto", sans-serif;
+    font-family: "Inter", sans-serif;
   }
 
   /* Scrollbar */

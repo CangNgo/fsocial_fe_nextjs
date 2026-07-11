@@ -4,7 +4,7 @@ export { CommentModal } from "./components/organisms/comment-modal";
 export { DeletePostModal } from "./components/organisms/delete-post-modal";
 export { EditPostModal } from "./components/organisms/edit-post-modal";
 export { ModalRepost } from "./components/organisms/modal-repost";
-export { PhotoGrid } from "./components/organisms/photo-cell";
 export { PostMediaCarousel } from "./components/organisms/post-media-carousel";
 export { ReportModal } from "./components/organisms/report-modal";
 export { default as PostFeature } from "./components/pages/post-feature";
+

@@ -1,9 +1,5 @@
 "use client";
 
-import { Ellipsis, MessageSquareWarning, Pen } from "lucide-react";
-import Link from "next/link";
-import type { Dispatch, SetStateAction } from "react";
-import { memo } from "react";
 import {
   CommentPostIcon,
   HeartPostIcon,
@@ -12,16 +8,20 @@ import {
   TrashCanIcon,
 } from "@/shared/components/atoms/icon/icon";
 import { UserAvatar } from "@/shared/components/molecules/user-avatar";
+import { PhotoGrid } from "@/shared/components/organisms/photo-grid";
 import { Button } from "@/shared/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/shared/components/ui/popover";
 import { cn } from "@/shared/lib/utils";
 import { timeAgo } from "@/shared/utils/convert-date-time";
+import { Ellipsis, MessageSquareWarning, Pen } from "lucide-react";
+import Link from "next/link";
+import type { Dispatch, SetStateAction } from "react";
+import { memo } from "react";
 import {
   type PostCardPost,
   type PostCardStore,
   usePostCardActions,
 } from "../../hooks/use-post-card-actions";
-import { PhotoGrid } from "../organisms/photo-cell";
 import { PostMediaCarousel } from "../organisms/post-media-carousel";
 
 export interface PostCardProps {
@@ -35,6 +35,8 @@ export interface PostCardProps {
   isShared?: boolean;
   allowCarousel?: boolean;
   initialMediaIndex?: number;
+  /** Above-the-fold post (eg. first in feed) — eager-load media for LCP */
+  priority?: boolean;
 }
 
 function PostCardComponent({
@@ -47,6 +49,7 @@ function PostCardComponent({
   isShared = false,
   allowCarousel = false,
   initialMediaIndex,
+  priority = false,
 }: PostCardProps) {
   const {
     user,
@@ -92,7 +95,7 @@ function PostCardComponent({
           >
             {post.userId !== user?.id && (
               <Button
-                type="button"
+                variant={"outline"}
                 className="btn-transparent justify-start py-2 ps-3 text-nowrap gap-3 w-full flex items-center"
                 onClick={handlePopupReport}
               >
@@ -145,6 +148,7 @@ function PostCardComponent({
         ) : (
           <PhotoGrid
             media={post.content?.media ?? []}
+            priority={priority}
             onImageClick={(_, index) => {
               if (!post.originPostId) showCommentPopup(index);
             }}

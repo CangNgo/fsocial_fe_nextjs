@@ -4,7 +4,7 @@ import {
   likeComment,
   replyComment,
   sendComment,
-} from "@/services/post/comment-api";
+} from "@/services/posts/comment-api";
 import { postKeys } from "@/services/posts/post.key";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 

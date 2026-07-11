@@ -1,13 +1,13 @@
 "use client";
-import { UserRoundIcon } from "lucide-react";
-import Image from "next/image";
-import Link from "next/link";
 import { LoadingIcon } from "@/shared/components/atoms/icon/icon";
 import { FormInput } from "@/shared/components/molecules/form-input";
 import { Button } from "@/shared/components/ui/button";
 import { ROUTES } from "@/shared/config/routes";
-import GoogleSignInButton from "../molecules/google-sign-in-button";
+import { UserRoundIcon } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
 import { useLoginForm } from "../../hooks/use-login-form";
+import GoogleSignInButton from "../molecules/google-sign-in-button";
 
 export default function LoginForm() {
   const {

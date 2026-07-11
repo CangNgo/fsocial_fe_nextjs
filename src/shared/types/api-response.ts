@@ -3,3 +3,9 @@ export interface ApiResponse<T> {
   message?: string;
   data?: T;
 }
+
+export interface InfinityResponse<T> {
+  items: T,
+  nextCursor?: string | null;
+  hasMore?: boolean;
+}

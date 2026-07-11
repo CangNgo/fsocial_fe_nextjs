@@ -1,21 +1,21 @@
 "use client";
-import Image from "next/image";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { fetchUnreadNotification } from "@/features/notifications/hooks/use-notification";
 import { Bell, HamburgerIcon } from "@/shared/components/atoms/icon/icon";
 import { NavMoreMenu } from "@/shared/components/organisms/nav-more-menu";
 import { Button } from "@/shared/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/shared/components/ui/popover";
 import { ROUTES } from "@/shared/config/routes";
-import { useNotificationStore } from "@/shared/stores/notification-store";
 import { popupNotificationtStore } from "@/shared/stores/popup-store";
+import Image from "next/image";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useState } from "react";
 
 export function Header() {
   const pathname = usePathname();
   const isInMessage = pathname === ROUTES.MESSAGE;
   const { isVisible, setIsVisible } = popupNotificationtStore();
-  const unreadCount = useNotificationStore((state) => state.unreadCount);
+  const { data: unReadNotification, isLoading: isLoangdingUnreadNotification } = fetchUnreadNotification()
   const [popoverOpen, setPopoverOpen] = useState(false);
 
   const toggleShowNoti = () => setIsVisible(!isVisible);
@@ -23,9 +23,8 @@ export function Header() {
 
   return (
     <header
-      className={`z-10 px-3 h-12 bg-background ${
-        !isInMessage ? "sm:hidden" : "hidden"
-      } w-full fixed top-0 flex items-center justify-between border-b`}
+      className={`z-10 px-3 h-12 bg-background ${!isInMessage ? "sm:hidden" : "hidden"
+        } w-full fixed top-0 flex items-center justify-between border-b`}
     >
       <Link href={ROUTES.ROOT}>
         <Image
@@ -43,7 +42,7 @@ export function Header() {
           <Button type="button" className="cursor-pointer" onClick={toggleShowNoti}>
             <Bell />
           </Button>
-          {unreadCount > 0 && (
+          {Number(unReadNotification?.data) > 0 && (
             <div className="absolute size-2.5 -top-[1px] right-[1px] bg-gradient-to-br from-pink-500 to-orange-400 rounded-full" />
           )}
         </div>

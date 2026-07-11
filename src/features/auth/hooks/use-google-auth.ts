@@ -2,7 +2,6 @@
 
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef } from "react";
-import { ROUTES } from "@/shared/config/routes";
 import { useGoogleLoginMutation } from "./mutations/use-google-auth-mutations";
 import { setToken } from "./set-token";
 
@@ -126,7 +125,7 @@ function useGoogleCredentialLogin() {
       const tokens = result?.data;
       if (!tokens) return;
       setToken(tokens.accessToken, tokens.refreshToken);
-      router.push(ROUTES.ROOT);
+      window.location.reload();
     },
     [getUserInfoByGoogle, router],
   );
