@@ -2,6 +2,7 @@
 
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef } from "react";
+import { toast } from "sonner";
 import { useGoogleLoginMutation } from "./mutations/use-google-auth-mutations";
 import { setToken } from "./set-token";
 
@@ -123,7 +124,10 @@ function useGoogleCredentialLogin() {
     async (idToken: string) => {
       const result = await getUserInfoByGoogle(idToken);
       const tokens = result?.data;
-      if (!tokens) return;
+      if (!tokens) {
+        toast.error(result?.statusCode === 601 ? "Tài khoản đã bị khóa" : "Không thể đăng nhập");
+        return;
+      }
       setToken(tokens.accessToken, tokens.refreshToken);
       window.location.reload();
     },

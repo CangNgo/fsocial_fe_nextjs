@@ -1,5 +1,5 @@
-import NextImage, { type ImageProps } from "next/image";
 import { MediaType } from "@/shared/types/post";
+import NextImage, { type ImageProps } from "next/image";
 
 const DEFAULT_IMAGE_SRC = "/images/default-image.jpg";
 

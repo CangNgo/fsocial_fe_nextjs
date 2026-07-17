@@ -1,9 +1,9 @@
 "use client";
-import { Check, Moon, SunMedium } from "lucide-react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { LogoFSAdmin, LogoutIcon } from "@/shared/components/atoms/icon/icon";
+import { HamburgerIcon, LogoFSAdmin } from "@/shared/components/atoms/icon/icon";
+import { AdminMoreMenu } from "@/shared/components/organisms/admin-more-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar";
 import { Button } from "@/shared/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/shared/components/ui/popover";
@@ -11,31 +11,38 @@ import { adminNavRoute } from "@/shared/config/admin-nav-route";
 import { ROUTES } from "@/shared/config/routes";
 import { cn } from "@/shared/lib/utils";
 import { adminStore } from "@/shared/stores/admin-store";
-import { useThemeStore } from "@/shared/stores/theme-store";
-import { validRefreshTokenStore } from "@/shared/stores/valid-refresh-token-store";
 import { combineIntoAvatarName, combineIntoDisplayName } from "@/shared/utils/combine-name";
 
-const btnClass =
-  "w-full flex items-center gap-3 p-3 py-3.5 rounded-md hover:bg-accent transition text-left";
+const btnClass = [
+  "w-full flex items-center rounded-xl transition-colors duration-150",
+  "hover:bg-accent active:bg-accent/80 cursor-pointer select-none",
+  "sm:justify-center sm:px-0 sm:py-3",
+  "lg:justify-start lg:gap-3 lg:px-3 lg:py-2.5",
+  "h-12 border-none shadow-none",
+].join(" ");
+
+const LABEL = "hidden lg:block text-sm font-medium";
 
 export function AdminSidebar() {
   const pathname = usePathname();
-  const router = useRouter();
   const { user } = adminStore();
-  const { theme, setTheme } = useThemeStore();
-  const [switchThemeOpen, setSwitchThemeOpen] = useState(false);
-  const { setRefreshToken } = validRefreshTokenStore();
-
-  const handleLogout = () => {
-    setRefreshToken(null);
-    router.push(ROUTES.LOGIN);
-  };
+  const [menuOpen, setMenuOpen] = useState(false);
 
   return (
-    <nav className="rounded-lg w-[280px] flex flex-col flex-shrink-0 bg-background h-full p-5 border shadow">
-      <LogoFSAdmin />
+    <nav
+      className={cn(
+        "hidden sm:flex flex-col justify-between",
+        "sticky top-0 h-screen flex-shrink-0",
+        "bg-background border-r overflow-y-auto overflow-x-hidden",
+        "w-[72px] lg:w-[280px]",
+        "transition-[width] duration-200 ease-in-out",
+      )}
+    >
+      <div className="flex flex-col gap-0.5 pt-4 px-2">
+        <div className="flex justify-center lg:justify-start lg:pl-1 mb-3 py-1">
+          <LogoFSAdmin />
+        </div>
 
-      <div className="mt-8 space-y-3 flex-grow">
         {adminNavRoute.map((route) => (
           <Link
             key={route.to}
@@ -43,7 +50,7 @@ export function AdminSidebar() {
             className={cn(btnClass, pathname === route.to && "bg-accent font-medium")}
           >
             {route.icon}
-            {route.name}
+            <span className={LABEL}>{route.name}</span>
           </Link>
         ))}
         <Link
@@ -56,53 +63,29 @@ export function AdminSidebar() {
               {combineIntoAvatarName(user.firstName ?? "", user.lastName ?? "")}
             </AvatarFallback>
           </Avatar>
-          <span>{combineIntoDisplayName(user.firstName ?? "", user.lastName ?? "")}</span>
+          <span className={LABEL}>
+            {combineIntoDisplayName(user.firstName ?? "", user.lastName ?? "")}
+          </span>
         </Link>
       </div>
 
-      <div>
-        <Popover onOpenChange={setSwitchThemeOpen}>
-          <PopoverTrigger className={cn(btnClass, switchThemeOpen && "bg-accent")}>
-            {theme === "light" ? <SunMedium /> : <Moon />}
-            <span>Chế độ hiển thị</span>
+      <div className="px-2 pb-4">
+        <Popover open={menuOpen} onOpenChange={setMenuOpen}>
+          <PopoverTrigger asChild>
+            <Button variant="outline" className={cn(btnClass, menuOpen && "bg-accent")}>
+              <HamburgerIcon />
+              <span className={LABEL}>Thêm</span>
+            </Button>
           </PopoverTrigger>
           <PopoverContent
             side="right"
             align="end"
-            sideOffset={20}
-            className="bg-background p-2 sm:w-44 space-y-2 transition"
+            sideOffset={12}
+            className="bg-background w-72 border shadow-xl p-2"
           >
-            <Button
-              type="button"
-              className={cn(
-                "w-full flex items-center gap-2 p-2 rounded-md border hover:bg-accent",
-                theme === "light" && "shadow-md",
-              )}
-              onClick={() => setTheme("light")}
-            >
-              <SunMedium />
-              <span>Sáng</span>
-              <Check className={cn("ms-auto size-5", theme !== "light" && "hidden")} />
-            </Button>
-            <Button
-              type="button"
-              className={cn(
-                "w-full flex items-center gap-2 p-2 rounded-md border hover:bg-accent",
-                theme === "dark" && "bg-accent",
-              )}
-              onClick={() => setTheme("dark")}
-            >
-              <Moon />
-              <span>Tối</span>
-              <Check className={cn("ms-auto size-5", theme !== "dark" && "hidden")} />
-            </Button>
+            <AdminMoreMenu setPopoverOpen={setMenuOpen} />
           </PopoverContent>
         </Popover>
-
-        <Button type="button" className={cn(btnClass, "hover:bg-accent")} onClick={handleLogout}>
-          <LogoutIcon />
-          Đăng xuất
-        </Button>
       </div>
     </nav>
   );

@@ -141,7 +141,7 @@ export function PhotoGrid({
   containerWidth = 500,
   gap = 3,
   maxImages = 5,
-  rounded = 0,
+  rounded = 8,
   onImageClick,
   className,
   style,

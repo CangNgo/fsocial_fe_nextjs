@@ -23,14 +23,25 @@ export function useAdminProfile() {
 
   const query = useQuery({
     queryKey: [...adminKeys.users, "me", userId],
-    queryFn: () => getAdminProfile(userId as string),
+    queryFn: () => getAdminProfile(),
     enabled: Boolean(userId),
     select: (resp) => (resp?.statusCode === 200 ? resp.data : null),
   });
 
   useEffect(() => {
     if (query.data) {
-      setUser(query.data as Parameters<typeof setUser>[0]);
+      setUser({
+        firstName: query.data.firstName ?? "",
+        lastName: query.data.lastName ?? "",
+        dob: query.data.dob ?? "",
+        gender: query.data.gender ?? 3,
+        username: query.data.username ?? "",
+        email: query.data.email ?? "",
+        avatar: query.data.avatar ?? "",
+        address: query.data.address ?? "",
+      });
     }
   }, [query.data, setUser]);
+
+  return query;
 }

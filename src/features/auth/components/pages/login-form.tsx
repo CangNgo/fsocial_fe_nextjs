@@ -16,7 +16,6 @@ export default function LoginForm() {
       formState: { errors },
     },
     submitClicked,
-    loginErr,
     handleSubmitLogin,
   } = useLoginForm();
 
@@ -70,7 +69,6 @@ export default function LoginForm() {
           </div>
 
           <div className="mb-4">
-            {!submitClicked && loginErr && <p className="text-red-600 text-sm mb-2">{loginErr}</p>}
             <Button
               type="button"
               className="btn-primary py-5 text-lg w-full"

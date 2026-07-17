@@ -1,6 +1,7 @@
 "use client";
 
 import { likePost } from "@/services/posts/posts-api";
+import { ReportModal } from "@/shared/components/organisms/report-modal";
 import { ownerAccountStore } from "@/shared/stores/owner-account-store";
 import { usePopupStore } from "@/shared/stores/popup-store";
 import { MediaResponse } from "@/shared/types/post";
@@ -10,7 +11,6 @@ import { CommentModal } from "../components/organisms/comment-modal";
 import { DeletePostModal } from "../components/organisms/delete-post-modal";
 import { EditPostModal } from "../components/organisms/edit-post-modal";
 import { ModalRepost } from "../components/organisms/modal-repost";
-import { ReportModal } from "../components/organisms/report-modal";
 
 interface PostCardContent {
   text?: string;
@@ -73,7 +73,10 @@ export function usePostCardActions({ post, setPost, store }: UsePostCardActionsO
 
   const handlePopupReport = useCallback(() => {
     setPopoverOpen(false);
-    showPopup("Báo cáo vi phạm", createElement(ReportModal, { id: post.id }));
+    showPopup(
+      "Báo cáo vi phạm",
+      createElement(ReportModal, { targetId: post.id, complaintType: "POST" }),
+    );
   }, [post.id, showPopup]);
 
   const handlePopupEdit = useCallback(() => {

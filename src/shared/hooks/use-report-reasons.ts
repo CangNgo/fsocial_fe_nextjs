@@ -8,7 +8,8 @@ export function useReportReasons() {
   const query = useQuery({
     queryKey: adminKeys.termsOfService,
     queryFn: getTermOfService,
-    select: (resp) => (resp?.statusCode === 200 ? (resp.data ?? []) : []),
+    select: (resp) =>
+      resp?.statusCode === 200 ? (resp.data ?? []).filter((term) => term.status) : [],
   });
 
   return {

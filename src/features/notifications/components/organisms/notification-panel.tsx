@@ -1,17 +1,12 @@
 "use client";
 import { Bell } from "@/shared/components/atoms/icon/icons/bell";
-import { regexInMessage, regexInSetting } from "@/shared/config/regex";
-import { ownerAccountStore } from "@/shared/stores/owner-account-store";
-import { usePathname } from "next/navigation";
+import { NotificationSkeleton } from "@/shared/components/skeletons/notification-skeleton";
 import { Virtuoso } from "react-virtuoso";
 import { fetchNotifications, fetchUnreadNotification } from "../../hooks/use-notification";
 import { NotificationsItem } from "../molecules/notification-item";
 
 export default function NotificationPanel() {
-  const pathname = usePathname();
-  const isNotificationSlide = regexInMessage.test(pathname) || regexInSetting.test(pathname);
 
-  const user = ownerAccountStore((state) => state.user);
   const { data, isLoading } = fetchUnreadNotification()
   const { data: notifications, isLoading: isLoadingFetchNotification, fetchNextPage, isFetching, hasNextPage }
     = fetchNotifications()
@@ -21,7 +16,7 @@ export default function NotificationPanel() {
   )
 
   return (
-    <div className="hidden md:block px-4">
+    <div className="hidden md:flex flex-col h-full px-4 bg-white">
       <div>
         <div className="p-4 flex items-center gap-5 lg:min-w-86 ">
           <div className="relative">
@@ -35,12 +30,27 @@ export default function NotificationPanel() {
           <h5>Thông báo</h5>
         </div>
       </div>
-      <Virtuoso
-        height={"100%"}
-        data={notificationItems}
-        itemContent={
-          (_, notification) => (<NotificationsItem key={notification.id} notification={notification} />)}
-      />
+      {isLoadingFetchNotification ? (
+        <div className="flex-1">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <NotificationSkeleton key={i} />
+          ))}
+        </div>
+      ) : (
+        <Virtuoso
+          className="flex-1"
+          data={notificationItems}
+          endReached={() => {
+            if (hasNextPage) fetchNextPage();
+          }}
+          itemContent={
+            (_, notification) => (<NotificationsItem key={notification.id} notification={notification}
+            />)}
+          components={{
+            Footer: () => (isFetching && hasNextPage ? <NotificationSkeleton /> : null),
+          }}
+        />
+      )}
     </div>
   );
 }

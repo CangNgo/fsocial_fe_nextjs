@@ -40,8 +40,8 @@ export function PostList({
 
   if (!posts) {
     return (
-      <div className="space-y-3">
-        {["a", "b", "c"].map((skeletonKey) => (
+      <div className="space-y-3 max-w-160 w-full">
+        {[1, 2, 3].map((skeletonKey) => (
           <PostSkeleton key={skeletonKey} card={cardStyle} />
         ))}
       </div>
@@ -50,6 +50,7 @@ export function PostList({
 
   return (
     <Virtuoso
+      className="max-w-160 w-full h-full"
       customScrollParent={scrollParent ?? undefined}
       data={posts}
       computeItemKey={(index) => `${index}`}

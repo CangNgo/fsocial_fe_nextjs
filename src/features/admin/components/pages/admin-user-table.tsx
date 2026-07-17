@@ -1,14 +1,13 @@
 "use client";
 
-import Link from "next/link";
 import { useMemo, useState } from "react";
 import { CalendarIcon, TrashCanIcon } from "@/shared/components/atoms/icon/icon";
 import { ButtonGroup } from "@/shared/components/molecules/button-group";
 import { DataTable } from "@/shared/components/molecules/data-table";
 import { SearchBar } from "@/shared/components/molecules/search-bar";
 import { Button } from "@/shared/components/ui/button";
-import { Switch } from "@/shared/components/ui/switch";
 import { cn } from "@/shared/lib/utils";
+import { formatDate, timeAgo } from "@/shared/utils/convert-date-time";
 import { useBanUser } from "../../hooks/mutations/use-manage-user-mutations";
 import { useManageUsers } from "../../hooks/queries/use-manage-users";
 
@@ -16,7 +15,7 @@ const buttonItems = ["Tất cả", "Bị cấm", "Bình thường"];
 
 const headers = [
   "Người dùng",
-  "Đường dẫn tài khoản",
+  "Email",
   "Ngày tạo tài khoản",
   "Lần hoạt động cuối",
   "Hành động",
@@ -28,16 +27,14 @@ export default function AdminUserTable() {
 
   const [searchValue, setSearchValue] = useState("");
   const [selectedType, setSelectedType] = useState("Tất cả");
-  const [removedIds, setRemovedIds] = useState<string[]>([]);
 
   const filteredData = useMemo(() => {
     return users
-      .filter((item) => !removedIds.includes(item.id))
       .filter((item) => {
         if (selectedType.toLowerCase() === buttonItems[1].toLowerCase())
-          return item.status === true;
-        if (selectedType.toLowerCase() === buttonItems[2].toLowerCase())
           return item.status === false;
+        if (selectedType.toLowerCase() === buttonItems[2].toLowerCase())
+          return item.status === true;
         return true;
       })
       .filter((item) =>
@@ -45,18 +42,14 @@ export default function AdminUserTable() {
           val?.toString().toLowerCase().includes(searchValue.toLowerCase()),
         ),
       );
-  }, [users, removedIds, selectedType, searchValue]);
+  }, [users, selectedType, searchValue]);
 
   const handleSelected = (value: number) => {
     setSelectedType(buttonItems[value]);
   };
 
-  const handleToggleBan = (id: string) => {
+  const handleBanUser = (id: string) => {
     mutateBanUser(id);
-  };
-
-  const handleRemoveUser = (id: string) => {
-    setRemovedIds((prev) => [...prev, id]);
   };
 
   return (
@@ -80,45 +73,45 @@ export default function AdminUserTable() {
         </div>
       </div>
 
-      <DataTable loading={loading} headers={headers}>
-        {filteredData.map((item, index) => (
-          <tr
-            key={item.id}
-            className={cn(
-              `hover:bg-secondary border-t transition ${
-                item.status && "hover:bg-primary-ghost bg-primary-ghost"
-              }`,
-            )}
-          >
+      <DataTable
+        loading={loading}
+        headers={headers}
+        data={filteredData}
+        emptyText="Không có người dùng nào"
+        getRowKey={(item) => item.id}
+        rowClassName={(item) =>
+          cn(
+            "hover:bg-secondary border-t transition",
+            item.status === false && "hover:bg-primary-ghost bg-primary-ghost",
+          )
+        }
+        renderRow={(item, index) => (
+          <>
             <td align="center" className="ps-2 pe-4 py-5 fs-xs text-gray">
               {index + 1}
             </td>
             <td className="px-2">
               <p className="pt-1 leading-5 fs-xs font-medium">{item.displayName}</p>
-              <Link href="" className="fs-xs text-gray hover:underline">
-                {item.userName}
-              </Link>
+              <p className="fs-xs text-gray">{item.username}</p>
             </td>
-            <td className="px-2 text-primary">
-              <Link href={item.complaint} className="fs-xs font-medium hover:underline">
-                {item.complaint}
-              </Link>
+            <td className="px-2 fs-xs">{item.email}</td>
+            <td className="px-2 fs-xs text-gray">{formatDate(item.createdAt)}</td>
+            <td className="px-2 fs-xs text-gray">
+              {item.updatedAt ? timeAgo(item.updatedAt) : "—"}
             </td>
-            <td className="px-2 fs-xs text-gray">{item.createDate}</td>
-            <td className="px-2 fs-xs text-gray">{item.onlineLated}</td>
             <td align="center" className="px-2">
-              <Button type="button" className="me-2" onClick={() => handleRemoveUser(item.id)}>
+              <Button
+                type="button"
+                className={cn(item.status === false && "text-destructive")}
+                onClick={() => handleBanUser(item.id)}
+                title={item.status === false ? "Bỏ chặn" : "Chặn người dùng"}
+              >
                 <TrashCanIcon className="size-5" />
               </Button>
-              <Switch
-                className="bg-gray-2light scale-[85%]"
-                checked={item.status === true}
-                onCheckedChange={() => handleToggleBan(item.id)}
-              />
             </td>
-          </tr>
-        ))}
-      </DataTable>
+          </>
+        )}
+      />
     </div>
   );
 }

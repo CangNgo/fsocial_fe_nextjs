@@ -11,7 +11,7 @@
     "lint:fix": "eslint ./src --fix",
     "format": "prettier --write ./src",
     "check": "prettier --write ./src && eslint ./src --fix",
-    "type-check": "tsc --noEmit",
+    "typecheck": "tsc --noEmit",
     "prepare": "husky",
     "analyze": "ANALYZE=true next build"
   },

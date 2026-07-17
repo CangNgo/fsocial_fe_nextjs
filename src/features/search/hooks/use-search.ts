@@ -1,56 +1,102 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { searchKeys } from "@/services/search/search.key";
 import { searchPosts, searchUsers } from "@/services/search/search-api";
-import { ownerAccountStore } from "@/shared/stores/owner-account-store";
 import type { SearchTab } from "@/shared/types/search";
 
 const SEARCH_DEBOUNCE_MS = 800;
+const DEFAULT_TAB: SearchTab = "posts";
 
 export function useSearch() {
-  const userId = ownerAccountStore((state) => state.user.id);
-  const [query, setQuery] = useState("");
-  const [debouncedQuery, setDebouncedQuery] = useState("");
-  const [tab, setTab] = useState<SearchTab>("all");
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const initialQuery = searchParams.get("q")?.trim() ?? "";
+
+  const [query, setQuery] = useState(initialQuery);
+  const [debouncedQuery, setDebouncedQuery] = useState(initialQuery);
+  const [tab, setTab] = useState<SearchTab>(DEFAULT_TAB);
   const timeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    setQuery(initialQuery);
+    setDebouncedQuery(initialQuery);
+  }, [initialQuery]);
 
   useEffect(() => {
     if (timeout.current) clearTimeout(timeout.current);
     timeout.current = setTimeout(() => {
       setDebouncedQuery(query.trim());
     }, SEARCH_DEBOUNCE_MS);
+
     return () => {
       if (timeout.current) clearTimeout(timeout.current);
     };
   }, [query]);
 
-  const usersQuery = useQuery({
+  useEffect(() => {
+    const currentQuery = searchParams.get("q")?.trim() ?? "";
+    if (currentQuery === debouncedQuery) return;
+
+    const params = new URLSearchParams(searchParams.toString());
+
+    if (debouncedQuery) {
+      params.set("q", debouncedQuery);
+    } else {
+      params.delete("q");
+    }
+
+    const nextUrl = params.toString() ? `${pathname}?${params.toString()}` : pathname;
+    router.replace(nextUrl, { scroll: false });
+  }, [debouncedQuery, pathname, router, searchParams]);
+
+  const usersQuery = useInfiniteQuery({
     queryKey: searchKeys.users(debouncedQuery),
-    queryFn: () => searchUsers(debouncedQuery),
+    queryFn: ({ pageParam }) => searchUsers(debouncedQuery, pageParam as number),
+    initialPageParam: 0,
+    getNextPageParam: (lastPage, _allPages, lastPageParam) =>
+      lastPage?.data?.hasMore ? (lastPageParam as number) + 1 : undefined,
     enabled: debouncedQuery.length > 0,
-    select: (resp) => (resp?.statusCode === 200 ? (resp.data ?? []) : []),
   });
 
-  const postsQuery = useQuery({
+  const postsQuery = useInfiniteQuery({
     queryKey: searchKeys.posts(debouncedQuery),
-    queryFn: () => searchPosts(debouncedQuery, userId ?? ""),
-    enabled: debouncedQuery.length > 0 && Boolean(userId),
-    select: (resp) => (resp?.statusCode === 200 ? (resp.data ?? []) : []),
+    queryFn: ({ pageParam }) => searchPosts(debouncedQuery, pageParam as number),
+    initialPageParam: 0,
+    getNextPageParam: (lastPage, _allPages, lastPageParam) =>
+      lastPage?.data?.hasMore ? (lastPageParam as number) + 1 : undefined,
+    enabled: debouncedQuery.length > 0,
   });
 
-  const users = debouncedQuery.length > 0 ? (usersQuery.data ?? null) : null;
-  const posts = debouncedQuery.length > 0 ? (postsQuery.data ?? null) : null;
+  const users =
+    debouncedQuery.length > 0
+      ? (usersQuery.data?.pages.flatMap((page) => page?.data?.items ?? []) ?? [])
+      : null;
+
+  const posts =
+    debouncedQuery.length > 0
+      ? (postsQuery.data?.pages.flatMap((page) => page?.data?.items ?? []) ?? [])
+      : null;
+
   const searchAction = usersQuery.isFetching || postsQuery.isFetching;
 
   return {
     query,
     setQuery,
+    debouncedQuery,
     tab,
     setTab,
     users,
     posts,
     searchAction,
+    hasMoreUsers: Boolean(usersQuery.hasNextPage),
+    hasMorePosts: Boolean(postsQuery.hasNextPage),
+    fetchUsers: () => usersQuery.fetchNextPage(),
+    fetchPosts: () => postsQuery.fetchNextPage(),
+    isUsersPending: usersQuery.isPending,
+    isPostsPending: postsQuery.isPending,
   };
 }

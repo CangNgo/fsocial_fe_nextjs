@@ -76,14 +76,14 @@ export const NotificationsItem = ({ notification }: NotificationsItemProps) => {
     <div
       className={`
         relative overflow-hidden ps-4 py-2 rounded-2xl flex justify-between
-        ${idNotiShowing === notification.id ? "" : "hover:bg-gray-3light active:bg-gray-2light"}
+        hover:bg-gray-3light active:bg-gray-2ligh ${notification.read && "bg-muted "}
         transition border border-outline-10 cursor-pointer mb-1`}
     >
-      <div className={`flex items-center gap-2 ${notification.isRead && "opacity-60"}`} onClick={notiClicked}>
+      <div className={`flex items-center gap-2`} onClick={notiClicked}>
         <div className={`relative min-h-10`}>
           <Link href={`/profile?id=${notification.id}`}>
             <UserAvatar
-              src={notification.actor.avatarUrl}
+              src={notification.actor.avatar}
               displayName={notification.actor.displayName}
               className={cn("size-12")}
             />

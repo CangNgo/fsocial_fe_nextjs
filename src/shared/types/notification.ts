@@ -8,7 +8,7 @@ export interface Notification {
   aggregatedActors: ActorSnapshot[];
   title: string;
   body: string;
-  isRead: boolean;
+  read: boolean;
   createdAt: string;
 }
 
@@ -16,7 +16,7 @@ export interface ActorSnapshot {
   userId: string;
   username: string;
   displayName: string;
-  avatarUrl: string;
+  avatar: string;
 }
 
 export enum NotificationType {

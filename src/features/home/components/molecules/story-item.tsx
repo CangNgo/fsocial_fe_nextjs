@@ -11,7 +11,7 @@ const StoryItem = ({ action }: IStoryItemProps) => {
   const user: User = ownerAccountStore((state) => state.user);
   return (
     <Card
-      className="relative cursor-pointer bg-white w-1/6 p-0 flex flex-col gap-0 overflow-hidden"
+      className="relative cursor-pointer bg-white w-24 p-0 flex flex-col gap-0 overflow-hidden"
       onClick={action}
     >
       <div className="relative w-full flex-1">

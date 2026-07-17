@@ -32,20 +32,22 @@ export const popupDeletePostStore = create<{
   setIsVisible: (value) => set({ isVisible: value }),
 }));
 
+type PopupContent = React.ReactNode | (() => React.ReactNode);
+
 interface PopupState {
   heading: string | null;
   isOpen: boolean;
-  children: React.ReactNode | null;
-  showPopup: (heading: string | null, children: React.ReactNode) => void;
+  content: PopupContent | null;
+  showPopup: (heading: string | null, content: PopupContent) => void;
   hidePopup: () => void;
 }
 
 export const usePopupStore = create<PopupState>()((set) => ({
   heading: null,
   isOpen: false,
-  children: null,
+  content: null,
 
-  showPopup: (heading, children) => set({ isOpen: true, heading, children }),
+  showPopup: (heading, content) => set({ isOpen: true, heading, content }),
 
   hidePopup: () => set({ isOpen: false }),
 }));

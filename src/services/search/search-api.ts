@@ -1,14 +1,23 @@
 import { apiGet } from "@/services/core/api-service";
 import type { ApiResponse } from "@/shared/types/api-response";
-import type { PostResult, UserResult } from "@/shared/types/search";
+import type { SearchPageResponse, PostResult, UserResult } from "@/shared/types/search";
 
-export const searchUsers = async (keyword: string): Promise<ApiResponse<UserResult[]> | null> => {
-  return apiGet<UserResult[]>(`/profile/actions/find?find_name=${keyword}`);
+const SEARCH_PAGE_SIZE = 10;
+
+export const searchUsers = async (
+  keyword: string,
+  page = 0,
+): Promise<ApiResponse<SearchPageResponse<UserResult>> | null> => {
+  return apiGet<SearchPageResponse<UserResult>>(
+    `/account/search?q=${encodeURIComponent(keyword)}&page=${page}&size=${SEARCH_PAGE_SIZE}`,
+  );
 };
 
 export const searchPosts = async (
   keyword: string,
-  userId: string,
-): Promise<ApiResponse<PostResult[]> | null> => {
-  return apiGet<PostResult[]>(`/find?user_id=${userId}&find_post=${keyword}`);
+  page = 0,
+): Promise<ApiResponse<SearchPageResponse<PostResult>> | null> => {
+  return apiGet<SearchPageResponse<PostResult>>(
+    `/actions/find?find_post=${encodeURIComponent(keyword)}&page=${page}&size=${SEARCH_PAGE_SIZE}`,
+  );
 };

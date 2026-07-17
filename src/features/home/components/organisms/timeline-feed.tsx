@@ -12,7 +12,7 @@ interface TimelineFeedProps {
 
 const TimelineFeed = ({ posts, hasMore, fetchPosts, onCreatePost }: TimelineFeedProps) => {
   return (
-    <div className="mx-auto w-full max-w-160 space-y-3 px-2 md:pt-2 sm:px-4 sm:pb-0 lg:px-0 lg:pt-3">
+    <div className="mx-auto w-full max-w-180 space-y-3 flex flex-col items-center px-2 md:pt-2 sm:px-4 sm:pb-0 lg:px-0 lg:pt-3">
       <StoryList createPost={onCreatePost} />
       <PostList
         posts={posts}
@@ -20,6 +20,7 @@ const TimelineFeed = ({ posts, hasMore, fetchPosts, onCreatePost }: TimelineFeed
         hasMore={hasMore}
         cardStyle
         store={useTimelineStore}
+        scrollContainerId="home-scroll"
       />
     </div>
   );

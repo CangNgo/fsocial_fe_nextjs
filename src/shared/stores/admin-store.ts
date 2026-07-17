@@ -3,13 +3,12 @@ import { create } from "zustand";
 interface AdminUser {
   firstName: string;
   lastName: string;
-  day: number;
-  month: string;
-  year: number;
+  dob: string;
   gender: number;
   username: string;
   email: string;
   avatar: string;
+  address: string;
 }
 
 interface AdminStore {

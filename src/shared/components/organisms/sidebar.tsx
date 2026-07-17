@@ -10,6 +10,7 @@ import {
 } from "@/shared/components/atoms/icon/icon";
 import { UserAvatar } from "@/shared/components/molecules/user-avatar";
 import { Button } from "@/shared/components/ui/button";
+import { NavMoreMenu } from "@/shared/components/organisms/nav-more-menu";
 import { Popover, PopoverContent, PopoverTrigger } from "@/shared/components/ui/popover";
 import { ROUTES } from "@/shared/config/routes";
 import { cn } from "@/shared/lib/utils";
@@ -23,10 +24,6 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 
-const NavMoreMenu = dynamic(
-  () => import("@/shared/components/organisms/nav-more-menu").then((m) => m.NavMoreMenu),
-  { ssr: false },
-);
 const CreatePostForm = dynamic(() => import("@/shared/components/organisms/create-post-form"));
 
 const ITEM = [

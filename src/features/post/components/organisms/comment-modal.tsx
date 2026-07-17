@@ -159,7 +159,8 @@ export function CommentModal({ id, store, initialMediaIndex }: CommentModalProps
       toast.error("Lấy phản hồi bình luận thất bại");
       return;
     }
-    setCommentsReply([...commentsReply, { id: commentId, reply: resp.data ?? [] }]);
+    const reply = (resp.data ?? []).map((c) => ({ ...c, commentId }));
+    setCommentsReply([...commentsReply, { id: commentId, reply }]);
   };
 
   const handleCancelReply = () => {

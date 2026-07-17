@@ -12,11 +12,15 @@ import { PhotoGrid } from "@/shared/components/organisms/photo-grid";
 import { Button } from "@/shared/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/shared/components/ui/popover";
 import { cn } from "@/shared/lib/utils";
+import { MediaType } from "@/shared/types/post";
 import { timeAgo } from "@/shared/utils/convert-date-time";
 import { Ellipsis, MessageSquareWarning, Pen } from "lucide-react";
 import Link from "next/link";
 import type { Dispatch, SetStateAction } from "react";
-import { memo } from "react";
+import { memo, useState } from "react";
+import Lightbox from "yet-another-react-lightbox";
+import Video from "yet-another-react-lightbox/plugins/video";
+import "yet-another-react-lightbox/styles.css";
 import {
   type PostCardPost,
   type PostCardStore,
@@ -64,8 +68,11 @@ function PostCardComponent({
     handleLike,
   } = usePostCardActions({ post, setPost, store });
 
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const media = post.content?.media ?? [];
+
   return (
-    <article className={cn(className, "transition")}>
+    <article className={cn(className, "transition p-2")}>
       <div className={cn("flex items-center justify-between px-4 pt-4 pb-1", isShared && "px-6")}>
         <div className="flex space-x-2">
           <Link href={`/profile?id=${post.userId}`}>
@@ -126,7 +133,7 @@ function PostCardComponent({
         </Popover>
       </div>
 
-      <div>
+      <div >
         {post.content?.htmltext && post.content.htmltext !== "null" ? (
           <div
             className={cn("px-5 mb-1.5", isShared && "px-7")}
@@ -149,12 +156,22 @@ function PostCardComponent({
           <PhotoGrid
             media={post.content?.media ?? []}
             priority={priority}
-            onImageClick={(_, index) => {
-              if (!post.originPostId) showCommentPopup(index);
-            }}
+            onImageClick={(_, index) => setLightboxIndex(index)}
           />
         )}
       </div>
+
+      <Lightbox
+        open={lightboxIndex !== null}
+        close={() => setLightboxIndex(null)}
+        index={lightboxIndex ?? 0}
+        plugins={[Video]}
+        slides={media.map((m) =>
+          m.type === MediaType.VIDEO
+            ? { type: "video" as const, sources: [{ src: m.url, type: "video/mp4" }] }
+            : { src: m.url },
+        )}
+      />
 
       {showReact && (
         <div className="px-4 sm:py-2 py-3 flex items-center justify-between">

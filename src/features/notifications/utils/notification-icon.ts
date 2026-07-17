@@ -5,10 +5,9 @@ import {
   LogIn,
   MessageCircle,
   MessageSquare,
-  MonitorSmartphone,
   Reply,
   UserPlus,
-  type LucideIcon,
+  type LucideIcon
 } from "lucide-react";
 
 import { NotificationType } from "@/shared/types/notification";
@@ -24,7 +23,7 @@ export const NOTIFICATION_ICONS: Record<NotificationType, LucideIcon> = {
   [NotificationType.MESSAGE]: MessageSquare,
   [NotificationType.SYSTEM]: Bell,
   [NotificationType.LOGIN]: LogIn,
-  [NotificationType.LOGIN_NEW_DEVICE]: MonitorSmartphone,
+  // [NotificationType.LOGIN_NEW_DEVICE]: MonitorSmartphone,
 };
 
 export const getNotificationIcon = (type: NotificationType): LucideIcon =>

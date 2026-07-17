@@ -216,7 +216,7 @@ export default function CreatePostForm({ }: CreatePostFormProps) {
 
                 <div className="relative">
                   {previewCount > 0 && (
-                    <div className="max-h-[70vh] overflow-hidden">
+                    <div className="max-h-[70vh] overflow-hidden px-3">
                       <PhotoGrid media={filePreviews} rounded={8} className=" " />
                     </div>
                   )}
@@ -269,7 +269,7 @@ export default function CreatePostForm({ }: CreatePostFormProps) {
                   {previewCount > 0 && (
                     <Button
                       type="button"
-                      className="btn-secondary absolute left-2 top-2 z-10 h-fit w-fit border px-3 py-1 shadow-md"
+                      className="btn-secondary absolute left-5 top-2 z-10 h-fit w-fit border px-3 py-1 shadow-md"
                       onClick={() => scrollToItem(1)}
                     >
                       <PencilChangeImageIcon /> Chỉnh sửa

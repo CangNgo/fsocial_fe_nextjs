@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { type LoginFormData, loginSchema } from "../schemas/login-schema";
 import { useLoginMutation } from "./mutations/use-login-mutations";
 import { setToken } from "./set-token";
@@ -19,7 +20,6 @@ export function useLoginForm() {
   } = form;
 
   const [isShowPassword, setIsShowPassword] = useState(false);
-  const [loginErr, setLoginErr] = useState("");
   const { mutateAsync: login, isPending: submitClicked } = useLoginMutation();
 
   const handleSubmitLogin = useCallback(async () => {
@@ -32,7 +32,7 @@ export function useLoginForm() {
     });
 
     if (result?.statusCode !== 200) {
-      setLoginErr(result?.message ?? "Có lỗi xảy ra trong quá trình đăng nhập");
+      toast.error(result?.statusCode === 601 ? "Tài khoản đã bị khóa" : "Không thể đăng nhập");
       return;
     }
 
@@ -59,7 +59,6 @@ export function useLoginForm() {
     isShowPassword,
     setIsShowPassword,
     submitClicked,
-    loginErr,
     handleSubmitLogin,
   };
 }

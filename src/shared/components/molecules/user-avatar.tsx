@@ -1,7 +1,8 @@
-import type React from "react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/shared/components/ui/avatar";
 import { cn } from "@/shared/lib/utils";
 import { getInitialsFromDisplayName } from "@/shared/utils/combine-name";
+import type React from "react";
+import { Image } from "../atoms/image";
 
 interface UserAvatarProps {
   src?: string | null;
@@ -25,10 +26,12 @@ export function UserAvatar({
 
   return (
     <Avatar className={className} onClick={onClick}>
-      <AvatarImage src={src ?? undefined} />
-      <AvatarFallback className={cn("text-[11px] font-medium transition", fallbackClassName)}>
-        {fallback}
-      </AvatarFallback>
+      <Image alt="avatar" width={0} height={0} className="w-full h-full object-cover" sizes="100" src={src} />
+      {!src && (
+        <AvatarFallback className={cn("text-[11px] absolute font-medium transition", fallbackClassName)}>
+          {fallback}
+        </AvatarFallback>
+      )}
     </Avatar>
   );
 }

@@ -8,6 +8,7 @@ import { ButtonGroup } from "@/shared/components/molecules/button-group";
 import { DataTable } from "@/shared/components/molecules/data-table";
 import { SearchBar } from "@/shared/components/molecules/search-bar";
 import { Button } from "@/shared/components/ui/button";
+import { cn } from "@/shared/lib/utils";
 import { useReadComplaint } from "../../hooks/mutations/use-complaint-mutations";
 import { useComplaints } from "../../hooks/queries/use-complaints";
 
@@ -18,6 +19,7 @@ const headers = [
   "Loại báo cáo",
   "Người dùng/Bài viết bị báo cáo",
   "Nội dung báo cáo",
+  "Số lượt báo cáo",
   "Ngày báo cáo",
   "Hành động",
 ];
@@ -78,19 +80,15 @@ export default function AdminComplaintPanel() {
         </div>
       </div>
 
-      <DataTable loading={loading} headers={headers}>
-        {filteredData.length === 0 && (
-          <tr>
-            <td colSpan={7} align="center" className="py-5">
-              Không có khiếu nại nào
-            </td>
-          </tr>
-        )}
-        {filteredData.map((item, index) => (
-          <tr
-            key={item.id}
-            className={`hover:bg-secondary border-t ${item.readding && "bg-secondary"}`}
-          >
+      <DataTable
+        loading={loading}
+        headers={headers}
+        data={filteredData}
+        emptyText="Không có khiếu nại nào"
+        getRowKey={(item) => `${item.id}-${item.userName}-${item.dateTime}`}
+        rowClassName={(item) => cn("hover:bg-secondary border-t", item.readding && "bg-secondary")}
+        renderRow={(item, index) => (
+          <>
             <td align="center" className="ps-2 pe-4 py-5 fs-xs text-gray">
               {index + 1}
             </td>
@@ -107,6 +105,9 @@ export default function AdminComplaintPanel() {
               </Link>
             </td>
             <td className="px-2 fs-xs">{item.termOfService}</td>
+            <td align="center" className="px-2 fs-xs">
+              {item.reportCount}
+            </td>
             <td className="px-2 fs-xs text-gray">{item.dateTime}</td>
             <td align="center" className="px-2">
               <Button type="button" className="me-3" onClick={() => handleRemoveComplaint(item.id)}>
@@ -123,9 +124,9 @@ export default function AdminComplaintPanel() {
                 )}
               </Button>
             </td>
-          </tr>
-        ))}
-      </DataTable>
+          </>
+        )}
+      />
     </div>
   );
 }

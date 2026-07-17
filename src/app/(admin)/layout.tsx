@@ -7,9 +7,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   useAdminProfile();
 
   return (
-    <div className="flex min-h-screen p-4 gap-4">
+    <div className="flex h-screen overflow-hidden">
       <AdminSidebar />
-      <main className="flex-1">{children}</main>
+      <main className="flex-1 overflow-y-auto overflow-x-hidden min-w-0">{children}</main>
       <GlobalPopup />
     </div>
   );

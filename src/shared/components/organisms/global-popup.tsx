@@ -14,7 +14,8 @@ import { usePopupStore } from "@/shared/stores/popup-store";
 import { useThemeStore } from "@/shared/stores/theme-store";
 
 export function GlobalPopup() {
-  const { heading, isOpen, children, hidePopup } = usePopupStore();
+  const { heading, isOpen, content, hidePopup } = usePopupStore();
+  const children = typeof content === "function" ? content() : content;
   const { theme } = useThemeStore();
 
   return (
