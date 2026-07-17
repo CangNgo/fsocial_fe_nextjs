@@ -1,25 +1,19 @@
 "use client";
-import dynamic from "next/dynamic";
-import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
-import { toast } from "sonner";
 import { useOwnerProfile } from "@/features/profile/hooks/use-profile";
 import { ExpiredDialog } from "@/shared/components/organisms/expired-dialog";
 import { GlobalPopup } from "@/shared/components/organisms/global-popup";
 import { Header } from "@/shared/components/organisms/header";
 import { Sidebar } from "@/shared/components/organisms/sidebar";
 import { ROUTES } from "@/shared/config/routes";
+import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
 // Tạm comment kết nối websocket
 // import { useMessageStore } from "@/shared/stores/message-store";
 // import { useNotificationStore } from "@/shared/stores/notification-store";
 import { ownerAccountStore } from "@/shared/stores/owner-account-store";
 import { validRefreshTokenStore } from "@/shared/stores/valid-refresh-token-store";
 import { getCookie } from "@/shared/utils/cookie";
-
-const NotificationPanel = dynamic(
-  () => import("@/shared/components/organisms/notification-panel"),
-  { ssr: false },
-);
 
 export default function UserLayout({ children }: { children: React.ReactNode }) {
   const { setUser } = ownerAccountStore();
@@ -51,9 +45,6 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
 
     if (!initialized.current) {
       initialized.current = true;
-      // Tạm comment kết nối websocket
-      // connectNotificationWebSocket(userId);
-      // connectMessageWebSocket(userId);
     }
   }, [hasToken, res, setUser, router]);
 
@@ -71,9 +62,6 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
         <Header />
         {children}
       </main>
-
-      {/* Right panel placeholder — sẽ thêm NotificationPanel vào đây sau */}
-      <NotificationPanel />
 
       <GlobalPopup />
       <ExpiredDialog open={mounted && !refreshToken} />

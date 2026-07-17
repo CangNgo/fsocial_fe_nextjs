@@ -1,16 +1,21 @@
-export type SearchTab = "all" | "users" | "posts";
+import type { PostResponse } from "@/shared/types/post";
+
+export type SearchTab = "posts" | "users";
+
+export interface SearchPageResponse<T> {
+  items: T[];
+  page: number;
+  size: number;
+  hasMore: boolean;
+}
 
 export interface UserResult {
-  userId: string;
-  avatar?: string;
-  firstName: string;
-  lastName: string;
+  id: string;
+  username?: string;
+  avatar?: string | null;
   displayName?: string;
-  followers?: number;
+  bio?: string | null;
+  follower?: string[];
 }
 
-export interface PostResult {
-  id: string;
-  content?: string;
-  [key: string]: unknown;
-}
+export type PostResult = PostResponse;

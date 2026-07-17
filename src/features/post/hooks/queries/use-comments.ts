@@ -1,5 +1,5 @@
 "use client";
-import { getComments } from "@/services/post/comment-api";
+import { getComments } from "@/services/posts/comment-api";
 import { postKeys } from "@/services/posts/post.key";
 import { useQuery } from "@tanstack/react-query";
 

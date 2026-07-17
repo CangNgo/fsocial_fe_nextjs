@@ -1,9 +1,5 @@
 "use client";
 
-import { Ellipsis, MessageSquareWarning, Pen } from "lucide-react";
-import Link from "next/link";
-import type { Dispatch, SetStateAction } from "react";
-import { memo } from "react";
 import {
   CommentPostIcon,
   HeartPostIcon,
@@ -12,16 +8,24 @@ import {
   TrashCanIcon,
 } from "@/shared/components/atoms/icon/icon";
 import { UserAvatar } from "@/shared/components/molecules/user-avatar";
+import { PhotoGrid } from "@/shared/components/organisms/photo-grid";
 import { Button } from "@/shared/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/shared/components/ui/popover";
 import { cn } from "@/shared/lib/utils";
+import { MediaType } from "@/shared/types/post";
 import { timeAgo } from "@/shared/utils/convert-date-time";
+import { Ellipsis, MessageSquareWarning, Pen } from "lucide-react";
+import Link from "next/link";
+import type { Dispatch, SetStateAction } from "react";
+import { memo, useState } from "react";
+import Lightbox from "yet-another-react-lightbox";
+import Video from "yet-another-react-lightbox/plugins/video";
+import "yet-another-react-lightbox/styles.css";
 import {
   type PostCardPost,
   type PostCardStore,
   usePostCardActions,
 } from "../../hooks/use-post-card-actions";
-import { PhotoGrid } from "../organisms/photo-cell";
 import { PostMediaCarousel } from "../organisms/post-media-carousel";
 
 export interface PostCardProps {
@@ -35,6 +39,8 @@ export interface PostCardProps {
   isShared?: boolean;
   allowCarousel?: boolean;
   initialMediaIndex?: number;
+  /** Above-the-fold post (eg. first in feed) — eager-load media for LCP */
+  priority?: boolean;
 }
 
 function PostCardComponent({
@@ -47,6 +53,7 @@ function PostCardComponent({
   isShared = false,
   allowCarousel = false,
   initialMediaIndex,
+  priority = false,
 }: PostCardProps) {
   const {
     user,
@@ -61,8 +68,11 @@ function PostCardComponent({
     handleLike,
   } = usePostCardActions({ post, setPost, store });
 
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const media = post.content?.media ?? [];
+
   return (
-    <article className={cn(className, "transition")}>
+    <article className={cn(className, "transition p-2")}>
       <div className={cn("flex items-center justify-between px-4 pt-4 pb-1", isShared && "px-6")}>
         <div className="flex space-x-2">
           <Link href={`/profile?id=${post.userId}`}>
@@ -92,7 +102,7 @@ function PostCardComponent({
           >
             {post.userId !== user?.id && (
               <Button
-                type="button"
+                variant={"outline"}
                 className="btn-transparent justify-start py-2 ps-3 text-nowrap gap-3 w-full flex items-center"
                 onClick={handlePopupReport}
               >
@@ -123,7 +133,7 @@ function PostCardComponent({
         </Popover>
       </div>
 
-      <div>
+      <div >
         {post.content?.htmltext && post.content.htmltext !== "null" ? (
           <div
             className={cn("px-5 mb-1.5", isShared && "px-7")}
@@ -145,12 +155,23 @@ function PostCardComponent({
         ) : (
           <PhotoGrid
             media={post.content?.media ?? []}
-            onImageClick={(_, index) => {
-              if (!post.originPostId) showCommentPopup(index);
-            }}
+            priority={priority}
+            onImageClick={(_, index) => setLightboxIndex(index)}
           />
         )}
       </div>
+
+      <Lightbox
+        open={lightboxIndex !== null}
+        close={() => setLightboxIndex(null)}
+        index={lightboxIndex ?? 0}
+        plugins={[Video]}
+        slides={media.map((m) =>
+          m.type === MediaType.VIDEO
+            ? { type: "video" as const, sources: [{ src: m.url, type: "video/mp4" }] }
+            : { src: m.url },
+        )}
+      />
 
       {showReact && (
         <div className="px-4 sm:py-2 py-3 flex items-center justify-between">

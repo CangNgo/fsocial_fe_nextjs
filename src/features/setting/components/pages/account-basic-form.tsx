@@ -2,14 +2,13 @@
 
 import { PencilChangeImageIcon } from "@/shared/components/atoms/icon/icon";
 import { Image } from "@/shared/components/atoms/image";
-import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar";
+import { UserAvatar } from "@/shared/components/molecules/user-avatar";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
 import { NativeSelect, NativeSelectOption } from "@/shared/components/ui/native-select";
 import { Textarea } from "@/shared/components/ui/textarea";
 import { dayOptions, monthOptions, yearOptions } from "@/shared/config/global-variables";
 import { cn } from "@/shared/lib/utils";
-import { getInitialsFromDisplayName } from "@/shared/utils/combine-name";
 import { useAccountBasicForm } from "../../hooks/use-account-basic-form";
 import { genderOptions } from "../../types/profile";
 
@@ -37,12 +36,12 @@ export default function AccountBasicForm() {
         <div
           className={cn(
             "relative aspect-[3/1] overflow-hidden lg:rounded-lg border",
-            !user.banner && "border-field",
+            !user.background && "border-field",
           )}
         >
-          {user.banner ? (
+          {user.background ? (
             <Image
-              src={user.banner}
+              src={user.background}
               alt=""
               fill
               sizes="(max-width: 1024px) 100vw, 630px"
@@ -77,12 +76,11 @@ export default function AccountBasicForm() {
       <div className="mb-5 space-y-3">
         <p className="font-medium">Ảnh đại diện</p>
         <div className="relative bg-background border-4 rounded-full p-1 w-fit transition">
-          <Avatar className="size-[120px]">
-            <AvatarImage src={user.avatar ?? undefined} />
-            <AvatarFallback className="text-[40px] transition">
-              {getInitialsFromDisplayName(user.displayName ?? "")}
-            </AvatarFallback>
-          </Avatar>
+          <UserAvatar
+            src={user.avatar}
+            displayName={user.displayName}
+            className=""
+          />
           {isEditing && (
             <label
               htmlFor="avatar-upload"

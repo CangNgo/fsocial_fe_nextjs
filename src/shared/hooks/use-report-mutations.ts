@@ -1,7 +1,7 @@
 "use client";
 
+import { complaint } from "@/services/posts/complaint-api";
 import { useMutation } from "@tanstack/react-query";
-import { complaint } from "@/services/post/complaint-api";
 
 export function useCreateReport() {
   return useMutation({

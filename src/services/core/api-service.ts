@@ -1,5 +1,5 @@
-import type { AxiosRequestConfig } from "axios";
 import type { ApiResponse } from "@/shared/types/api-response";
+import type { AxiosRequestConfig } from "axios";
 import API from "./axios-instance";
 
 export type ApiErrorFallback<T = unknown> = T | (() => T);

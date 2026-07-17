@@ -1,13 +1,13 @@
 "use client";
-import { UserRoundIcon } from "lucide-react";
-import Image from "next/image";
-import Link from "next/link";
 import { LoadingIcon } from "@/shared/components/atoms/icon/icon";
 import { FormInput } from "@/shared/components/molecules/form-input";
 import { Button } from "@/shared/components/ui/button";
 import { ROUTES } from "@/shared/config/routes";
-import GoogleSignInButton from "../molecules/google-sign-in-button";
+import { UserRoundIcon } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
 import { useLoginForm } from "../../hooks/use-login-form";
+import GoogleSignInButton from "../molecules/google-sign-in-button";
 
 export default function LoginForm() {
   const {
@@ -16,7 +16,6 @@ export default function LoginForm() {
       formState: { errors },
     },
     submitClicked,
-    loginErr,
     handleSubmitLogin,
   } = useLoginForm();
 
@@ -70,7 +69,6 @@ export default function LoginForm() {
           </div>
 
           <div className="mb-4">
-            {!submitClicked && loginErr && <p className="text-red-600 text-sm mb-2">{loginErr}</p>}
             <Button
               type="button"
               className="btn-primary py-5 text-lg w-full"

@@ -1,8 +1,8 @@
 "use client";
 
-import { useCallback } from "react";
 import CreatePostForm from "@/shared/components/organisms/create-post-form";
 import { usePopupStore } from "@/shared/stores/popup-store";
+import { useCallback } from "react";
 import { useTimeline } from "../../hooks/use-timeline";
 import TimelineFeed from "../organisms/timeline-feed";
 
@@ -11,7 +11,7 @@ export default function Timeline() {
   const { posts, hasMore, fetchPosts, handlePostCreated } = useTimeline();
 
   const handleOpenCreatePost = useCallback(() => {
-    showPopup("Tạo bài viết", <CreatePostForm onPostCreated={handlePostCreated} />);
+    showPopup("Tạo bài viết", <CreatePostForm />);
   }, [handlePostCreated, showPopup]);
 
   return (

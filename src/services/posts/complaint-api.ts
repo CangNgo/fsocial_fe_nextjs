@@ -2,10 +2,11 @@ import { apiGet, apiPost, apiPut } from "@/services/core/api-service";
 import type { ApiResponse } from "@/shared/types/api-response";
 import type { ComplaintItem } from "@/shared/types/admin";
 
+export type ComplaintType = "POST" | "STORY" | "LIVESTREAM" | "ACCOUNT";
+
 export interface CreateComplaintPayload {
-  postId: string;
-  userId?: string;
-  complaintType: string;
+  targetId: string;
+  complaintType: ComplaintType;
   termOfServiceId: string;
 }
 

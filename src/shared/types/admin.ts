@@ -7,15 +7,16 @@ export interface ComplaintItem {
   termOfService: string;
   dateTime: string;
   readding?: boolean;
+  reportCount: number;
 }
 
 export interface ManageUserItem {
   id: string;
+  username: string;
   displayName: string;
-  userName: string;
-  complaint: string;
-  createDate: string;
-  onlineLated: string;
+  email: string;
+  createdAt: string;
+  updatedAt: string | null;
   status: boolean;
 }
 

@@ -9,46 +9,68 @@ import {
 } from "@/shared/components/atoms/icon/icon";
 import { Image } from "@/shared/components/atoms/image";
 import { UserAvatar } from "@/shared/components/molecules/user-avatar";
+import { PhotoGrid } from "@/shared/components/organisms/photo-grid";
 import { Button } from "@/shared/components/ui/button";
 import type { CarouselApi } from "@/shared/components/ui/carousel";
 import { Carousel, CarouselContent, CarouselItem } from "@/shared/components/ui/carousel";
 import { Input } from "@/shared/components/ui/input";
 import { Textarea } from "@/shared/components/ui/textarea";
+import { createPostFormData } from "@/shared/hooks/post-form";
 import { cn } from "@/shared/lib/utils";
 import { ownerAccountStore } from "@/shared/stores/owner-account-store";
 import { usePopupStore } from "@/shared/stores/popup-store";
+import { MediaLayoutType, MediaResponse, MediaType } from "@/shared/types/post";
 import { convertImageToPng } from "@/shared/utils/convert-image-to-png";
 import { X } from "lucide-react";
 import type React from "react";
 import { useLayoutEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { MediaGrid } from "../molecules/media-grid";
 
-interface FilePreview {
-  src: string;
-  type: "image" | "video";
-}
+// Đo kích thước thật của file local để PhotoGrid tính layout được
+// (API tính sẵn ratio/layoutType, nhưng file chưa upload thì phải tự đo)
+const measureMedia = (file: File, url: string): Promise<MediaResponse> =>
+  new Promise((resolve) => {
+    const type = file.type.startsWith("video") ? MediaType.VIDEO : MediaType.IMAGE;
+    const done = (width: number, height: number) => {
+      const ratio = width > 0 && height > 0 ? width / height : 1;
+      const layoutType =
+        ratio >= 2
+          ? MediaLayoutType.PANORAMA
+          : ratio > 1.05
+            ? MediaLayoutType.LANDSCAPE
+            : ratio < 0.95
+              ? MediaLayoutType.PORTRAIT
+              : MediaLayoutType.SQUARE;
+      resolve({ url, type, width, height, ratio, layoutType });
+    };
+    if (type === MediaType.VIDEO) {
+      const video = document.createElement("video");
+      video.onloadedmetadata = () => done(video.videoWidth, video.videoHeight);
+      video.onerror = () => done(1, 1);
+      video.src = url;
+    } else {
+      const img = new window.Image();
+      img.onload = () => done(img.naturalWidth, img.naturalHeight);
+      img.onerror = () => done(1, 1);
+      img.src = url;
+    }
+  });
 
 interface CreatePostFormProps {
-  onPostCreated?: (post: Record<string, unknown>) => void;
 }
 
-export default function CreatePostForm({ onPostCreated }: CreatePostFormProps) {
+export default function CreatePostForm({ }: CreatePostFormProps) {
   const hidePopup = usePopupStore((state) => state.hidePopup);
   const user = ownerAccountStore((state) => state.user);
 
   const [fileUploads, setFileUploads] = useState<File[]>([]);
-  const [filePreviews, setFilePreviews] = useState<FilePreview[]>([]);
+  const [filePreviews, setFilePreviews] = useState<MediaResponse[]>([]);
   const [submitClicked, setSubmitClicked] = useState(false);
   const [carouselApi, setCarouselApi] = useState<CarouselApi>();
   const [content, setContent] = useState("");
 
   const textboxRef = useRef<HTMLTextAreaElement>(null);
 
-  // --- Auto-height carousel state ---
-  // activeIndex: slide nào đang hiển thị (đồng bộ với embla)
-  // wrapperHeight: chiều cao thực tế (px) sẽ được animate bằng CSS transition
-  // itemRefs: ref tới nội dung bên trong mỗi CarouselItem để đo chiều cao thật
   const [activeIndex, setActiveIndex] = useState(0);
   const [wrapperHeight, setWrapperHeight] = useState<number>();
   const itemRefs = useRef<Array<HTMLDivElement | null>>([]);
@@ -92,9 +114,6 @@ export default function CreatePostForm({ onPostCreated }: CreatePostFormProps) {
 
   const closePopup = () => {
     hidePopup();
-    setContent("");
-    setFileUploads([]);
-    setFilePreviews([]);
   };
 
   const handleOnFileChange = async (
@@ -107,10 +126,9 @@ export default function CreatePostForm({ onPostCreated }: CreatePostFormProps) {
       Array.from(files).map((file) => convertImageToPng(file)),
     );
 
-    const previewUrls: FilePreview[] = normalizedFiles.map((file) => ({
-      src: URL.createObjectURL(file),
-      type: file.type.split("/")[0] as "image" | "video",
-    }));
+    const previewUrls = await Promise.all(
+      normalizedFiles.map((file) => measureMedia(file, URL.createObjectURL(file))),
+    );
 
     setFileUploads((prev) => [...prev, ...normalizedFiles]);
     setFilePreviews((prev) => [...prev, ...previewUrls]);
@@ -123,42 +141,21 @@ export default function CreatePostForm({ onPostCreated }: CreatePostFormProps) {
 
   const handleSubmitPost = async () => {
     setSubmitClicked(true);
-
-    const formData = new FormData();
-    if (user?.id) {
-      formData.append("userId", user.id);
-    }
-    formData.append("text", content);
-    formData.append("HTMLText", content);
-    fileUploads.forEach((file) => {
-      formData.append("media", file);
-    });
-
-    const resp = (await createPost(formData)) as {
-      statusCode?: number;
-      message?: string;
-      data?: Record<string, unknown>;
-    } | null;
-    if (!resp || ![100, 200, 201].includes(resp.statusCode ?? 0)) {
-      toast.error(resp?.message ?? "Đã có lỗi xảy ra khi cố gắng đăng tải bài viết của bạn");
-      setSubmitClicked(false);
-      return;
+    const resp = await createPost(createPostFormData({
+      userId: user?.id ?? "",
+      text: content,
+      htmltext: content,
+      media: fileUploads,
+    }))
+    if (resp?.statusCode == 201) {
+      toast.success("Đăng bài thành công");
+      closePopup();
+    } else {
+      toast.error("Đăng bài thất bại");
     }
 
-    const postCreated = {
-      ...resp.data,
-      displayName: user?.displayName,
-      avatar: user?.avatar,
-    };
-
-    onPostCreated?.(postCreated);
-    toast.success("Bài viết của bạn đã được đăng tải");
-    closePopup();
     setSubmitClicked(false);
   };
-
-  console.log("fileUploads", fileUploads);
-  console.log("filePreviews", filePreviews);
 
   const deleteFile = (index: number) => {
     setFileUploads((prev) => prev.filter((_, i) => i !== index));
@@ -211,7 +208,7 @@ export default function CreatePostForm({ onPostCreated }: CreatePostFormProps) {
                     ref={textboxRef}
                     autoFocus
                     placeholder="Hãy chia sẽ khoảnh khắc của bạn..."
-                    className="min-h-24 resize-none border-0 shadow-none focus-visible:ring-0"
+                    className="min-h-10 resize-none border-0 shadow-none focus-visible:ring-0"
                     value={content}
                     onChange={(e) => setContent(e.target.value)}
                   />
@@ -219,13 +216,8 @@ export default function CreatePostForm({ onPostCreated }: CreatePostFormProps) {
 
                 <div className="relative">
                   {previewCount > 0 && (
-                    <div
-                      className={cn(
-                        "max-h-[50vh] overflow-hidden",
-                        previewCount === 1 && "aspect-video",
-                      )}
-                    >
-                      <MediaGrid medias={filePreviews} />
+                    <div className="max-h-[70vh] overflow-hidden px-3">
+                      <PhotoGrid media={filePreviews} rounded={8} className=" " />
                     </div>
                   )}
 
@@ -277,7 +269,7 @@ export default function CreatePostForm({ onPostCreated }: CreatePostFormProps) {
                   {previewCount > 0 && (
                     <Button
                       type="button"
-                      className="btn-secondary absolute left-2 top-2 z-10 h-fit w-fit border px-3 py-1 shadow-md"
+                      className="btn-secondary absolute left-5 top-2 z-10 h-fit w-fit border px-3 py-1 shadow-md"
                       onClick={() => scrollToItem(1)}
                     >
                       <PencilChangeImageIcon /> Chỉnh sửa
@@ -301,25 +293,16 @@ export default function CreatePostForm({ onPostCreated }: CreatePostFormProps) {
                 >
                   <div className="flex-grow overflow-y-auto scrollable-div space-y-2">
                     {filePreviews.map((media, index) => (
-                      <div key={media.src} className="relative overflow-hidden">
-                        {media.type === "image" && (
-                          <Image
-                            src={media.src}
-                            alt="Bài đăng"
-                            width={0}
-                            height={0}
-                            sizes="90vw"
-                            className="size-full object-cover object-center"
-                          />
-                        )}
-                        {media.type === "video" && (
-                          // biome-ignore lint/a11y/useMediaCaption: preview video do người dùng tải lên, không có phụ đề
-                          <video
-                            src={media.src}
-                            controls
-                            className="size-full object-cover object-center"
-                          />
-                        )}
+                      <div key={media.url} className="relative overflow-hidden">
+                        <Image
+                          src={media.url}
+                          type={media.type}
+                          alt="Bài đăng"
+                          width={0}
+                          height={0}
+                          sizes="90vw"
+                          className="size-full object-cover object-center"
+                        />
                         <Button
                           type="button"
                           className="btn-secondary absolute right-2 top-2 w-fit aspect-square p-1"
