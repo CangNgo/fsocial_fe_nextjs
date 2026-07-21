@@ -166,6 +166,7 @@ function PostCardComponent({
         close={() => setLightboxIndex(null)}
         index={lightboxIndex ?? 0}
         plugins={[Video]}
+        video={{ autoPlay: true }}
         slides={media.map((m) =>
           m.type === MediaType.VIDEO
             ? { type: "video" as const, sources: [{ src: m.url, type: "video/mp4" }] }

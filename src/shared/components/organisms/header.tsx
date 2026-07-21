@@ -1,5 +1,5 @@
 "use client";
-import { fetchUnreadNotification } from "@/features/notifications/hooks/use-notification";
+import { useUnreadNotification } from "@/features/notifications/hooks/use-notification";
 import { Bell, HamburgerIcon } from "@/shared/components/atoms/icon/icon";
 import { NavMoreMenu } from "@/shared/components/organisms/nav-more-menu";
 import { Button } from "@/shared/components/ui/button";
@@ -15,7 +15,7 @@ export function Header() {
   const pathname = usePathname();
   const isInMessage = pathname === ROUTES.MESSAGE;
   const { isVisible, setIsVisible } = popupNotificationtStore();
-  const { data: unReadNotification, isLoading: isLoangdingUnreadNotification } = fetchUnreadNotification()
+  const { data: unReadNotification } = useUnreadNotification()
   const [popoverOpen, setPopoverOpen] = useState(false);
 
   const toggleShowNoti = () => setIsVisible(!isVisible);

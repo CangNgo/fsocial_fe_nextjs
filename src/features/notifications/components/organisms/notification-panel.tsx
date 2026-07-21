@@ -2,14 +2,14 @@
 import { Bell } from "@/shared/components/atoms/icon/icons/bell";
 import { NotificationSkeleton } from "@/shared/components/skeletons/notification-skeleton";
 import { Virtuoso } from "react-virtuoso";
-import { fetchNotifications, fetchUnreadNotification } from "../../hooks/use-notification";
+import { useNotifications, useUnreadNotification } from "../../hooks/use-notification";
 import { NotificationsItem } from "../molecules/notification-item";
 
 export default function NotificationPanel() {
 
-  const { data, isLoading } = fetchUnreadNotification()
+  const { data, isLoading } = useUnreadNotification()
   const { data: notifications, isLoading: isLoadingFetchNotification, fetchNextPage, isFetching, hasNextPage }
-    = fetchNotifications()
+    = useNotifications()
 
   const notificationItems = notifications?.pages.flatMap(
     page => page?.data?.items ?? []
