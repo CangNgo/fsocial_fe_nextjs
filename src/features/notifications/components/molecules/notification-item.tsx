@@ -23,7 +23,6 @@ export const NotificationsItem = ({ notification }: NotificationsItemProps) => {
   const { idNotiShowing, setIdNotiShowing } = popupExpandNoti3DotStore();
   const setVisible = popupNotificationtStore((state) => state.setIsVisible);
 
-  const open = () => setIdNotiShowing(notification.id);
   const close = () => setIdNotiShowing(null);
 
   const notiClicked = () => {

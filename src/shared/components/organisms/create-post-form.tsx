@@ -56,10 +56,7 @@ const measureMedia = (file: File, url: string): Promise<MediaResponse> =>
     }
   });
 
-interface CreatePostFormProps {
-}
-
-export default function CreatePostForm({ }: CreatePostFormProps) {
+export default function CreatePostForm() {
   const hidePopup = usePopupStore((state) => state.hidePopup);
   const user = ownerAccountStore((state) => state.user);
 
@@ -147,6 +144,7 @@ export default function CreatePostForm({ }: CreatePostFormProps) {
       htmltext: content,
       media: fileUploads,
     }))
+    setSubmitClicked(false);
     if (resp?.statusCode == 201) {
       toast.success("Đăng bài thành công");
       closePopup();
@@ -154,7 +152,6 @@ export default function CreatePostForm({ }: CreatePostFormProps) {
       toast.error("Đăng bài thất bại");
     }
 
-    setSubmitClicked(false);
   };
 
   const deleteFile = (index: number) => {

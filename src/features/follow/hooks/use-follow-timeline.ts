@@ -5,13 +5,12 @@ import { getFollowingPosts } from "@/services/posts/posts-api";
 import CreatePostForm from "@/shared/components/organisms/create-post-form";
 import { ownerAccountStore } from "@/shared/stores/owner-account-store";
 import { usePopupStore } from "@/shared/stores/popup-store";
-import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { createElement, useCallback } from "react";
 
 export function useFollowTimeline() {
   const user = ownerAccountStore((state) => state.user);
   const { showPopup } = usePopupStore();
-  const queryClient = useQueryClient();
 
   const query = useInfiniteQuery({
     queryKey: postKeys.follow(),

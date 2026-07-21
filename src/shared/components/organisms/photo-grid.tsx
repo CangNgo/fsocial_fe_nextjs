@@ -1,6 +1,6 @@
 import { computeLayout } from "@/shared/hooks/compute-layout";
 import { LayoutSlot, PhotoGridConfig } from "@/shared/types/grid-layout";
-import { MediaResponse } from "@/shared/types/post";
+import { MediaResponse, MediaType } from "@/shared/types/post";
 import React, { useEffect, useRef, useState } from "react";
 import { Image } from "../atoms/image";
 
@@ -35,13 +35,11 @@ function useContainerWidth(ref: React.RefObject<HTMLDivElement | null>) {
 interface CellProps {
   slot: LayoutSlot;
   index: number;
-  gap: number;
-  rounded: number;
   eager?: boolean;
   onImageClick?: (media: MediaResponse, index: number) => void;
 }
 
-function PhotoCell({ slot, index, gap, rounded, eager = false, onImageClick }: CellProps) {
+function PhotoCell({ slot, index, eager = false, onImageClick }: CellProps) {
   const { media, colSpan, rowSpan, height, showMore } = slot;
   const isClickable = !!onImageClick;
 
@@ -78,6 +76,9 @@ function PhotoCell({ slot, index, gap, rounded, eager = false, onImageClick }: C
             media.layoutType === "PORTRAIT" ? "center top" : "center center",
           display: "block",
           transition: isClickable ? "transform 0.25s ease" : undefined,
+          // Video thumbnail: chặn click vào native controls tự toggle play nền,
+          // để click luôn đi qua onImageClick mở lightbox.
+          pointerEvents: isClickable && media.type === MediaType.VIDEO ? "none" : undefined,
         }}
         onMouseEnter={(e) => {
           if (isClickable)
@@ -183,8 +184,6 @@ export function PhotoGrid({
             key={`${slot.media.url}-${i}`}
             slot={slot}
             index={i}
-            gap={layout.gap}
-            rounded={rounded}
             eager={priority}
             onImageClick={onImageClick}
           />
