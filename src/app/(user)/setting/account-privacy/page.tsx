@@ -2,7 +2,7 @@
 import dynamic from "next/dynamic";
 
 const AccountPrivacyForm = dynamic(
-  () => import("@/features/setting/components/pages/account-privacy-form"),
+  () => import("@/features/setting/pages/account-privacy-form"),
   { ssr: false },
 );
 

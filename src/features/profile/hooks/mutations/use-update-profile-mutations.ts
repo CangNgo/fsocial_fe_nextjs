@@ -1,11 +1,11 @@
 "use client";
 
-import { useMutation } from "@tanstack/react-query";
 import {
   updateAvatar,
   updateBanner,
   updatePersonalInfo,
 } from "@/services/profile/update-profile-api";
+import { useMutation } from "@tanstack/react-query";
 
 export function useUpdatePersonalInfoMutation() {
   return useMutation({ mutationFn: updatePersonalInfo });

@@ -8,16 +8,16 @@ import { ROUTES } from "@/shared/config/routes";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-// Tạm comment kết nối websocket
-// import { useMessageStore } from "@/shared/stores/message-store";
+import { useMessageStore } from "@/shared/stores/message-store";
 // import { useNotificationStore } from "@/shared/stores/notification-store";
 import { ownerAccountStore } from "@/shared/stores/owner-account-store";
 import { validRefreshTokenStore } from "@/shared/stores/valid-refresh-token-store";
 import { getCookie } from "@/shared/utils/cookie";
 
 export default function UserLayout({ children }: { children: React.ReactNode }) {
-  const { setUser } = ownerAccountStore();
+  const { user, setUser } = ownerAccountStore();
   const { refreshToken } = validRefreshTokenStore();
+  const { connectMessageWebSocket, cleanMessageWebSocket } = useMessageStore();
   const initialized = useRef(false);
   const router = useRouter();
 
@@ -47,6 +47,13 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
       initialized.current = true;
     }
   }, [hasToken, res, setUser, router]);
+
+  useEffect(() => {
+    if (!hasToken || !user.id) return;
+    connectMessageWebSocket();
+    return () => cleanMessageWebSocket();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- connect/clean fns are stable zustand actions
+  }, [hasToken, user.id]);
 
   return (
     <div className="flex h-screen overflow-hidden">

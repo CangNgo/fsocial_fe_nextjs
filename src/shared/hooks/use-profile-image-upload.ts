@@ -1,8 +1,8 @@
 "use client";
 
+import { ownerAccountStore } from "@/shared/stores/owner-account-store";
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
-import { ownerAccountStore } from "@/shared/stores/owner-account-store";
 
 interface UploadImageOptions {
   /** API call that performs the actual upload (e.g. updateAvatar/updateBanner from the feature's API layer). */

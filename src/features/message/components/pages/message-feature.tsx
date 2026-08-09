@@ -1,29 +1,54 @@
 "use client";
-import { CirclePlus, SearchIcon } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { cn } from "@/shared/lib/utils";
 import { useMessageStore } from "@/shared/stores/message-store";
-import { combineIntoAvatarName, combineIntoDisplayName } from "@/shared/utils/combine-name";
+import { ownerAccountStore } from "@/shared/stores/owner-account-store";
+import { getInitialsFromDisplayName } from "@/shared/utils/combine-name";
 import { dateTimeToMessageTime } from "@/shared/utils/convert-date-time";
+import { CirclePlus, Image, SearchIcon, SendHorizonal } from "lucide-react";
+import type { KeyboardEvent } from "react";
 import { useChooseConversation } from "../../hooks/use-choose-conversation";
 import { useConversations } from "../../hooks/use-conversations";
+import { useCreateConversation } from "../../hooks/use-create-conversation";
 import { useMessageSubscription } from "../../hooks/use-message-subscription";
-import type { Conversation } from "@/shared/types/message";
+import { useSendMessage } from "../../hooks/use-send-message";
+import { useUserSearch } from "../../hooks/use-user-search";
+import { conversationAvatar, conversationDisplayName } from "../../utils/conversation-display";
+import { MessageThread } from "../molecules/message-thread";
+import { UserSearchResult } from "../molecules/user-search-result";
 
 export default function MessageFeature() {
-  const { conversation } = useMessageStore();
-  const currentConversation = conversation as Conversation | null;
+  const userId = ownerAccountStore((state) => state.user.id);
+  const messages = useMessageStore((state) => state.messages);
+
   const { contentActive, setContentActive, conversations, handleOpenCreateConversation } =
     useConversations();
-  const { handleChooseConversation, handleGoBack } = useChooseConversation({
+  const { selectedConversation, handleChooseConversation, handleGoBack } = useChooseConversation({
     contentActive,
     setContentActive,
   });
+  const { content, setContent, handleSend } = useSendMessage(selectedConversation?.id);
+  const { keyword, setKeyword, users, isSearching } = useUserSearch();
+  const createConversation = useCreateConversation();
 
-  useMessageSubscription({ conversations });
+  useMessageSubscription();
+
+  const handleSelectUser = (user: { id: string }) => {
+    createConversation.mutate(user.id, {
+      onSuccess: (resp) => {
+        if (resp?.statusCode === 200 && resp.data) {
+          handleChooseConversation(resp.data);
+        }
+      },
+    });
+  };
+
+  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") handleSend();
+  };
 
   return (
     <div
@@ -82,42 +107,28 @@ export default function MessageFeature() {
 
           {conversations?.map((conver) => (
             <Button
-              type="button"
+              variant={"outline"}
               key={conver.id}
               className={cn(
-                "w-full text-left px-3 py-2.5 rounded-md flex items-center gap-3 hover:bg-gray-2light transition cursor-pointer",
-                conver.id === currentConversation?.id && "bg-gray-3light",
+                "w-full text-left px-3 py-2.5 h-auto rounded-md flex items-center gap-3 hover:bg-gray-200 transition cursor-pointer",
+                conver.id === selectedConversation?.id && "bg-gray-100",
               )}
               onClick={() => handleChooseConversation(conver)}
             >
               <Avatar className="size-11">
-                <AvatarImage src={conver.avatar} />
+                <AvatarImage src={conversationAvatar(conver, userId)} />
                 <AvatarFallback className="fs-xs">
-                  {combineIntoAvatarName(conver.firstName ?? "", conver.lastName ?? "")}
+                  {getInitialsFromDisplayName(conversationDisplayName(conver, userId))}
                 </AvatarFallback>
               </Avatar>
 
               <div className="flex-grow min-w-0">
-                <div className="flex items-center gap-2">
-                  <span className="font-medium">
-                    {combineIntoDisplayName(conver.firstName ?? "", conver.lastName ?? "")}
-                  </span>
-                  {conver.lastMessage && !conver.lastMessage.read && (
-                    <span className="size-2 bg-primary-gradient rounded-full" />
-                  )}
-                </div>
+                <span className="font-medium">{conversationDisplayName(conver, userId)}</span>
                 {conver.lastMessage && (
                   <div className="flex gap-2 items-end justify-between">
-                    <div
-                      className={cn(
-                        "line-clamp-1 text-gray",
-                        !conver.lastMessage.read && "font-semibold text-primary-text",
-                      )}
-                      // biome-ignore lint/security/noDangerouslySetInnerHtml: renders pre-sanitized formatted last-message preview
-                      dangerouslySetInnerHTML={{ __html: conver.lastMessage.content }}
-                    />
+                    <div className="line-clamp-1 text-gray">{conver.lastMessage.content}</div>
                     <span className="text-gray fs-xs text-nowrap">
-                      {dateTimeToMessageTime(conver.lastMessage.createAt)}
+                      {dateTimeToMessageTime(conver.lastMessage.createdAt)}
                     </span>
                   </div>
                 )}
@@ -147,13 +158,33 @@ export default function MessageFeature() {
               </Button>
               <h4>Tạo cuộc trò chuyện mới</h4>
             </div>
-            <div className="flex-grow flex items-center justify-center text-gray">
-              Chọn người để bắt đầu trò chuyện
+            <div className="px-4 py-3">
+              <Input
+                type="text"
+                placeholder="Tìm theo tên hiển thị"
+                value={keyword}
+                onChange={(e) => setKeyword(e.target.value)}
+                autoFocus
+              />
+            </div>
+            <div className="flex-grow overflow-auto px-2">
+              {isSearching && <p className="px-3 py-2.5 text-gray">Đang tìm...</p>}
+              {!isSearching && keyword.trim().length > 0 && users.length === 0 && (
+                <p className="px-3 py-2.5 text-gray">Không tìm thấy người dùng</p>
+              )}
+              {users.map((user) => (
+                <UserSearchResult
+                  key={user.id}
+                  user={user}
+                  onSelect={handleSelectUser}
+                  disabled={createConversation.isPending}
+                />
+              ))}
             </div>
           </div>
         )}
 
-        {contentActive === 2 && currentConversation && (
+        {contentActive === 2 && selectedConversation && (
           <div className="size-full flex flex-col">
             <div className="px-4 py-3 border-b flex items-center gap-3">
               <Button
@@ -164,23 +195,30 @@ export default function MessageFeature() {
                 ←
               </Button>
               <Avatar className="size-9">
-                <AvatarImage src={currentConversation.avatar} />
+                <AvatarImage src={conversationAvatar(selectedConversation, userId)} />
                 <AvatarFallback>
-                  {combineIntoAvatarName(
-                    currentConversation.firstName ?? "",
-                    currentConversation.lastName ?? "",
-                  )}
+                  {getInitialsFromDisplayName(conversationDisplayName(selectedConversation, userId))}
                 </AvatarFallback>
               </Avatar>
               <span className="font-semibold">
-                {combineIntoDisplayName(
-                  currentConversation.firstName ?? "",
-                  currentConversation.lastName ?? "",
-                )}
+                {conversationDisplayName(selectedConversation, userId)}
               </span>
             </div>
             <div className="flex-grow overflow-y-auto scrollable-div p-4 flex flex-col gap-2">
-              {/* Messages are rendered here — integrate MessageHandleMessages when available */}
+              <MessageThread messages={messages} selfId={userId} />
+            </div>
+            <div className="px-4 py-3 border-t flex items-center gap-2 max-w-200">
+              <Image size={40} />
+              <Input
+                type="text"
+                placeholder="Nhắn tin..."
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                onKeyDown={handleKeyDown}
+              />
+              <Button type="button" className="btn-transparent p-2 rounded-2xl w-13" onClick={handleSend}>
+                <SendHorizonal className="size-5" />
+              </Button>
             </div>
           </div>
         )}

@@ -1,14 +1,15 @@
 "use client";
 
-import type React from "react";
-import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
-import { toast } from "sonner";
 import { useUpdatePersonalInfoMutation } from "@/features/profile/hooks/mutations/use-update-profile-mutations";
 import type { UpdateProfile } from "@/services/profile/update-profile-api";
 import { updateAvatar, updateBanner } from "@/services/profile/update-profile-api";
 import { useProfileImageUpload } from "@/shared/hooks/use-profile-image-upload";
 import { ownerAccountStore } from "@/shared/stores/owner-account-store";
+import { format } from "date-fns";
+import type React from "react";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import type { ProfileInfo } from "../types/profile";
 
 export const defaultValues: ProfileInfo = {
@@ -16,27 +17,14 @@ export const defaultValues: ProfileInfo = {
   lastName: "",
   bio: "",
   gender: "3",
-  day: "1",
-  month: "1",
-  year: "2000",
+  dob: undefined,
   address: "",
 };
 
-function getDobParts(dob?: string | null) {
-  let day = "1";
-  let month = "1";
-  let year = "2000";
-
-  if (!dob) return { day, month, year };
-
+function parseDob(dob?: string | null) {
+  if (!dob) return undefined;
   const dobDate = new Date(dob);
-  if (!Number.isNaN(dobDate.getTime())) {
-    day = String(dobDate.getDate());
-    month = String(dobDate.getMonth() + 1);
-    year = String(dobDate.getFullYear());
-  }
-
-  return { day, month, year };
+  return Number.isNaN(dobDate.getTime()) ? undefined : dobDate;
 }
 
 export function useAccountBasicForm() {
@@ -44,7 +32,7 @@ export function useAccountBasicForm() {
   const [isEditing, setIsEditing] = useState(false);
   const { selectImageFile, uploadImage } = useProfileImageUpload();
   const { mutateAsync: updatePersonalInfo } = useUpdatePersonalInfoMutation();
-
+  const [isLoading, setIsLoading] = useState(false);
   const form = useForm<ProfileInfo>({
     mode: "onChange",
     defaultValues,
@@ -54,7 +42,6 @@ export function useAccountBasicForm() {
 
   useEffect(() => {
     if (!user.id) return;
-    const { day, month, year } = getDobParts(user.dob);
 
     reset({
       ...getValues(),
@@ -62,9 +49,7 @@ export function useAccountBasicForm() {
       lastName: user.lastName || "",
       bio: user.bio || "",
       gender: user.gender !== undefined ? String(user.gender) : "3",
-      day,
-      month,
-      year,
+      dob: parseDob(user.dob),
       address: user.address || "",
     });
   }, [user, reset, getValues]);
@@ -86,7 +71,7 @@ export function useAccountBasicForm() {
     if (!selected) return;
     uploadImage(selected.file, selected.previewURL, {
       uploadFn: updateAvatar,
-      optimisticField: "avatar",
+      optimisticField: "background",
       successMessage: "Đã cập nhật ảnh đại diện",
       errorMessage: "Cập nhật ảnh đại diện thất bại",
     });
@@ -94,8 +79,13 @@ export function useAccountBasicForm() {
 
   const onSubmit = async (data: ProfileInfo) => {
     if (!isEditing) return;
+    setIsLoading(true);
+    if (!data.dob) {
+      toast.error("Vui lòng chọn ngày sinh");
+      return;
+    }
 
-    const dobString = `${data.year}-${data.month.padStart(2, "0")}-${data.day.padStart(2, "0")}`;
+    const dobString = format(data.dob, "yyyy-MM-dd");
     const updateData: UpdateProfile = {
       firstName: data.firstName,
       lastName: data.lastName,
@@ -105,7 +95,8 @@ export function useAccountBasicForm() {
     };
 
     const resp = await updatePersonalInfo(updateData);
-    if (resp) {
+    setIsLoading(false);
+    if (resp?.statusCode === 200) {
       toast.success("Đã cập nhật thông tin");
       reset(getValues());
       setIsEditing(false);
@@ -135,5 +126,6 @@ export function useAccountBasicForm() {
     handleSelectBanner,
     handleSelectAvatar,
     onSubmit,
+    isLoading,
   };
 }

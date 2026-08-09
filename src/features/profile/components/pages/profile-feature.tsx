@@ -10,7 +10,7 @@ import { AccountResponse } from "@/shared/types/profile";
 import { useSearchParams } from "next/navigation";
 import type React from "react";
 import { useEffect, useState } from "react";
-import { useAttachments } from "../../hooks/use-attachments";
+import { PICTURES_TAB_INDEX, useProfileImage, VIDEOS_TAB_INDEX } from "../../hooks/use-attachments";
 import { useProfile } from "../../hooks/use-profile";
 import { useRequestFollow, useUnfollow } from "../../hooks/use-profile-mutations";
 import { useProfilePosts } from "../../hooks/use-profile-posts";
@@ -51,7 +51,16 @@ export default function Profile() {
     currentTab,
   );
 
-  const { pictures } = useAttachments(user?.id);
+  const { pictures, fetchPictures, hasMorePictures } = useProfileImage(
+    "image",
+    currentTab,
+    PICTURES_TAB_INDEX,
+  );
+  const { pictures: videos, fetchPictures: fetchVideos, hasMorePictures: hasMoreVideos } = useProfileImage(
+    "video",
+    currentTab,
+    VIDEOS_TAB_INDEX,
+  );
   const { data: profileData } = useProfile(isOwner ? null : userId);
   const { mutate: mutateRequestFollow } = useRequestFollow();
   const { mutate: mutateUnfollow } = useUnfollow();
@@ -96,11 +105,11 @@ export default function Profile() {
           alt="preview"
           width={128}
           height={128}
-          className="size-32 rounded-full mx-auto object-cover"
+          className="size-100 mt-5 rounded-full mx-auto object-cover"
         />
         <Button
           type="button"
-          className="btn-primary mt-4 px-6"
+          className="btn-primary mt-1 px-6"
           onClick={async () => {
             hidePopup();
             await uploadImage(file, previewURL, {
@@ -191,6 +200,11 @@ export default function Profile() {
             fetchPostsUser={fetchPostsUser}
             hasMorePosts={hasMorePosts}
             pictures={pictures}
+            fetchPictures={fetchPictures}
+            hasMorePictures={hasMorePictures}
+            videos={videos}
+            fetchVideos={fetchVideos}
+            hasMoreVideos={hasMoreVideos}
           // followers={followers}
           />
         </div>

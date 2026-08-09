@@ -5,4 +5,5 @@ export const profileKeys = {
   followers: (userId: string) => ["profile", "followers", userId] as const,
   following: (userId: string) => ["profile", "following", userId] as const,
   attachments: (userId: string) => ["profile", "attachments", userId] as const,
+  attachmentImage: (resourceType: string) => ["profile", "attachmentImage", resourceType] as const,
 } as const;

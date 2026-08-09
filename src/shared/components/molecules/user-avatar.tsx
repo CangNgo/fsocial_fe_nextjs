@@ -26,7 +26,7 @@ export function UserAvatar({
 
   return (
     <Avatar className={className} onClick={onClick}>
-      <Image alt="avatar" width={0} height={0} className="w-full h-full object-cover" sizes="100" src={src} />
+      <Image alt="avatar" width={0} height={0} className="w-full h-full object-cover" sizes="200" src={src} />
       {!src && (
         <AvatarFallback className={cn("text-[11px] absolute font-medium transition", fallbackClassName)}>
           {fallback}

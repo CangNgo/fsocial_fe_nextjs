@@ -42,7 +42,7 @@ export function NavMoreMenu({ inMobile, setPopoverOpen }: NavMoreMenuProps) {
   return (
     <>
       <Link
-        href={!isInSetting ? ROUTES.SETTING.ACCOUNT_BASIC : "#"}
+        href={!isInSetting ? ROUTES.SETTING.ROOT : "#"}
         className={navMoreClass}
         onClick={() => setPopoverOpen(false)}
       >

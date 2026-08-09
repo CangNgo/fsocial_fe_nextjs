@@ -52,8 +52,8 @@ export function Sidebar() {
 
   const [menuOpen, setMenuOpen] = useState(false);
   const { showPopup } = usePopupStore();
-  const newMessage = useMessageStore((s) => s.newMessage);
-  const { data: unReadNotification } = useUnreadNotification()
+  const newMessage = useMessageStore((s) => s.incomingMessage);
+  const { data: unReadNotification } = useUnreadNotification();
 
   const handleNavigate = (href: string) => {
     closeNoti();

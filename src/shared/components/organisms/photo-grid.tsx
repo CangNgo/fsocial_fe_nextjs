@@ -1,6 +1,7 @@
 import { computeLayout } from "@/shared/hooks/compute-layout";
 import { LayoutSlot, PhotoGridConfig } from "@/shared/types/grid-layout";
 import { MediaResponse, MediaType } from "@/shared/types/post";
+import { Play } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 import { Image } from "../atoms/image";
 
@@ -42,6 +43,9 @@ interface CellProps {
 function PhotoCell({ slot, index, eager = false, onImageClick }: CellProps) {
   const { media, colSpan, rowSpan, height, showMore } = slot;
   const isClickable = !!onImageClick;
+  // Trong lightbox context (isClickable), video chỉ nên tự play khi mở lightbox,
+  // không phải ở item grid — nên render thumbnail tĩnh (muted, không controls) thay vì <Image type=video>.
+  const isVideoThumb = isClickable && media.type === MediaType.VIDEO;
 
   return (
     <div
@@ -57,38 +61,67 @@ function PhotoCell({ slot, index, eager = false, onImageClick }: CellProps) {
       }}
       onClick={() => onImageClick?.(media, index)}
     >
-      <Image
-        src={media.url}
-        type={media.type}
-        alt=""
-        loading={eager ? "eager" : "lazy"}
-        fetchPriority={eager ? "high" : undefined}
-        width={0}
-        height={0}
-        sizes="(max-width: 640px) 100vw, 640px"
-        style={{
-          width: "100%",
-          height: "100%",
-          objectFit: "cover",
-          justifyItems: "center",
-          // object-position: center top → giữ khuôn mặt khi crop portrait
-          objectPosition:
-            media.layoutType === "PORTRAIT" ? "center top" : "center center",
-          display: "block",
-          transition: isClickable ? "transform 0.25s ease" : undefined,
-          // Video thumbnail: chặn click vào native controls tự toggle play nền,
-          // để click luôn đi qua onImageClick mở lightbox.
-          pointerEvents: isClickable && media.type === MediaType.VIDEO ? "none" : undefined,
-        }}
-        onMouseEnter={(e) => {
-          if (isClickable)
-            (e.currentTarget as HTMLImageElement).style.transform = "scale(1.04)";
-        }}
-        onMouseLeave={(e) => {
-          if (isClickable)
-            (e.currentTarget as HTMLImageElement).style.transform = "scale(1)";
-        }}
-      />
+      {isVideoThumb ? (
+        // eslint-disable-next-line jsx-a11y/media-has-caption
+        <video
+          src={media.url}
+          muted
+          preload="metadata"
+          style={{
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            objectPosition: media.layoutType === "PORTRAIT" ? "center top" : "center center",
+            display: "block",
+          }}
+        />
+      ) : (
+        <Image
+          src={media.url}
+          type={media.type}
+          alt=""
+          loading={eager ? "eager" : "lazy"}
+          fetchPriority={eager ? "high" : undefined}
+          width={0}
+          height={0}
+          sizes="(max-width: 640px) 100vw, 640px"
+          style={{
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            justifyItems: "center",
+            // object-position: center top → giữ khuôn mặt khi crop portrait
+            objectPosition:
+              media.layoutType === "PORTRAIT" ? "center top" : "center center",
+            display: "block",
+            transition: isClickable ? "transform 0.25s ease" : undefined,
+          }}
+          onMouseEnter={(e) => {
+            if (isClickable)
+              (e.currentTarget as HTMLImageElement).style.transform = "scale(1.04)";
+          }}
+          onMouseLeave={(e) => {
+            if (isClickable)
+              (e.currentTarget as HTMLImageElement).style.transform = "scale(1)";
+          }}
+        />
+      )}
+
+      {/* Overlay play icon cho video thumbnail */}
+      {isVideoThumb && (
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            background: "rgba(0, 0, 0, 0.2)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <Play className="size-8 fill-white stroke-white" />
+        </div>
+      )}
 
       {/* Overlay "+N" ở ô cuối khi có ảnh ẩn */}
       {showMore && showMore > 0 && (

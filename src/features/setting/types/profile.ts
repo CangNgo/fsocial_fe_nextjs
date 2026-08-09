@@ -3,9 +3,7 @@ export interface ProfileInfo {
   lastName: string;
   bio: string;
   gender: string;
-  day: string;
-  month: string;
-  year: string;
+  dob: Date | undefined;
   address: string;
 }
 

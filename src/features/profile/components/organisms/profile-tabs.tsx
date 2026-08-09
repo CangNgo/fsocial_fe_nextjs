@@ -14,7 +14,7 @@ import {
   CarouselContent,
   CarouselItem,
 } from "@/shared/components/ui/carousel";
-import type { AttachmentsResponse } from "@/shared/types/attachments";
+import type { AttachmentMediaResponse } from "@/shared/types/attachments";
 import type { ProfileFollower } from "../../types/profile-tabs";
 import { ProfileFollowerGrid } from "../molecules/profile-follower-grid";
 import { ProfilePictureGrid } from "../molecules/profile-picture-grid";
@@ -36,7 +36,12 @@ interface ProfileTabsProps {
   fetchPostsUser: () => void;
   hasMorePosts?: boolean;
   postListStore?: PostCardStore;
-  pictures: AttachmentsResponse[];
+  pictures: AttachmentMediaResponse[];
+  fetchPictures?: () => void;
+  hasMorePictures?: boolean;
+  videos: AttachmentMediaResponse[];
+  fetchVideos?: () => void;
+  hasMoreVideos?: boolean;
   followers?: ProfileFollower[];
 }
 
@@ -49,19 +54,26 @@ export function ProfileTabs({
   fetchPostsUser,
   hasMorePosts,
   pictures,
+  fetchPictures,
+  hasMorePictures,
+  videos,
+  fetchVideos,
+  hasMoreVideos,
   followers,
 }: ProfileTabsProps) {
   return (
     <div className="mt-8 flex flex-col gap-2">
-      <div className="border-t flex bg-background transition">
+      <div className="flex bg-background transition">
         {(isOwner ? listTabs : listTabs.slice(0, 4)).map((tab, index) => (
           <Button
             type="button"
             key={tab.label}
-            variant="outline"
-            className={`flex-grow flex items-center justify-center gap-1 px-1 sm:py-1 py-3 ${currentTab === index
-              ? "text-primary-text fill-primary-text stroke-primary-text border-primary-text"
-              : "text-gray fill-gray stroke-gray border-background"
+            variant={"outline"}
+            className={`grow flex items-center justify-center gap-1 px-1 sm:py-1 py-3 
+                cursor-pointer border-0 rounded-none
+              ${currentTab === index
+                ? "text-primary-text fill-primary-text stroke-primary-text border-primary-text border-bottom-faded"
+                : "text-gray fill-gray stroke-gray border-background"
               }`}
             onClick={() => onTabClick(index)}
           >
@@ -85,14 +97,20 @@ export function ProfileTabs({
 
           {/* Tab 1: Pictures */}
           <CarouselItem className="pl-0 grid grid-cols-3 gap-[1px]">
-            <ProfilePictureGrid pictures={pictures} />
+            <ProfilePictureGrid
+              pictures={pictures}
+              fetchPictures={fetchPictures}
+              hasMorePictures={hasMorePictures}
+            />
           </CarouselItem>
 
           {/* Tab 2: Videos */}
           <CarouselItem className="pl-0 grid grid-cols-3 gap-[1px]">
-            <div className="col-span-3 text-center text-gray-light mt-32">
-              Tính năng đang phát triển
-            </div>
+            <ProfilePictureGrid
+              pictures={videos}
+              fetchPictures={fetchVideos}
+              hasMorePictures={hasMoreVideos}
+            />
           </CarouselItem>
 
           {/* Tab 3: Followers */}

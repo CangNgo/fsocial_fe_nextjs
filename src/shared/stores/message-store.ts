@@ -1,109 +1,62 @@
 "use client";
-import { Client, type StompSubscription } from "@stomp/stompjs";
+import { Client } from "@stomp/stompjs";
 import { create } from "zustand";
-import { ownerAccountStore } from "./owner-account-store";
-
-interface Message {
-  id: string;
-  conversationId: string;
-  senderId: string;
-  receiverId?: string;
-  content: string;
-  createAt: string;
-  type?: string;
-}
-
-interface Conversation {
-  id: string;
-  receiverId: string;
-  [key: string]: unknown;
-}
+import type { Message } from "@/shared/types/message";
+import { getCookie } from "@/shared/utils/cookie";
 
 interface MessageStore {
-  ready: boolean;
   messages: Message[] | null;
-  conversation: Conversation | null;
+  activeConversationId: string | null;
   stompClientMessage: Client | null;
-  subscription: StompSubscription[] | null;
-  newMessage: Message | null;
+  incomingMessage: Message | null;
 
-  setReady: (ready: boolean) => void;
   setMessages: (messages: Message[] | null) => void;
-  setConversation: (conversation: Conversation | null) => void;
-  connectMessageWebSocket: (userId: string) => void;
-  setSubscription: (conversationId: string) => void;
+  appendMessage: (message: Message) => void;
+  setActiveConversationId: (conversationId: string | null) => void;
+  connectMessageWebSocket: () => void;
   cleanMessageWebSocket: () => void;
-  sendMessage: (content: string, id?: string) => void;
-  setNewMessage: (newMessage: Message | null) => void;
+  sendMessage: (conversationId: string, content: string) => void;
+  setIncomingMessage: (message: Message | null) => void;
 }
 
 export const useMessageStore = create<MessageStore>()((set, get) => ({
-  ready: false,
   messages: null,
-  conversation: null,
+  activeConversationId: null,
   stompClientMessage: null,
-  subscription: null,
-  newMessage: null,
+  incomingMessage: null,
 
-  setReady: (ready) => set({ ready }),
   setMessages: (messages) => set({ messages }),
-  setConversation: (conversation) => set({ conversation }),
+  appendMessage: (message) =>
+    set((state) => ({ messages: [...(state.messages ?? []), message] })),
+  setActiveConversationId: (conversationId) => set({ activeConversationId: conversationId }),
 
-  connectMessageWebSocket: (userId) => {
-    const { stompClientMessage } = get();
-    if (stompClientMessage) return;
+  connectMessageWebSocket: () => {
+    if (get().stompClientMessage) return;
 
     const wsHost =
-      process.env.NEXT_PUBLIC_WS_HOST_MESSAGE ??
-      process.env.NEXT_PUBLIC_WS_HOST ??
-      "localhost:8888";
+      process.env.NEXT_PUBLIC_WS_HOST_MESSAGE ?? process.env.NEXT_PUBLIC_WS_HOST ?? "localhost:8080";
     const wsProtocol = process.env.NEXT_PUBLIC_WS_PROTOCOL ?? "ws";
-    const messageBaseURL = `${wsProtocol}://${wsHost}/ws`;
+    const apiVersion = process.env.NEXT_PUBLIC_API_VERSION ?? "api/v1";
+    const messageBaseURL = `${wsProtocol}://${wsHost}/${apiVersion}/ws`;
+    const token = getCookie("access-token");
 
     const client = new Client({
       brokerURL: messageBaseURL,
+      connectHeaders: token ? { Authorization: `Bearer ${token}` } : {},
       reconnectDelay: 10000,
       onConnect: () => {
-        client.subscribe(`/queue/private-${userId}`, (message) => {
-          const receivedMessage = JSON.parse(message.body) as Message;
-          get().setNewMessage(receivedMessage);
+        client.subscribe("/user/queue/messages", (frame) => {
+          const receivedMessage = JSON.parse(frame.body) as Message;
+          const { activeConversationId } = get();
+          if (receivedMessage.conversationId === activeConversationId) {
+            get().appendMessage(receivedMessage);
+          }
+          get().setIncomingMessage(receivedMessage);
         });
-        set({ stompClientMessage: client });
       },
     });
     client.activate();
-  },
-
-  setSubscription: (conversationId) => {
-    const userId = ownerAccountStore.getState().user.id;
-    const { subscription, stompClientMessage } = get();
-
-    if (!stompClientMessage?.connected) {
-      return;
-    }
-
-    if (subscription) {
-      subscription.forEach((sub) => {
-        sub.unsubscribe();
-      });
-    }
-
-    const subTriggerMessage = stompClientMessage.subscribe(
-      `/queue/private-${conversationId}`,
-      (message) => {
-        const receivedMessage = JSON.parse(message.body) as Message;
-        if (receivedMessage.receiverId !== userId) return;
-        const currentMessages = get().messages ?? [];
-        set({ messages: [...currentMessages, receivedMessage] });
-      },
-    );
-
-    const subTriggerSideAction = stompClientMessage.subscribe(
-      `/queue/actions-${conversationId}`,
-      () => {},
-    );
-
-    set({ subscription: [subTriggerMessage, subTriggerSideAction] });
+    set({ stompClientMessage: client });
   },
 
   cleanMessageWebSocket: () => {
@@ -111,29 +64,23 @@ export const useMessageStore = create<MessageStore>()((set, get) => ({
     if (!stompClientMessage) return;
     stompClientMessage.deactivate().then(() => {
       set({
-        ready: false,
         messages: null,
-        conversation: null,
+        activeConversationId: null,
         stompClientMessage: null,
-        subscription: null,
-        newMessage: null,
+        incomingMessage: null,
       });
     });
   },
 
-  sendMessage: (content, id) => {
-    const { stompClientMessage, conversation } = get();
-    if (!stompClientMessage?.connected || !conversation) return;
+  sendMessage: (conversationId, content) => {
+    const { stompClientMessage } = get();
+    if (!stompClientMessage?.connected) return;
 
     stompClientMessage.publish({
-      destination: "/app/chat.private",
-      body: JSON.stringify({
-        receiverId: conversation.receiverId,
-        conversationId: id ?? conversation.id,
-        content,
-      }),
+      destination: "/app/chat.send",
+      body: JSON.stringify({ conversationId, content, messageType: "TEXT" }),
     });
   },
 
-  setNewMessage: (newMessage) => set({ newMessage }),
+  setIncomingMessage: (incomingMessage) => set({ incomingMessage }),
 }));

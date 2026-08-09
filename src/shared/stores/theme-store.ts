@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
-type Theme = "light" | "dark";
+type Theme = "system" | "light" | "dark";
 
 interface ThemeStore {
   theme: Theme;
@@ -12,10 +12,14 @@ const safeStorage =
   typeof window !== "undefined"
     ? createJSONStorage(() => localStorage)
     : createJSONStorage(() => ({
-        getItem: () => null,
-        setItem: () => {},
-        removeItem: () => {},
-      }));
+      getItem: () => null,
+      setItem: () => { },
+      removeItem: () => { },
+    }));
+
+const initialState = { 
+  theme: "system" as Theme
+}
 
 export const useThemeStore = create<ThemeStore>()(
   persist(

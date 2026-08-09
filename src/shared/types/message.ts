@@ -1,30 +1,28 @@
-export interface LastMessage {
-  content: string;
-  read: boolean;
-  createAt: string;
-}
+export type ConversationType = "DIRECT" | "GROUP";
 
-export interface Conversation {
-  id: string;
-  firstName?: string;
-  lastName?: string;
+export type MessageType = "TEXT" | "IMAGE" | "VIDEO" | "FILE" | "SYSTEM";
+
+export interface ConversationMemberSnapshot {
+  userId: string;
+  displayName?: string;
   avatar?: string;
-  receiverId?: string;
-  lastMessage?: LastMessage;
-  [key: string]: unknown;
 }
 
 export interface Message {
   id: string;
   conversationId: string;
   senderId: string;
-  receiverId?: string;
   content: string;
-  createAt: string;
-  type?: string;
-  read?: boolean;
+  messageType: MessageType;
+  replyToId?: string;
+  createdAt: string;
 }
 
-export interface MessagesThread {
-  listMessages?: Message[];
+export interface Conversation {
+  id: string;
+  type: ConversationType;
+  name?: string;
+  avatarUrl?: string;
+  members: ConversationMemberSnapshot[];
+  lastMessage?: Message;
 }

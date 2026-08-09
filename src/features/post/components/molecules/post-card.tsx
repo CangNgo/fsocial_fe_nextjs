@@ -101,7 +101,7 @@ function PostCardComponent({
           <div className="flex items-center gap-2">
             <Button
               variant={"outline"}
-              className="flex items-center sm:gap-2 gap-1 cursor-pointer hover:bg-transparent"
+              className="flex items-center sm:gap-2 gap-1 cursor-pointer hover:bg-transparent border-none shadow-none"
               onClick={handleLike}
             >
               <HeartPostIcon compareVar={liked} />
@@ -110,7 +110,7 @@ function PostCardComponent({
 
             <Button
               variant={"outline"}
-              className="flex items-center sm:gap-2 gap-1 cursor-pointer hover:bg-transparent"
+              className="flex items-center sm:gap-2 gap-1 cursor-pointer hover:bg-transparent border-none shadow-none"
               onClick={() => showCommentPopup()}
             >
               <CommentPostIcon />
@@ -121,7 +121,7 @@ function PostCardComponent({
           <div className="flex items-center gap-2">
             <Button
               variant={"outline"}
-              className="flex items-center sm:gap-2 gap-1 cursor-pointer hover:bg-transparent"
+              className="flex items-center sm:gap-2 gap-1 cursor-pointer hover:bg-transparent border-none shadow-none"
               onClick={showRepostPopup}
             >
               <RepostPostIcon />

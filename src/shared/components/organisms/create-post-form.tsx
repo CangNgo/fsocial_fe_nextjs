@@ -213,7 +213,7 @@ export default function CreatePostForm() {
 
                   <div className="relative">
                     {previewCount > 0 && (
-                      <div className="max-h-[70vh] overflow-hidden px-3">
+                      <div className="max-h-[90vh] max-w-140 overflow-hidden px-3 flex justify-center">
                         <PhotoGrid media={filePreviews} rounded={8} className=" " />
                       </div>
                     )}

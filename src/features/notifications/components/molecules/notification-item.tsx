@@ -1,4 +1,5 @@
 import { UserAvatar } from "@/shared/components/molecules/user-avatar";
+import { ROUTES } from "@/shared/config/routes";
 import { cn } from "@/shared/lib/utils";
 import { popupExpandNoti3DotStore, popupNotificationtStore } from "@/shared/stores/popup-store";
 import { Notification, NotificationType } from "@/shared/types/notification";
@@ -80,7 +81,7 @@ export const NotificationsItem = ({ notification }: NotificationsItemProps) => {
     >
       <div className={`flex items-center gap-2`} onClick={notiClicked}>
         <div className={`relative min-h-10`}>
-          <Link href={`/profile?id=${notification.id}`}>
+          <Link href={ROUTES.PROFILE(notification.actor.userId)}>
             <UserAvatar
               src={notification.actor.avatar}
               displayName={notification.actor.displayName}

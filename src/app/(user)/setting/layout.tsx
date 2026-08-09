@@ -2,9 +2,9 @@ import { SettingNav } from "@/shared/components/organisms/setting-nav";
 
 export default function SettingLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen p-4">
       <SettingNav />
-      <main className="flex-1 p-6">{children}</main>
+      <main className="flex-1 px-6 pb-6">{children}</main>
     </div>
   );
 }
