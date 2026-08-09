@@ -2,6 +2,7 @@
 
 import { getPost } from "@/services/posts/posts-api";
 import { ownerAccountStore } from "@/shared/stores/owner-account-store";
+import { PostResponse } from "@/shared/types/post";
 import { useEffect, useMemo, useState } from "react";
 
 interface PostModalStoreState {
@@ -21,21 +22,23 @@ interface UsePostForModalOptions {
 export function usePostForModal({ id, store }: UsePostForModalOptions) {
   const user = ownerAccountStore.getState().user;
   const storeApi = useMemo(() => store as PostModalStore | undefined, [store]);
-  const [post, setPost] = useState<Record<string, unknown> | null>(null);
+  const [post, setPost] = useState<PostResponse | null>(null);
 
   useEffect(() => {
     const found = storeApi?.getState?.()?.findPost?.(id);
     if (found) {
       queueMicrotask(() => {
-        setPost(found as Record<string, unknown>);
+        setPost(found as PostResponse);
       });
       return;
     }
+    const fetchPost = async () => {
+      const res = await getPost(user.id ?? "", id)
+      setPost(res?.data as PostResponse);
+    }
 
-    getPost(user.id ?? "", id).then((resp: unknown) => {
-      const response = resp as { statusCode?: number; data?: unknown };
-      if (response?.statusCode === 200) setPost(response.data as Record<string, unknown>);
-    });
+    fetchPost()
+
   }, [user.id, storeApi, id]);
 
   const updateStoredPost = (props: unknown) => {

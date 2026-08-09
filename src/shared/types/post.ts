@@ -7,10 +7,9 @@ export interface MediaResponse {
   layoutType: MediaLayoutType;
 }
 
-export interface PostContent {
+export interface ContentResponse {
   text?: string;
   html?: string;
-  htmltext?: string;
   media?: MediaResponse[];
 }
 
@@ -18,7 +17,7 @@ export interface PostResponse {
   id: string;
   userId: string;
   originPostId: string | null;
-  content: PostContent;
+  content: ContentResponse;
   countLikes: number;
   countComments: number;
   displayName: string;
@@ -28,6 +27,7 @@ export interface PostResponse {
   like: boolean;
   status: boolean;
   tags: string[];
+  postOriginResponse: PostResponse;
 }
 
 export interface PostsResponse {
@@ -50,6 +50,6 @@ export enum MediaLayoutType {
 export interface CreatePost {
   userId: string;
   text: string;
-  htmltext: string;
+  html: string;
   media: File[];
 }

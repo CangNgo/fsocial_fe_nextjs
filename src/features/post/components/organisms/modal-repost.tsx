@@ -29,7 +29,7 @@ export function ModalRepost({ id, store }: ModalRepostProps) {
     const formData = new FormData();
     formData.append("userId", user?.id ?? "");
     formData.append("text", content);
-    formData.append("HTMLText", content);
+    formData.append("html", content);
     formData.append("originPostId", id);
     const resp = (await repostPost(formData)) as { statusCode?: number } | null;
     setSubmitClicked(false);
@@ -52,18 +52,12 @@ export function ModalRepost({ id, store }: ModalRepostProps) {
         <Textarea
           ref={textbox}
           placeholder="Hãy viết gì đó..."
-          className="min-h-[80px] py-2 resize-none"
+          className="min-h-20 resize-none border-0 shadow-none focus-visible:ring-0"
           value={content}
           onChange={(e) => setContent(e.target.value)}
           autoFocus
         />
 
-        {post && (
-          <div className="border rounded-lg p-3 text-sm text-muted-foreground">
-            <p className="font-semibold">{post.displayName as string}</p>
-            <p className="mt-1">{post.text as string}</p>
-          </div>
-        )}
       </div>
 
       <div className="sticky bottom-0 p-3 bg-background border-t">

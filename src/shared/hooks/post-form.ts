@@ -6,7 +6,7 @@ export const createPostFormData = (createPost: CreatePost) => {
     formData.append("userId", createPost.userId);
   }
   formData.append("text", createPost.text);
-  formData.append("HTMLText", createPost.htmltext);
+  formData.append("html", createPost.html);
   createPost.media.forEach((file) => {
     formData.append("media", file);
   });

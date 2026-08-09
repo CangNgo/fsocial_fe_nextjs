@@ -4,18 +4,12 @@ import {
   CommentPostIcon,
   HeartPostIcon,
   RepostPostIcon,
-  SharePostIcon,
-  TrashCanIcon,
+  SharePostIcon
 } from "@/shared/components/atoms/icon/icon";
-import { UserAvatar } from "@/shared/components/molecules/user-avatar";
 import { PhotoGrid } from "@/shared/components/organisms/photo-grid";
 import { Button } from "@/shared/components/ui/button";
-import { Popover, PopoverContent, PopoverTrigger } from "@/shared/components/ui/popover";
 import { cn } from "@/shared/lib/utils";
-import { MediaType } from "@/shared/types/post";
-import { timeAgo } from "@/shared/utils/convert-date-time";
-import { Ellipsis, MessageSquareWarning, Pen } from "lucide-react";
-import Link from "next/link";
+import { MediaType, PostResponse } from "@/shared/types/post";
 import type { Dispatch, SetStateAction } from "react";
 import { memo, useState } from "react";
 import Lightbox from "yet-another-react-lightbox";
@@ -27,153 +21,81 @@ import {
   usePostCardActions,
 } from "../../hooks/use-post-card-actions";
 import { PostMediaCarousel } from "../organisms/post-media-carousel";
+import { PostCardHeader } from "./post-card-header";
+import ShowContent from "./show-content";
 
 export interface PostCardProps {
-  post: PostCardPost;
+  post: PostResponse;
   setPost?: Dispatch<SetStateAction<PostCardPost>>;
-  isChildren?: boolean;
   showReact?: boolean;
   className?: string;
-  /** Optional Zustand store with updatePost action. If omitted no store updates happen. */
   store?: PostCardStore;
-  isShared?: boolean;
   allowCarousel?: boolean;
   initialMediaIndex?: number;
-  /** Above-the-fold post (eg. first in feed) — eager-load media for LCP */
   priority?: boolean;
 }
 
 function PostCardComponent({
   post,
   setPost,
-  isChildren = false,
   showReact = true,
   className = "",
   store,
-  isShared = false,
   allowCarousel = false,
   initialMediaIndex,
   priority = false,
 }: PostCardProps) {
   const {
-    user,
     liked,
-    popoverOpen,
-    setPopoverOpen,
     showCommentPopup,
     showRepostPopup,
-    handlePopupReport,
-    handlePopupEdit,
-    handlePopupDelete,
     handleLike,
   } = usePostCardActions({ post, setPost, store });
 
+  const originPost: PostResponse = post.postOriginResponse;
+
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
-  const media = post.content?.media ?? [];
+  const media = (post?.share ? originPost.content.media : post.content.media) || [];
 
   return (
     <article className={cn(className, "transition p-2")}>
-      <div className={cn("flex items-center justify-between px-4 pt-4 pb-1", isShared && "px-6")}>
-        <div className="flex space-x-2">
-          <Link href={`/profile?id=${post.userId}`}>
-            <UserAvatar
-              src={post.avatar}
-              displayName={post.displayName}
-              className={cn("size-9", isShared && "size-8")}
+      {post?.share && (
+        <div className="">
+          <PostCardHeader post={post} setPost={setPost} store={store} />
+          <ShowContent content={post.content} />
+        </div>
+      )}
+      <div className={`${post?.share && ("p-2 pt-0 rounded-2xl border max-w-[96%] mx-auto")}`}>
+        <PostCardHeader post={post.share ? originPost : post} setPost={setPost} store={store} />
+        <div >
+          <ShowContent content={post.share ? originPost.content : post.content} />
+          {allowCarousel ? (
+            <PostMediaCarousel
+              media={media}
+              initialIndex={initialMediaIndex ?? 0}
             />
-          </Link>
-          <div className="flex flex-col justify-center">
-            <Link href={`/profile?id=${post.userId}`} className="font-semibold">
-              {post.displayName ?? ""}
-            </Link>
-            <span className="text-gray fs-xs">{timeAgo(post.createDatetime)}</span>
-          </div>
+          ) : (
+            <PhotoGrid
+              media={media}
+              priority={priority}
+              onImageClick={(_, index) => setLightboxIndex(index)}
+            />
+          )}
         </div>
 
-        <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
-          <PopoverTrigger className={cn("btn-transparent w-fit px-2 py-2", isChildren && "hidden")}>
-            <Ellipsis className="size-5" />
-          </PopoverTrigger>
-          <PopoverContent
-            side="left"
-            align="start"
-            sideOffset={20}
-            className="z-10 bg-background w-52 shadow-2xl p-2"
-          >
-            {post.userId !== user?.id && (
-              <Button
-                variant={"outline"}
-                className="btn-transparent justify-start py-2 ps-3 text-nowrap gap-3 w-full flex items-center"
-                onClick={handlePopupReport}
-              >
-                <MessageSquareWarning className="size-5" /> Báo cáo
-              </Button>
-            )}
-            {post.userId === user?.id && (
-              <Button
-                type="button"
-                variant={"outline"}
-                className="btn-transparent justify-start text-nowrap py-2 ps-3 gap-3 w-full flex items-center"
-                onClick={handlePopupEdit}
-              >
-                <Pen className="size-5" strokeWidth={1.6} /> Chỉnh sửa
-              </Button>
-            )}
-            {post.userId === user?.id && (
-              <Button
-                type="button"
-                variant={"outline"}
-                className="btn-transparent justify-start py-2 ps-3 text-nowrap gap-3 w-full flex items-center"
-                onClick={handlePopupDelete}
-              >
-                <TrashCanIcon className="size-5" /> Xóa bài
-              </Button>
-            )}
-          </PopoverContent>
-        </Popover>
+        <Lightbox
+          open={lightboxIndex !== null}
+          close={() => setLightboxIndex(null)}
+          index={lightboxIndex ?? 0}
+          plugins={[Video]}
+          video={{ autoPlay: true }}
+          slides={media.map((m) =>
+            m.type === MediaType.VIDEO
+              ? { type: "video" as const, sources: [{ src: m.url, type: "video/mp4" }] }
+              : { src: m.url },
+          )}
+        />
       </div>
-
-      <div >
-        {post.content?.htmltext && post.content.htmltext !== "null" ? (
-          <div
-            className={cn("px-5 mb-1.5", isShared && "px-7")}
-            dangerouslySetInnerHTML={{ __html: post.content.htmltext }}
-          />
-        ) : (
-          post.content?.text &&
-          post.content.text !== "null" && (
-            <div className={cn("px-5 mb-1.5 whitespace-pre-wrap", isShared && "px-7")}>
-              {post.content.text}
-            </div>
-          )
-        )}
-        {allowCarousel ? (
-          <PostMediaCarousel
-            media={post.content?.media ?? []}
-            initialIndex={initialMediaIndex ?? 0}
-          />
-        ) : (
-          <PhotoGrid
-            media={post.content?.media ?? []}
-            priority={priority}
-            onImageClick={(_, index) => setLightboxIndex(index)}
-          />
-        )}
-      </div>
-
-      <Lightbox
-        open={lightboxIndex !== null}
-        close={() => setLightboxIndex(null)}
-        index={lightboxIndex ?? 0}
-        plugins={[Video]}
-        video={{ autoPlay: true }}
-        slides={media.map((m) =>
-          m.type === MediaType.VIDEO
-            ? { type: "video" as const, sources: [{ src: m.url, type: "video/mp4" }] }
-            : { src: m.url },
-        )}
-      />
-
       {showReact && (
         <div className="px-4 sm:py-2 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -183,7 +105,7 @@ function PostCardComponent({
               onClick={handleLike}
             >
               <HeartPostIcon compareVar={liked} />
-              <span className="sm:block hidden">{post.countLikes}</span>
+              <span className="sm:block hidden">{post.countLikes || originPost?.countLikes}</span>
             </Button>
 
             <Button
@@ -192,7 +114,7 @@ function PostCardComponent({
               onClick={() => showCommentPopup()}
             >
               <CommentPostIcon />
-              <span className="sm:block hidden">{post.countComments}</span>
+              <span className="sm:block hidden">{post.countComments || originPost?.countComments}</span>
             </Button>
           </div>
 

@@ -1,5 +1,6 @@
 "use client";
 
+import { PostEditor } from "@/features/editor/preset/post-editor";
 import { createPost } from "@/services/posts/posts-api";
 import {
   ArrowLeftIcon,
@@ -14,14 +15,13 @@ import { Button } from "@/shared/components/ui/button";
 import type { CarouselApi } from "@/shared/components/ui/carousel";
 import { Carousel, CarouselContent, CarouselItem } from "@/shared/components/ui/carousel";
 import { Input } from "@/shared/components/ui/input";
-import { Textarea } from "@/shared/components/ui/textarea";
 import { createPostFormData } from "@/shared/hooks/post-form";
 import { cn } from "@/shared/lib/utils";
 import { ownerAccountStore } from "@/shared/stores/owner-account-store";
 import { usePopupStore } from "@/shared/stores/popup-store";
 import { MediaLayoutType, MediaResponse, MediaType } from "@/shared/types/post";
 import { convertImageToPng } from "@/shared/utils/convert-image-to-png";
-import { X } from "lucide-react";
+import { ImageIcon, X } from "lucide-react";
 import type React from "react";
 import { useLayoutEffect, useRef, useState } from "react";
 import { toast } from "sonner";
@@ -64,9 +64,8 @@ export default function CreatePostForm() {
   const [filePreviews, setFilePreviews] = useState<MediaResponse[]>([]);
   const [submitClicked, setSubmitClicked] = useState(false);
   const [carouselApi, setCarouselApi] = useState<CarouselApi>();
-  const [content, setContent] = useState("");
-
-  const textboxRef = useRef<HTMLTextAreaElement>(null);
+  const [text, setText] = useState("");
+  const [html, setHtml] = useState("");
 
   const [activeIndex, setActiveIndex] = useState(0);
   const [wrapperHeight, setWrapperHeight] = useState<number>();
@@ -140,8 +139,8 @@ export default function CreatePostForm() {
     setSubmitClicked(true);
     const resp = await createPost(createPostFormData({
       userId: user?.id ?? "",
-      text: content,
-      htmltext: content,
+      text,
+      html,
       media: fileUploads,
     }))
     setSubmitClicked(false);
@@ -168,114 +167,121 @@ export default function CreatePostForm() {
           overflow: "hidden",
         }}
       >
-        <Carousel setApi={setCarouselApi}>
+        <Carousel setApi={setCarouselApi} opts={{ watchDrag: false }}>
           <CarouselContent className="items-start">
             <CarouselItem>
               <div
                 ref={(el) => {
                   itemRefs.current[0] = el;
                 }}
-                className="relative overflow-y-auto scrollable-div space-y-2 pt-11 sm:h-full sm:max-h-[90dvh]"
+                className="relative flex flex-col pt-11 sm:h-full sm:max-h-[90dvh]"
               >
-                <div className="flex items-start justify-between px-4 pt-3">
-                  <div className="flex items-center gap-2">
-                    <UserAvatar
-                      src={user?.avatar}
-                      displayName={user?.displayName}
-                      className="size-9"
-                      fallbackClassName="text-[12px]"
-                    />
-                    <div className="flex flex-col justify-center">
-                      <span className="font-semibold">{user?.displayName ?? ""}</span>
+                <div className="flex-1 min-h-0 overflow-y-auto scrollable-div space-y-2">
+                  <div className="flex items-start justify-between px-4 pt-3">
+                    <div className="flex items-center gap-2">
+                      <UserAvatar
+                        src={user?.avatar}
+                        displayName={user?.displayName}
+                        className="size-9"
+                        fallbackClassName="text-[12px]"
+                      />
+                      <div className="flex flex-col justify-center">
+                        <span className="font-semibold">{user?.displayName ?? ""}</span>
+                      </div>
                     </div>
-                  </div>
 
-                  <Button
-                    type="button"
-                    className={cn("btn-primary w-fit", submitClicked && "disable-btn")}
-                    onClick={handleSubmitPost}
-                    disabled={submitClicked}
-                  >
-                    {submitClicked ? <LoadingIcon /> : "Đăng bài"}
-                  </Button>
-                </div>
-
-                <div className="px-4">
-                  <Textarea
-                    ref={textboxRef}
-                    autoFocus
-                    placeholder="Hãy chia sẽ khoảnh khắc của bạn..."
-                    className="min-h-10 resize-none border-0 shadow-none focus-visible:ring-0"
-                    value={content}
-                    onChange={(e) => setContent(e.target.value)}
-                  />
-                </div>
-
-                <div className="relative">
-                  {previewCount > 0 && (
-                    <div className="max-h-[70vh] overflow-hidden px-3">
-                      <PhotoGrid media={filePreviews} rounded={8} className=" " />
-                    </div>
-                  )}
-
-                  <label
-                    htmlFor="create-post-file-upload"
-                    className={cn(
-                      "rounded-md flex items-center justify-center bg-gray-3light",
-                      fileUploads.length === 0
-                        ? "mx-3 cursor-pointer aspect-video"
-                        : "opacity-0 absolute inset-0",
-                    )}
-                    onDragOver={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      e.currentTarget.style.backgroundColor = "var(--gray-2light-clr)";
-                      e.currentTarget.style.opacity = fileUploads.length === 0 ? "0.2" : "0.7";
-                    }}
-                    onDragLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = "";
-                      e.currentTarget.style.opacity = "";
-                    }}
-                    onDrop={async (e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      e.currentTarget.style.backgroundColor = "";
-                      e.currentTarget.style.opacity = "";
-                      const files = e.dataTransfer.files;
-                      if (files.length > 0) {
-                        await handleOnFileChange({ target: { files } } as {
-                          target: { files: FileList };
-                        });
-                      }
-                    }}
-                  >
-                    <div className="flex flex-col items-center pointer-events-none">
-                      <UploadDecorIcon className="size-24 text-gray-clr" />
-                      <span>Chọn hoặc kéo thả ảnh/video vào đây</span>
-                    </div>
-                    <Input
-                      type="file"
-                      id="create-post-file-upload"
-                      onChange={handleOnFileChange}
-                      onClick={handleFileInputClick}
-                      hidden
-                      multiple
-                    />
-                  </label>
-
-                  {previewCount > 0 && (
                     <Button
                       type="button"
-                      className="btn-secondary absolute left-5 top-2 z-10 h-fit w-fit border px-3 py-1 shadow-md"
-                      onClick={() => scrollToItem(1)}
+                      className={cn("btn-primary w-fit", submitClicked && "disable-btn")}
+                      onClick={handleSubmitPost}
+                      disabled={submitClicked}
                     >
-                      <PencilChangeImageIcon /> Chỉnh sửa
+                      {submitClicked ? <LoadingIcon /> : "Đăng bài"}
                     </Button>
-                  )}
+                  </div>
+
+                  <div className="px-4">
+                    <PostEditor
+                      content={text}
+                      onSave={({ text, html }) => {
+                        setText(text);
+                        setHtml(html);
+                      }}
+                      placeholder="Hôm nay của bạn thế nào ...."
+                    />
+                  </div>
+
+                  <div className="relative">
+                    {previewCount > 0 && (
+                      <div className="max-h-[70vh] overflow-hidden px-3">
+                        <PhotoGrid media={filePreviews} rounded={8} className=" " />
+                      </div>
+                    )}
+
+                    <label
+                      htmlFor="create-post-file-upload"
+                      className={cn(
+                        "rounded-md flex items-center justify-center bg-gray-3light",
+                        fileUploads.length === 0
+                          ? "mx-3 cursor-pointer aspect-video"
+                          : "opacity-0 absolute inset-0",
+                      )}
+                      onDragOver={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        e.currentTarget.style.backgroundColor = "var(--gray-2light-clr)";
+                        e.currentTarget.style.opacity = fileUploads.length === 0 ? "0.2" : "0.7";
+                      }}
+                      onDragLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = "";
+                        e.currentTarget.style.opacity = "";
+                      }}
+                      onDrop={async (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        e.currentTarget.style.backgroundColor = "";
+                        e.currentTarget.style.opacity = "";
+                        const files = e.dataTransfer.files;
+                        if (files.length > 0) {
+                          await handleOnFileChange({ target: { files } } as {
+                            target: { files: FileList };
+                          });
+                        }
+                      }}
+                    >
+                      <div className="flex flex-col items-center pointer-events-none">
+                        <UploadDecorIcon className="size-24 text-gray-clr" />
+                        <span>Chọn hoặc kéo thả ảnh/video vào đây</span>
+                      </div>
+                      <Input
+                        type="file"
+                        id="create-post-file-upload"
+                        onChange={handleOnFileChange}
+                        onClick={handleFileInputClick}
+                        hidden
+                        multiple
+                      />
+                    </label>
+
+                    {previewCount > 0 && (
+                      <Button
+                        type="button"
+                        className="btn-secondary absolute left-5 top-2 z-10 h-fit w-fit border px-3 py-1 shadow-md"
+                        onClick={() => scrollToItem(1)}
+                      >
+                        <PencilChangeImageIcon /> Chỉnh sửa
+                      </Button>
+                    )}
+                  </div>
                 </div>
-                <div className="flex justify-between items-center p-4 h-10">
-                  <span>Thêm vào bài viết của bạn</span>
-                  <div></div>
+
+                <div className="shrink-0 bg-white">
+                  <div className="flex justify-between items-center mx-3 my-1 p-4 h-10 border ">
+                    <span>Thêm vào bài viết của bạn</span>
+                    <label htmlFor="create-post-file-upload" className="cursor-pointer">
+                      <ImageIcon />
+                    </label>
+                  </div>
                 </div>
               </div>
             </CarouselItem>

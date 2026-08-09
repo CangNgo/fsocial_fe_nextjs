@@ -1,9 +1,9 @@
 "use client";
+import { PostEditor } from "@/features/editor/preset/post-editor";
 import { updatePost } from "@/services/posts/posts-api";
 import { LoadingIcon } from "@/shared/components/atoms/icon/icon";
 import { UserAvatar } from "@/shared/components/molecules/user-avatar";
 import { Button } from "@/shared/components/ui/button";
-import { Textarea } from "@/shared/components/ui/textarea";
 import { usePopupStore } from "@/shared/stores/popup-store";
 import { dateTimeToPostTime } from "@/shared/utils/convert-date-time";
 import { useEffect, useRef, useState } from "react";
@@ -19,34 +19,39 @@ interface EditPostModalProps {
 export function EditPostModal({ id, store }: EditPostModalProps) {
   const { hidePopup } = usePopupStore();
   const textbox = useRef<HTMLTextAreaElement>(null);
-  const [content, setContent] = useState("");
+  const [text, setText] = useState("");
+  const [html, setHtml] = useState("");
   const [submitClicked, setSubmitClicked] = useState(false);
+  const [contentLoaded, setContentLoaded] = useState(false);
   const { post, updateStoredPost } = usePostForModal({ id, store });
 
   useEffect(() => {
     if (!post) return;
-    const postContent = post.content as { text?: string; htmltext?: string } | undefined;
+
+    const postContent = post.content as { text?: string; html?: string } | undefined;
     queueMicrotask(() => {
-      setContent(postContent?.text ?? postContent?.htmltext ?? (post.text as string) ?? "");
+      setText(postContent?.text || "");
+      setHtml(postContent?.html || "");
+      setContentLoaded(true);
     });
   }, [post]);
 
   const handleUpdate = async () => {
-    if (!content.trim()) return;
+    if (!text.trim()) return;
 
     setSubmitClicked(true);
     const formData = new FormData();
-    formData.append("text", content);
-    formData.append("HTMLText", content);
+    formData.append("text", text);
+    formData.append("html", html);
     formData.append("postId", id);
-    const resp = (await updatePost(formData)) as { statusCode?: number; data?: unknown } | null;
+    const resp = (await updatePost(formData));
     setSubmitClicked(false);
     if (resp?.statusCode !== 200) {
       toast.error("Cập nhật bài viết thất bại");
       return;
     }
     toast.success("Đã cập nhật bài viết");
-    updateStoredPost({ content: { text: content, htmltext: content } });
+    updateStoredPost({ content: { text, html } });
     hidePopup();
   };
 
@@ -69,14 +74,16 @@ export function EditPostModal({ id, store }: EditPostModalProps) {
           </div>
 
           <div className="px-4">
-            <Textarea
-              ref={textbox}
-              placeholder="Hãy nghĩ gì đó..."
-              className="min-h-[100px] py-2"
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              autoFocus
-            />
+            {contentLoaded && (
+              <PostEditor
+                content={html}
+                onSave={({ text, html }) => {
+                  setText(text);
+                  setHtml(html);
+                }}
+                placeholder="Hôm nay của bạn thế nào ...."
+              />
+            )}
           </div>
         </div>
       )}
