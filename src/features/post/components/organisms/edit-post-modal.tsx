@@ -6,7 +6,7 @@ import { UserAvatar } from "@/shared/components/molecules/user-avatar";
 import { Button } from "@/shared/components/ui/button";
 import { usePopupStore } from "@/shared/stores/popup-store";
 import { dateTimeToPostTime } from "@/shared/utils/convert-date-time";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import type { PostCardStore } from "../../hooks/use-post-card-actions";
 import { usePostForModal } from "../../hooks/use-post-for-modal";
@@ -18,7 +18,6 @@ interface EditPostModalProps {
 
 export function EditPostModal({ id, store }: EditPostModalProps) {
   const { hidePopup } = usePopupStore();
-  const textbox = useRef<HTMLTextAreaElement>(null);
   const [text, setText] = useState("");
   const [html, setHtml] = useState("");
   const [submitClicked, setSubmitClicked] = useState(false);

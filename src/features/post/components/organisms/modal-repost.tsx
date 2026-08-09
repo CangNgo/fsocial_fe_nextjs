@@ -9,20 +9,18 @@ import { usePopupStore } from "@/shared/stores/popup-store";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
 import type { PostCardStore } from "../../hooks/use-post-card-actions";
-import { usePostForModal } from "../../hooks/use-post-for-modal";
 
 interface ModalRepostProps {
   id: string;
   store?: PostCardStore;
 }
 
-export function ModalRepost({ id, store }: ModalRepostProps) {
+export function ModalRepost({ id }: ModalRepostProps) {
   const user = ownerAccountStore.getState().user;
   const { hidePopup } = usePopupStore();
   const textbox = useRef<HTMLTextAreaElement>(null);
   const [submitClicked, setSubmitClicked] = useState(false);
   const [content, setContent] = useState("");
-  const { post } = usePostForModal({ id, store });
 
   const handleRepost = async () => {
     setSubmitClicked(true);
