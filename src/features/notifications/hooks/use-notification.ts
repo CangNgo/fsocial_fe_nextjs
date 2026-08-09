@@ -4,7 +4,7 @@ import { getCookie } from "@/shared/utils/cookie";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 
-export function fetchNotifications(lastItem?: string) {
+export function useNotifications(lastItem?: string) {
   return useInfiniteQuery({
     queryKey: notificationKeys.all,
     queryFn: () => getNotifications({ cursor: lastItem }),
@@ -14,11 +14,11 @@ export function fetchNotifications(lastItem?: string) {
   })
 }
 
-export function fetchUnreadNotification() {
+export function useUnreadNotification() {
   const [hasToken, setHasToken] = useState(false);
 
   useEffect(() => {
-    setHasToken(!!getCookie("access-token"));
+    queueMicrotask(() => setHasToken(!!getCookie("access-token")));
   }, []);
 
   return useQuery({

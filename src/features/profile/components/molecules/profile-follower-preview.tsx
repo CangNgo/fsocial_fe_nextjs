@@ -1,16 +1,10 @@
-
-const MAX_PREVIEW_FRIENDS_AVATAR = 7;
 interface ProfileFollowerPreviewProps {
   followers?: string[];
   onViewAll: () => void;
 }
 
-export function ProfileFollowerPreview({ followers, onViewAll }: ProfileFollowerPreviewProps) {
-
-
-
-  const preview = followers?.slice(0, MAX_PREVIEW_FRIENDS_AVATAR) ?? [];
-
+// ponytail: avatar preview not implemented yet, add when design/data (friend objects, not string[]) is ready
+export function ProfileFollowerPreview({}: ProfileFollowerPreviewProps) {
   return (
     <div className="mt-1 flex -space-x-2">
       {/* {preview.map((friend, index) => (

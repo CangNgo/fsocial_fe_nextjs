@@ -133,7 +133,7 @@ export default function Profile() {
 
   useEffect(() => {
     if (!user?.id) return;
-    setCurrentTab(0);
+    queueMicrotask(() => setCurrentTab(0));
     if (isOwner) {
       queueMicrotask(() => {
         setAccountInfo({

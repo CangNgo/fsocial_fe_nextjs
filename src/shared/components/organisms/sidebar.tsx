@@ -1,5 +1,5 @@
 "use client";
-import { fetchUnreadNotification } from "@/features/notifications/hooks/use-notification";
+import { useUnreadNotification } from "@/features/notifications/hooks/use-notification";
 import {
   Bell,
   CreatePostNavIcon,
@@ -53,7 +53,7 @@ export function Sidebar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const { showPopup } = usePopupStore();
   const newMessage = useMessageStore((s) => s.newMessage);
-  const { data: unReadNotification } = fetchUnreadNotification()
+  const { data: unReadNotification } = useUnreadNotification()
 
   const handleNavigate = (href: string) => {
     closeNoti();

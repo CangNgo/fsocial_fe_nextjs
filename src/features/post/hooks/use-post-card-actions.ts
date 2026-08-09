@@ -14,7 +14,7 @@ import { ModalRepost } from "../components/organisms/modal-repost";
 
 interface PostCardContent {
   text?: string;
-  htmltext?: string;
+  html?: string;
   media?: MediaResponse[];
 }
 

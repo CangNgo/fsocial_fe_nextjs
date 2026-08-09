@@ -22,8 +22,10 @@ export function useSearch() {
   const timeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    setQuery(initialQuery);
-    setDebouncedQuery(initialQuery);
+    queueMicrotask(() => {
+      setQuery(initialQuery);
+      setDebouncedQuery(initialQuery);
+    });
   }, [initialQuery]);
 
   useEffect(() => {

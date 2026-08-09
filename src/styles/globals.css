@@ -94,7 +94,7 @@
     --popover-foreground: oklch(0.141 0.005 285.82);
     --shadcn-primary: var(--primary-clr);
     --shadcn-primary-foreground: var(--text-white);
-    --shadcn-secondary: oklch(0.967 0.001 286.375);
+    --shadcn-secondary: oklch(0.88 0.002 286.375);
     --shadcn-secondary-foreground: oklch(0.21 0.006 285.885);
     --shadcn-muted: oklch(0.967 0.001 286.375);
     --shadcn-muted-foreground: oklch(0.552 0.016 285.938);
@@ -117,9 +117,9 @@
     );
 
     /* Secondary */
-    --secondary-clr: hsl(0, 0%, 96%);
-    --secondary-hover-clr: hsl(0, 0%, 86%);
-    --secondary-active-clr: hsl(0, 0%, 82%);
+    --secondary-clr: hsl(0, 0%, 88%);
+    --secondary-hover-clr: hsl(0, 0%, 80%);
+    --secondary-active-clr: hsl(0, 0%, 76%);
 
     /* Backgrounds */
     --lower-background-clr: hsl(220, 16%, 96%);
@@ -298,6 +298,26 @@
   }
   img {
     -webkit-user-drag: none;
+  }
+
+  /* Tiptap placeholder — extension chỉ set data attribute, cần CSS để hiện text */
+  .tiptap p.is-editor-empty:first-child::before {
+    content: attr(data-placeholder);
+    float: left;
+    height: 0;
+    pointer-events: none;
+    color: var(--gray-light-clr);
+  }
+
+  /* Tiptap link — extension chỉ render <a>, không tự có màu */
+  .tiptap a {
+    color: var(--info-clr);
+    text-decoration: underline;
+    cursor: pointer;
+  }
+
+  .tiptap a:hover{ 
+    background: var(--color-secondary)
   }
 
   @keyframes caret-blink {

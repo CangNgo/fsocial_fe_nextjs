@@ -1,11 +1,11 @@
 "use client";
 
-import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
-import { useCallback, useEffect } from "react";
-import { getPosts } from "@/services/posts/posts-api";
 import { postKeys } from "@/services/posts/post.key";
+import { getPosts } from "@/services/posts/posts-api";
 import { ownerAccountStore } from "@/shared/stores/owner-account-store";
 import type { PostResponse } from "@/shared/types/post";
+import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
+import { useCallback, useEffect } from "react";
 import { useTimelineStore } from "../stores/timeline-store";
 
 export function useTimeline() {
@@ -25,47 +25,38 @@ export function useTimeline() {
 
   const updatePost = useCallback(
     (id: string, values: Partial<PostResponse>) => {
-      queryClient.setQueryData(postKeys.home(), (data: typeof query.data) =>
-        data
-          ? {
-              ...data,
-              pages: data.pages.map((page) =>
-                page
-                  ? {
-                      ...page,
-                      data: page.data?.map((post) =>
-                        post.id === id
-                          ? {
-                              ...post,
-                              ...values,
-                              content: values.content
-                                ? { ...post.content, ...values.content }
-                                : post.content,
-                            }
-                          : post,
-                      ),
-                    }
-                  : page,
-              ),
-            }
-          : data,
-      );
+      queryClient.setQueryData(postKeys.home(), (data: typeof query.data) => {
+        const pages = data?.pages.map((page) => {
+          const posts = page?.data?.map((post) => {
+            if (post.id !== id) return post;
+            return {
+              ...post,
+              ...values,
+              content:
+              {
+                ...post.content,
+                ...values.content
+              },
+            };
+          });
+
+          return { ...page, data: posts };
+        });
+
+        return { ...data, pages };
+      });
     },
     [queryClient],
   );
 
   const deletePost = useCallback(
     (id: string) => {
-      queryClient.setQueryData(postKeys.home(), (data: typeof query.data) =>
-        data
-          ? {
-              ...data,
-              pages: data.pages.map((page) =>
-                page ? { ...page, data: page.data?.filter((post) => post.id !== id) } : page,
-              ),
-            }
-          : data,
-      );
+      queryClient.setQueryData(postKeys.home(), (data: typeof query.data) => {
+        const pages = data?.pages.map((page) => {
+          return { ...page, data: page?.data?.filter((post) => post.id !== id) };
+        });
+        return { ...data, pages };
+      });
     },
     [queryClient],
   );
@@ -79,11 +70,11 @@ export function useTimeline() {
       queryClient.setQueryData(postKeys.home(), (data: typeof query.data) =>
         data
           ? {
-              ...data,
-              pages: data.pages.map((page, index) =>
-                index === 0 ? { ...page, data: [post, ...(page?.data ?? [])] } : page,
-              ),
-            }
+            ...data,
+            pages: data.pages.map((page, index) =>
+              index === 0 ? { ...page, data: [post, ...(page?.data ?? [])] } : page,
+            )
+          }
           : data,
       );
     },

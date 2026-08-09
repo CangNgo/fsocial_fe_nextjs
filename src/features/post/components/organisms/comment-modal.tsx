@@ -4,6 +4,7 @@ import { UserAvatar } from "@/shared/components/molecules/user-avatar";
 import { Button } from "@/shared/components/ui/button";
 import { Textarea } from "@/shared/components/ui/textarea";
 import { ownerAccountStore } from "@/shared/stores/owner-account-store";
+import type { Comment, CommentReply } from "@/shared/types/comment";
 import { combineIntoDisplayName } from "@/shared/utils/combine-name";
 import { Send } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
@@ -14,9 +15,8 @@ import {
   useSendComment,
 } from "../../hooks/mutations/use-comment-mutations";
 import { useComments } from "../../hooks/queries/use-comments";
-import type { PostCardPost, PostCardStore } from "../../hooks/use-post-card-actions";
+import type { PostCardStore } from "../../hooks/use-post-card-actions";
 import { usePostForModal } from "../../hooks/use-post-for-modal";
-import type { Comment, CommentReply } from "@/shared/types/comment";
 import PostCard from "../molecules/post-card";
 import { RenderComment } from "./render-comment";
 
@@ -89,7 +89,7 @@ export function CommentModal({ id, store, initialMediaIndex }: CommentModalProps
     const formData = new FormData();
     formData.append("userId", user.id ?? "");
     formData.append("text", innerText);
-    formData.append("HTMLText", innerHTML);
+    formData.append("html", innerHTML);
 
     let resp: Awaited<ReturnType<typeof sendComment>>;
     if (selectReply.id) {
@@ -178,8 +178,7 @@ export function CommentModal({ id, store, initialMediaIndex }: CommentModalProps
       <div className="overflow-y-auto flex-grow flex flex-col">
         {post && (
           <PostCard
-            post={post as unknown as PostCardPost}
-            isChildren
+            post={post}
             className="border-b"
             store={store}
             allowCarousel

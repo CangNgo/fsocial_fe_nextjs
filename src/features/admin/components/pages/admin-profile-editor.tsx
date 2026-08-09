@@ -240,10 +240,11 @@ export default function AdminProfileEditor() {
                   )}
                 </label>
 
-                <label className="block">
+                <label className="block" htmlFor="address">
                   <span className="block mb-2 font-medium">Địa chỉ</span>
                   <div className="relative">
                     <Input
+                      id="address"
                       type="text"
                       placeholder=""
                       className={cn("peer custom-input pr-12", errors.address && "custom-input-error")}

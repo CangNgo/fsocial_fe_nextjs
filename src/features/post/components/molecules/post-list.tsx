@@ -2,13 +2,14 @@
 
 import { PostSkeleton } from "@/shared/components/skeletons/post-skeleton";
 import { cn } from "@/shared/lib/utils";
+import { PostResponse } from "@/shared/types/post";
 import { useEffect, useState } from "react";
 import { Virtuoso } from "react-virtuoso";
-import type { PostCardPost, PostCardStore } from "../../hooks/use-post-card-actions";
+import type { PostCardStore } from "../../hooks/use-post-card-actions";
 import PostCard from "./post-card";
 
 interface PostListProps {
-  posts: PostCardPost[] | null;
+  posts: PostResponse[] | null;
   className?: string;
   fetchPosts?: () => void;
   hasMore?: boolean;
