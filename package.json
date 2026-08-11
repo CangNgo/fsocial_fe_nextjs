@@ -12,7 +12,6 @@
     "format": "prettier --write ./src",
     "check": "prettier --write ./src && eslint ./src --fix",
     "typecheck": "tsc --noEmit",
-    "prepare": "husky",
     "analyze": "ANALYZE=true next build"
   },
   "lint-staged": {
@@ -78,7 +77,6 @@
     "eslint": "^9.39.4",
     "eslint-config-next": "16.2.6",
     "eslint-config-prettier": "^10.1.8",
-    "husky": "^9.1.7",
     "lint-staged": "^17.0.5",
     "prettier": "^3.9.4",
     "sass": "^1.99.0",
