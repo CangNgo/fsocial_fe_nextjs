@@ -1,10 +1,10 @@
 "use client";
 
+import { Input } from "@/shared/components/ui/input";
+import { cn } from "@/shared/lib/utils";
 import { Eye, EyeOff } from "lucide-react";
 import type { ComponentProps, ReactNode } from "react";
 import { forwardRef, useId, useState } from "react";
-import { Input } from "@/shared/components/ui/input";
-import { cn } from "@/shared/lib/utils";
 
 type LabelPosition = "top" | "horizontal";
 
@@ -67,7 +67,7 @@ export const FormInput = forwardRef<HTMLInputElement, FormInputProps>(function F
         <label
           htmlFor={inputId}
           className={cn(
-            "font-medium",
+            "font-medium pl-2",
             labelPosition === "top" && "block mb-2",
             labelPosition === "horizontal" && "shrink-0",
             labelClassName,
@@ -110,7 +110,7 @@ export const FormInput = forwardRef<HTMLInputElement, FormInputProps>(function F
               </span>
             ))}
         </div>
-        {error && <p className="text-destructive text-sm mt-1">{error}</p>}
+        {error && <p className="text-destructive text-sm mt-1 pl-2">{error}</p>}
       </div>
     </div>
   );

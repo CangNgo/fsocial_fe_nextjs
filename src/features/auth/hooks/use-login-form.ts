@@ -17,6 +17,7 @@ export function useLoginForm() {
     formState: { isValid },
     trigger,
     getValues,
+    setError,
   } = form;
 
   const [isShowPassword, setIsShowPassword] = useState(false);
@@ -31,12 +32,17 @@ export function useLoginForm() {
       password: data.password.trim(),
     });
 
-    if (result?.statusCode !== 200) {
-      toast.error(result?.statusCode === 601 ? "Tài khoản đã bị khóa" : "Không thể đăng nhập");
+    if (result?.statusCode === 601) {
+      toast.error(result?.statusCode === 601 ? result.message : "Không thể đăng nhập");
       return;
     }
 
-    const tokens = result.data;
+    if (result?.statusCode !== 200) {
+      setError("password", { message: result?.message });
+      return;
+    }
+
+    const tokens = result?.data;
     if (tokens?.accessToken && tokens?.refreshToken) {
       setToken(tokens.accessToken, tokens.refreshToken);
       router.push(ROUTES.HOME);

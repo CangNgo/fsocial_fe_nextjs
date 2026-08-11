@@ -7,7 +7,8 @@ export const REGEX = {
 
 export const regexName = /^[\p{L}\s]{1,13}$/u;
 export const regexEmail = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-export const regexPassword = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,20}$/;
+export const regexPassword =
+  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,20}$/;
 
 export const regexImage = /\.(jpg|jpeg|png|gif|webp|svg|bmp)(\?.*)?$/i;
 export const regexVideo = /\.(mp4|webm|ogg|mov|avi|mkv)(\?.*)?$/i;

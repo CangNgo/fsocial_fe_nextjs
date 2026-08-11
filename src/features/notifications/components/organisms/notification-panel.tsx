@@ -1,5 +1,6 @@
 "use client";
 import { Bell } from "@/shared/components/atoms/icon/icons/bell";
+import { DotBage } from "@/shared/components/molecules/dot-bage";
 import { NotificationSkeleton } from "@/shared/components/skeletons/notification-skeleton";
 import { Virtuoso } from "react-virtuoso";
 import { useNotifications, useUnreadNotification } from "../../hooks/use-notification";
@@ -21,11 +22,7 @@ export default function NotificationPanel() {
         <div className="p-4 flex items-center gap-5 lg:min-w-86 ">
           <div className="relative">
             <Bell active={true} />
-            <div className="flex absolute bottom-1/2 left-1/2 justify-stretch w-fit px-1.5 rounded-2xl bg-primary">
-              <span className="font-bold text-txtWhite text-[12px]">
-                {isLoading ? 0 : data?.data}
-              </span>
-            </div>
+            <DotBage count={Number(data?.data)} />
           </div>
           <h5>Thông báo</h5>
         </div>

@@ -1,20 +1,20 @@
 "use client";
 
+import { ROUTES } from "@/shared/config/routes";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { ROUTES } from "@/shared/config/routes";
+import { signupStep1Schema, signupStep2Schema } from "../schemas/signup-schema";
+import type { SignupStep1FormData, SignupStep2FormData } from "../types/signup";
+import { removeVietnameseAccents } from "../utils/remove-special-word";
 import {
   useCheckDuplicateMutation,
   useCreateAccountMutation,
   useSignupRequestOtpMutation,
   useSignupValidOtpMutation,
 } from "./mutations/use-signup-mutations";
-import { signupStep1Schema, signupStep2Schema } from "../schemas/signup-schema";
-import type { SignupStep1FormData, SignupStep2FormData } from "../types/signup";
-import { removeVietnameseAccents } from "../utils/remove-special-word";
 import { useStepCarousel } from "./use-step-carousel";
 
 const TOTAL_STEPS = 4;
@@ -66,8 +66,8 @@ export function useSignupWizard() {
     setValueStep2(
       "username",
       removeVietnameseAccents(data.firstName) +
-        removeVietnameseAccents(data.lastName) +
-        (Math.floor(Math.random() * 9000) + 10000),
+      removeVietnameseAccents(data.lastName) +
+      (Math.floor(Math.random() * 9000) + 10000),
     );
     setCurrentStep(2);
   };
@@ -80,8 +80,7 @@ export function useSignupWizard() {
     if (!isValidStep2) return;
 
     const data = getValuesStep2();
-    const duplicateResp = await checkDuplicate(data.username);
-
+    const duplicateResp = await checkDuplicate({ username: data.username, email: data.email });
     if (duplicateResp?.statusCode !== 200) {
       if (duplicateResp?.data?.username) {
         setErrorStep2("username", { message: duplicateResp.data.username });
@@ -93,7 +92,7 @@ export function useSignupWizard() {
       return;
     }
 
-    const otpResp = await requestOTP(data.email);
+    const otpResp = await requestOTP({ email: data.email, type: "REGISTER" });
     if (otpResp?.statusCode !== 200) {
       setStep2Err(otpResp?.message ?? "Gửi OTP thất bại");
       return;
@@ -110,8 +109,9 @@ export function useSignupWizard() {
       setStep3Err("Vui lòng nhập đầy đủ mã OTP");
       return;
     }
+    const data = getValuesStep2();
 
-    const otpResp = await validOTP(otpValue);
+    const otpResp = await validOTP({ email: data.email, otp: otpValue, type: "REGISTER" });
     if (otpResp?.statusCode !== 200) {
       setStep3Err(otpResp?.message ?? "Xác minh OTP thất bại");
       return;

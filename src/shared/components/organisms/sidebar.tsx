@@ -9,8 +9,8 @@ import {
   MessageNavIcon,
 } from "@/shared/components/atoms/icon/icon";
 import { UserAvatar } from "@/shared/components/molecules/user-avatar";
-import { Button } from "@/shared/components/ui/button";
 import { NavMoreMenu } from "@/shared/components/organisms/nav-more-menu";
+import { Button } from "@/shared/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/shared/components/ui/popover";
 import { ROUTES } from "@/shared/config/routes";
 import { cn } from "@/shared/lib/utils";
@@ -23,6 +23,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
+import { DotBage } from "../molecules/dot-bage";
 
 const CreatePostForm = dynamic(() => import("@/shared/components/organisms/create-post-form"));
 
@@ -36,12 +37,6 @@ const ITEM = [
 
 const LABEL = "hidden lg:block text-sm font-medium";
 
-function Dot() {
-  return (
-    <span className="absolute -top-0.5 -right-0.5 size-2.5 rounded-full bg-gradient-to-br from-pink-500 to-orange-400" />
-  );
-}
-
 export function Sidebar() {
   const user = ownerAccountStore((state) => state.user);
   const pathname = usePathname();
@@ -53,6 +48,7 @@ export function Sidebar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const { showPopup } = usePopupStore();
   const newMessage = useMessageStore((s) => s.incomingMessage);
+  const countNewMessage = useMessageStore((s) => s.countIncomingMessage)
   const { data: unReadNotification } = useUnreadNotification();
 
   const handleNavigate = (href: string) => {
@@ -70,9 +66,9 @@ export function Sidebar() {
       <nav
         className={cn(
           "hidden sm:flex flex-col justify-between",
-          "sticky top-0 h-screen flex-shrink-0",
+          "sticky top-0 h-screen shrink-0",
           "bg-background border-r overflow-y-auto overflow-x-hidden",
-          "w-[72px] lg:w-[260px]",
+          "w-18 lg:w-65",
           "transition-[width] duration-200 ease-in-out",
         )}
       >
@@ -133,7 +129,7 @@ export function Sidebar() {
           >
             <IconSlot>
               <SearchIcon
-                className="size-[26px]"
+                className="size-6.5"
                 strokeWidth={pathname === ROUTES.SEARCH ? 2.2 : 1.6}
               />
             </IconSlot>
@@ -151,7 +147,7 @@ export function Sidebar() {
             <IconSlot>
               <span className="relative">
                 <MessageNavIcon compareVar={pathname.startsWith(ROUTES.MESSAGE)} />
-                {newMessage && <Dot />}
+                {<DotBage count={Number(countNewMessage)} />}
               </span>
             </IconSlot>
             <span className={cn(LABEL, pathname.startsWith(ROUTES.MESSAGE) && "font-semibold")}>
@@ -168,7 +164,7 @@ export function Sidebar() {
             <IconSlot>
               <span className="relative">
                 <Bell active={notiOpen} />
-                {Number(unReadNotification) > 0 && <Dot />}
+                {<DotBage count={Number(unReadNotification)} />}
               </span>
             </IconSlot>
             <span className={LABEL}>Thông báo</span>
@@ -192,7 +188,7 @@ export function Sidebar() {
               <UserAvatar
                 src={user.avatar}
                 displayName={user?.displayName}
-                className="size-[26px]"
+                className="size-6.5"
                 fallbackClassName="text-[8px] font-semibold"
               />
             </IconSlot>
@@ -244,7 +240,7 @@ export function Sidebar() {
             href: ROUTES.SEARCH,
             icon: (
               <SearchIcon
-                className="size-[26px]"
+                className="size-6.5"
                 strokeWidth={pathname.startsWith(ROUTES.SEARCH) ? 2.2 : 1.6}
               />
             ),
@@ -271,7 +267,7 @@ export function Sidebar() {
         >
           <Bell active={notiOpen} />
           {Number(unReadNotification) > 0 && (
-            <span className="absolute top-2 right-3 size-2.5 rounded-full bg-gradient-to-br from-pink-500 to-orange-400" />
+            <span className="absolute top-2 right-3 size-2.5 rounded-full bg-linear-to-br from-pink-500 to-orange-400" />
           )}
         </Button>
       </nav>
@@ -284,7 +280,7 @@ export function Sidebar() {
 
 function IconSlot({ children }: { children: React.ReactNode }) {
   return (
-    <span className="flex-shrink-0 w-[26px] h-[26px] flex items-center justify-center">
+    <span className="shrink-0 w-6.5 h-6.5 flex items-center justify-center">
       {children}
     </span>
   );

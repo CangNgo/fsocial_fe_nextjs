@@ -1,6 +1,4 @@
 "use client";
-import { AtSign, UserRoundIcon } from "lucide-react";
-import Link from "next/link";
 import { ArrowLeftIcon, LoadingIcon } from "@/shared/components/atoms/icon/icon";
 import { Image } from "@/shared/components/atoms/image";
 import { FormInput } from "@/shared/components/molecules/form-input";
@@ -9,8 +7,11 @@ import { Button } from "@/shared/components/ui/button";
 import { NativeSelect, NativeSelectOption } from "@/shared/components/ui/native-select";
 import { dayOptions, monthOptions, yearOptions } from "@/shared/config/global-variables";
 import { ROUTES } from "@/shared/config/routes";
+import { AtSign, UserRoundIcon } from "lucide-react";
+import Link from "next/link";
 import { useSignupWizard } from "../../hooks/use-signup-wizard";
 import { genderOptions } from "../../utils/signup-constants";
+import GoogleSignInButton from "../molecules/google-sign-in-button";
 
 export default function SignupForm() {
   const {
@@ -31,7 +32,6 @@ export default function SignupForm() {
     handleStep2,
     backToStep2,
     handleStep3,
-    handleGoogleSignup,
   } = useSignupWizard();
 
   const {
@@ -45,9 +45,9 @@ export default function SignupForm() {
   } = step2Form;
 
   return (
-    <div className="w-full">
-      <div className="grid lg:grid-cols-2 grid-cols-1 overflow-hidden rounded-xl border bg-background">
-        <div ref={formContainer} className="relative overflow-hidden">
+    <div className="w-full h-screen">
+      <div className="grid lg:grid-cols-2 grid-cols-1 place-content-center overflow-hidden rounded-xl h-screen border bg-background">
+        <div ref={formContainer} className="relative overflow-hidden max-w-120 justify-self-center border py-2">
           <div
             ref={stepsWrapper}
             className="grid transition duration-300"
@@ -55,7 +55,8 @@ export default function SignupForm() {
           >
             <div
               ref={setStepsRef(1)}
-              className={`md:px-8 px-6 h-fit ${currentStep === 1 ? "" : "invisible"}`}
+              className={`md:px-8 px-6 h-fit flex flex-col justify-center ${currentStep === 1 ? "" : "hidden"}`}
+              style={{ gridColumn: 1, gridRow: 1 }}
             >
               <div className="mb-4">
                 <h2>Thông tin cá nhân</h2>
@@ -125,7 +126,8 @@ export default function SignupForm() {
 
             <div
               ref={setStepsRef(2)}
-              className={`md:px-8 px-6 h-fit ${currentStep === 2 ? "" : "invisible"}`}
+              className={`md:px-8 px-6 h-fit ${currentStep === 2 ? "" : "hidden"}`}
+              style={{ gridColumn: 2, gridRow: 1 }}
             >
               <div className="mb-4">
                 <h2>Thông tin đăng nhập</h2>
@@ -184,7 +186,8 @@ export default function SignupForm() {
 
             <div
               ref={setStepsRef(3)}
-              className={`space-y-5 md:px-8 px-6 h-fit ${currentStep === 3 ? "" : "invisible"}`}
+              className={`space-y-5 md:px-8 px-6 h-fit ${currentStep === 3 ? "" : "hidden"}`}
+              style={{ gridColumn: 3, gridRow: 1 }}
             >
               <div className="mb-4">
                 <h2>Xác minh tài khoản</h2>
@@ -221,31 +224,22 @@ export default function SignupForm() {
               </div>
             </div>
 
-            <div ref={setStepsRef(4)} className="md:px-8 px-6 h-fit invisible" />
+            <div
+              ref={setStepsRef(4)}
+              className={`md:px-8 px-6 h-fit ${currentStep === 4 ? "" : "hidden"}`}
+              style={{ gridColumn: 4, gridRow: 1 }}
+            />
           </div>
 
-          <div className="relative md:px-8 px-6 bg-background pt-3 border-x">
-            <div className="flex items-center my-6">
+          <div className="relative md:px-8 px-6 bg-background">
+            <div className="flex items-center my-3">
               <div className="border-t flex-grow" />
               <span className="px-4 text-muted-foreground text-sm">Hoặc</span>
               <div className="border-t flex-grow" />
             </div>
+            <GoogleSignInButton />
             <div>
-              <Button
-                type="button"
-                className="btn-outline mb-5 gap-3 py-3 w-full flex items-center justify-center"
-                onClick={handleGoogleSignup}
-              >
-                <Image
-                  className="size-6"
-                  src="/decor/google_icon.svg"
-                  alt=""
-                  width={24}
-                  height={24}
-                />
-                Đăng ký với Google
-              </Button>
-              <p className="text-muted-foreground text-center text-sm">
+              <p className="text-muted-foreground text-center text-sm my-2">
                 Bạn đã có tài khoản?{" "}
                 <Link href={ROUTES.LOGIN} className="underline font-semibold">
                   Quay lại đăng nhập
@@ -257,11 +251,10 @@ export default function SignupForm() {
 
         <div className="relative overflow-hidden flex-grow">
           <Image
-            className={`absolute w-full h-auto left-0 mt-20 transition duration-300 ${
-              currentStep === 1
-                ? "translate-y-0 opacity-100"
-                : "translate-y-1/4 opacity-0 invisible"
-            }`}
+            className={`absolute w-full h-auto left-0 mt-20 transition duration-300 ${currentStep === 1
+              ? "translate-y-0 opacity-100"
+              : "translate-y-1/4 opacity-0 invisible"
+              }`}
             src="/decor/signup_step_1_decor.svg"
             alt=""
             width={0}
@@ -269,11 +262,10 @@ export default function SignupForm() {
             sizes="50vw"
           />
           <Image
-            className={`absolute w-11/12 h-auto left-1/2 -translate-x-1/2 transition duration-300 ${
-              currentStep === 2
-                ? "translate-y-0 opacity-100"
-                : "translate-y-1/4 opacity-0 invisible"
-            }`}
+            className={`absolute w-11/12 h-auto left-1/2 -translate-x-1/2 transition duration-300 ${currentStep === 2
+              ? "translate-y-0 opacity-100"
+              : "translate-y-1/4 opacity-0 invisible"
+              }`}
             src="/decor/signup_step_2_decor.svg"
             alt=""
             width={0}
@@ -281,11 +273,10 @@ export default function SignupForm() {
             sizes="50vw"
           />
           <Image
-            className={`absolute w-11/12 h-auto left-1/2 -translate-x-1/2 mt-12 ${
-              currentStep === 3
-                ? "translate-y-0 opacity-100 transition duration-300"
-                : "translate-y-1/4 opacity-0 invisible"
-            }`}
+            className={`absolute w-11/12 h-auto left-1/2 -translate-x-1/2 mt-12 ${currentStep === 3
+              ? "translate-y-0 opacity-100 transition duration-300"
+              : "translate-y-1/4 opacity-0 invisible"
+              }`}
             src="/decor/signup_step_3_decor.svg"
             alt=""
             width={0}

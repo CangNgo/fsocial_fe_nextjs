@@ -1,14 +1,15 @@
 "use client";
-import { Client } from "@stomp/stompjs";
-import { create } from "zustand";
 import type { Message } from "@/shared/types/message";
 import { getCookie } from "@/shared/utils/cookie";
+import { Client } from "@stomp/stompjs";
+import { create } from "zustand";
 
 interface MessageStore {
   messages: Message[] | null;
   activeConversationId: string | null;
   stompClientMessage: Client | null;
   incomingMessage: Message | null;
+  countIncomingMessage: number;
 
   setMessages: (messages: Message[] | null) => void;
   appendMessage: (message: Message) => void;
@@ -17,6 +18,8 @@ interface MessageStore {
   cleanMessageWebSocket: () => void;
   sendMessage: (conversationId: string, content: string) => void;
   setIncomingMessage: (message: Message | null) => void;
+  incrementMessageIncome: () => void;
+  clearCountIncome: () => void
 }
 
 export const useMessageStore = create<MessageStore>()((set, get) => ({
@@ -24,6 +27,7 @@ export const useMessageStore = create<MessageStore>()((set, get) => ({
   activeConversationId: null,
   stompClientMessage: null,
   incomingMessage: null,
+  countIncomingMessage: 0,
 
   setMessages: (messages) => set({ messages }),
   appendMessage: (message) =>
@@ -47,12 +51,26 @@ export const useMessageStore = create<MessageStore>()((set, get) => ({
       onConnect: () => {
         client.subscribe("/user/queue/messages", (frame) => {
           const receivedMessage = JSON.parse(frame.body) as Message;
+
           const { activeConversationId } = get();
           if (receivedMessage.conversationId === activeConversationId) {
             get().appendMessage(receivedMessage);
           }
+          get().incrementMessageIncome();
           get().setIncomingMessage(receivedMessage);
         });
+        client.subscribe("/user/queue/errors", (frame) => {
+          console.error("[WS] server error:", frame.body);
+        });
+      },
+      onStompError: (frame) => {
+        console.error("[WS] STOMP error:", frame.headers["message"], frame.body);
+      },
+      onWebSocketError: (event) => {
+        console.error("[WS] WebSocket error:", event);
+      },
+      onWebSocketClose: (event) => {
+        console.warn("[WS] WebSocket closed:", event.code, event.reason);
       },
     });
     client.activate();
@@ -68,13 +86,17 @@ export const useMessageStore = create<MessageStore>()((set, get) => ({
         activeConversationId: null,
         stompClientMessage: null,
         incomingMessage: null,
+        countIncomingMessage: 0,
       });
     });
   },
 
   sendMessage: (conversationId, content) => {
     const { stompClientMessage } = get();
-    if (!stompClientMessage?.connected) return;
+    if (!stompClientMessage?.connected) {
+      console.warn("[WS] sendMessage skipped: client not connected");
+      return;
+    }
 
     stompClientMessage.publish({
       destination: "/app/chat.send",
@@ -83,4 +105,6 @@ export const useMessageStore = create<MessageStore>()((set, get) => ({
   },
 
   setIncomingMessage: (incomingMessage) => set({ incomingMessage }),
+  incrementMessageIncome: () => set({ countIncomingMessage: +1 }),
+  clearCountIncome: () => set({ countIncomingMessage: 0 })
 }));

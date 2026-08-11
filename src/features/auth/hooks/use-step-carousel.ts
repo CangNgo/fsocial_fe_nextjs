@@ -12,25 +12,18 @@ export function useStepCarousel(currentStep: number, totalSteps: number) {
   };
 
   useEffect(() => {
-    const currentStepEl = stepsRef.current[currentStep];
-    if (!currentStepEl?.offsetHeight || !stepsWrapper.current) return;
-
-    stepsWrapper.current.style.height = `${currentStepEl.offsetHeight + 4}px`;
-
     const parent = formContainer.current;
-    if (!parent) return;
+    const wrapper = stepsWrapper.current;
+    if (!parent || !wrapper) return;
 
-    const resizeObserver = new ResizeObserver(() => {
-      const el = stepsRef.current[currentStep];
-      if (!el?.offsetHeight || !stepsWrapper.current || !formContainer.current) return;
-      const parentWidth = parent.offsetWidth;
-      stepsWrapper.current.style.gridTemplateColumns = `repeat(${totalSteps}, ${parentWidth}px)`;
-      stepsWrapper.current.style.height = `${el.offsetHeight + 4}px`;
-      stepsWrapper.current.style.transform = `translateX(-${
-        formContainer.current.offsetWidth * (currentStep - 1)
-      }px)`;
-    });
+    const syncWidth = () => {
+      wrapper.style.gridTemplateColumns = `repeat(${totalSteps}, ${parent.offsetWidth}px)`;
+      wrapper.style.transform = `translateX(-${parent.offsetWidth * (currentStep - 1)}px)`;
+    };
 
+    syncWidth();
+
+    const resizeObserver = new ResizeObserver(syncWidth);
     resizeObserver.observe(parent);
     return () => resizeObserver.disconnect();
   }, [currentStep, totalSteps]);

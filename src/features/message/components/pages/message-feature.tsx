@@ -53,7 +53,7 @@ export default function MessageFeature() {
   return (
     <div
       className={cn(
-        "h-full flex-grow sm:flex bg-background transition",
+        "h-full grow sm:flex bg-background transition",
         [1, 2].includes(contentActive) && "sm:relative fixed top-0 sm:z-0 z-10",
         ![1, 2].includes(contentActive) && "overflow-hidden",
       )}
@@ -61,7 +61,7 @@ export default function MessageFeature() {
       <div
         className="
           flex flex-col pt-4 h-full
-          sm:w-2/5 sm:min-w-[300px] sm:max-w-[350px] sm:gap-4 sm:border-r
+          sm:w-2/5 sm:min-w-75 sm:max-w-87.5 sm:gap-4 sm:border-r
           w-screen gap-2 transition"
       >
         <div className="px-4 flex items-center justify-between">
@@ -69,7 +69,7 @@ export default function MessageFeature() {
           <Button
             type="button"
             variant="ghost"
-            className="btn-transparent !w-fit p-1"
+            className="btn-transparent w-fit! p-1"
             onClick={handleOpenCreateConversation}
           >
             <CirclePlus />
@@ -89,12 +89,12 @@ export default function MessageFeature() {
           />
         </label>
 
-        <div className="h-full px-2 flex-grow overflow-auto">
+        <div className="h-full px-2 grow overflow-auto">
           {!conversations &&
             [0, 1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
               <div key={i} className="px-3 py-2.5 h-16 flex items-center gap-3">
                 <Skeleton className="size-11 rounded-full" />
-                <div className="flex-grow space-y-2">
+                <div className="grow space-y-2">
                   <Skeleton className="w-1/2 h-4 rounded-sm" />
                   <Skeleton className="h-4 rounded-sm" />
                 </div>
@@ -122,7 +122,7 @@ export default function MessageFeature() {
                 </AvatarFallback>
               </Avatar>
 
-              <div className="flex-grow min-w-0">
+              <div className="grow min-w-0">
                 <span className="font-medium">{conversationDisplayName(conver, userId)}</span>
                 {conver.lastMessage && (
                   <div className="flex gap-2 items-end justify-between">
@@ -167,7 +167,7 @@ export default function MessageFeature() {
                 autoFocus
               />
             </div>
-            <div className="flex-grow overflow-auto px-2">
+            <div className="grow overflow-auto px-2">
               {isSearching && <p className="px-3 py-2.5 text-gray">Đang tìm...</p>}
               {!isSearching && keyword.trim().length > 0 && users.length === 0 && (
                 <p className="px-3 py-2.5 text-gray">Không tìm thấy người dùng</p>
@@ -204,7 +204,7 @@ export default function MessageFeature() {
                 {conversationDisplayName(selectedConversation, userId)}
               </span>
             </div>
-            <div className="flex-grow overflow-y-auto scrollable-div p-4 flex flex-col gap-2">
+            <div className="grow overflow-y-auto scrollable-div p-4 flex flex-col gap-2">
               <MessageThread messages={messages} selfId={userId} />
             </div>
             <div className="px-4 py-3 border-t flex items-center gap-2 max-w-200">

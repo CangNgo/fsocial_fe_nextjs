@@ -1,40 +1,23 @@
 import { apiPost } from "@/services/core/api-service";
 import type { ApiResponse } from "@/shared/types/api-response";
-
-export interface SignupDuplicateData {
-  username?: string;
-  email?: string;
-}
-
-export interface CreateAccountPayload {
-  firstName: string;
-  lastName: string;
-  day: string;
-  month: string;
-  year: string;
-  gender: string;
-  username: string;
-  email: string;
-  password: string;
-  rePassword: string;
-}
+import { CreateAccountPayload, SendOtp, SignupDuplicateData, VerifyOtp } from "./sign-up";
 
 export const checkDuplicate = async (
-  username: string,
+  data: SignupDuplicateData
 ): Promise<ApiResponse<SignupDuplicateData> | null> => {
-  return apiPost<SignupDuplicateData>("/auth/check-duplication", username);
+  return apiPost<SignupDuplicateData>("/auth/check-duplication", data);
 };
 
-export const requestOTP = async (email: string): Promise<ApiResponse<null> | null> => {
-  return apiPost<null>("/auth/send-otp", email, undefined, {});
+export const requestOTP = async (data: SendOtp): Promise<ApiResponse<null> | null> => {
+  return apiPost<null>("/auth/send-otp", data);
 };
 
-export const validOTP = async (otp: string): Promise<ApiResponse<null> | null> => {
-  return apiPost<null>("/auth/verify-otp", otp, undefined, {});
+export const validOTP = async (data: VerifyOtp): Promise<ApiResponse<null> | null> => {
+  return apiPost<null>("/auth/verify-otp", data);
 };
 
 export const sendingCreateAccount = async (
   data: CreateAccountPayload,
 ): Promise<ApiResponse<null> | null> => {
-  return apiPost<null>("/auth/register", data, undefined, {});
+  return apiPost<null>("/auth/register", data);
 };
