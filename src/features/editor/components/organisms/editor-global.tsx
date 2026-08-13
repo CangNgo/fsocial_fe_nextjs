@@ -7,12 +7,12 @@ import { useMemo, type ReactNode } from 'react'
 export function EditorProvider({
   editor,
   children,
+  className,
 }: {
   editor: Editor | null
   children: ReactNode
+  className?: string
 }) {
-  // memo bắt buộc — nếu không, mọi render cha sẽ tạo object mới,
-  // khiến toàn bộ component con trong context re-render vô ích.
   const value = useMemo(() => ({ editor }), [editor])
 
   if (!editor) return <div className="editor-skeleton" />
@@ -20,7 +20,7 @@ export function EditorProvider({
   return (
     <EditorContext.Provider value={value}>
       {children}
-      <EditorContent editor={editor} />
+      <EditorContent editor={editor} className={className} />
     </EditorContext.Provider>
   )
 }

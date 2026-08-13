@@ -17,7 +17,7 @@ export default function NotificationPanel() {
   )
 
   return (
-    <div className="hidden md:flex flex-col h-full px-4 bg-white">
+    <div className="hidden md:flex flex-col h-full px-4 bg-background">
       <div>
         <div className="p-4 flex items-center gap-5 lg:min-w-86 ">
           <div className="relative">

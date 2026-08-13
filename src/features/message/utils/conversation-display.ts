@@ -1,7 +1,7 @@
 import type { Conversation } from "@/shared/types/message";
 
 export function otherMember(conversation: Conversation, selfId?: string) {
-  return conversation.members.find((member) => member.userId !== selfId);
+  return conversation.members.find((member) => member.userId !== selfId) ?? conversation.members[0];
 }
 
 export function conversationDisplayName(conversation: Conversation, selfId?: string): string {

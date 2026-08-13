@@ -18,6 +18,8 @@ interface UseAppEditorOptions {
   editable?: boolean
   debounceMs?: number
   placeholder?: string
+  extraExtensions?: any[]
+  autoFocus?: boolean
 }
 
 export function useAppEditor({
@@ -27,6 +29,8 @@ export function useAppEditor({
   editable = true,
   debounceMs = 500,
   placeholder,
+  extraExtensions,
+  autoFocus,
 }: UseAppEditorOptions) {
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
 
@@ -40,9 +44,11 @@ export function useAppEditor({
   )
 
   const resolvedPlaceholder = placeholder ?? preset.placeholder
-  const extensions = resolvedPlaceholder
-    ? [...preset.extensions, Placeholder.configure({ placeholder: resolvedPlaceholder })]
-    : preset.extensions
+  const extensions = [
+    ...preset.extensions,
+    ...(resolvedPlaceholder ? [Placeholder.configure({ placeholder: resolvedPlaceholder })] : []),
+    ...(extraExtensions ?? []),
+  ]
 
   return useEditor({
     // Bắt buộc cho Next.js / mọi app SSR — tránh hydration mismatch
@@ -52,6 +58,7 @@ export function useAppEditor({
     editorProps: preset.editorProps,
     content: initialContent,
     editable,
+    autofocus: autoFocus ?? false,
     onUpdate: ({ editor }) =>
       debouncedChange({ json: editor.getJSON(), html: editor.getHTML(), text: editor.getText() }),
   })

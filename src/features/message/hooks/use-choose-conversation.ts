@@ -1,11 +1,10 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
-import { useCallback, useEffect, useState } from "react";
-import { getMessages } from "@/services/message/message-api";
-import { messageKeys } from "@/services/message/message.key";
 import { useMessageStore } from "@/shared/stores/message-store";
+import { useConversationStore } from "@/shared/stores/use-conversation-store";
 import type { Conversation } from "@/shared/types/message";
+import { useCallback, useEffect, useRef } from "react";
+import { useMessages } from "./use-messages";
 
 interface UseChooseConversationOptions {
   contentActive: number;
@@ -16,21 +15,34 @@ export function useChooseConversation({
   contentActive,
   setContentActive,
 }: UseChooseConversationOptions) {
-  const { setMessages, setActiveConversationId } = useMessageStore();
-  const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
+  const { setMessages, prependMessages, setActiveConversationId } = useMessageStore();
+  const selectedConversation = useConversationStore((state) => state.activeConversation);
+  const setActiveConversation = useConversationStore((state) => state.setActiveConversation);
+  const clearActiveConversation = useConversationStore((state) => state.clearActiveConversation);
+  const resetConversationUnread = useConversationStore((state) => state.resetConversationUnread);
 
-  const query = useQuery({
-    queryKey: messageKeys.thread(selectedConversation?.id ?? ""),
-    queryFn: () => getMessages(selectedConversation?.id ?? ""),
-    enabled: Boolean(selectedConversation?.id),
-    select: (resp) => (resp?.statusCode === 200 ? (resp.data ?? []) : []),
-  });
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } = useMessages(
+    selectedConversation?.id,
+  );
 
+  const loadedPageCountRef = useRef(0);
+
+  // Trang đầu (đổi conversation, loadedPageCountRef reset về 0 ở handleChooseConversation)
+  // -> reset toàn bộ messages. Các trang sau (fetchNextPage, tức load tin cũ hơn khi scroll up)
+  // -> chỉ nối thêm trang mới vào đầu, không đụng tin nhắn realtime/optimistic đang có trong
+  // store (chúng không nằm trong cache react-query).
   useEffect(() => {
-    if (!selectedConversation || !query.data) return;
-    setMessages([...query.data].reverse());
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- only push fetched thread into the store when a fresh page of messages arrives
-  }, [query.data, selectedConversation]);
+    if (!selectedConversation || !data) return;
+
+    if (loadedPageCountRef.current === 0) {
+      const items = data.pages.flatMap((page) => page?.data ?? []);
+      setMessages([...items].reverse());
+    } else if (data.pages.length > loadedPageCountRef.current) {
+      const olderPage = data.pages[data.pages.length - 1];
+      prependMessages([...(olderPage?.data ?? [])].reverse());
+    }
+    loadedPageCountRef.current = data.pages.length;
+  }, [data, selectedConversation, setMessages, prependMessages]);
 
   const handleChooseConversation = useCallback(
     (selectedConver: Conversation) => {
@@ -38,19 +50,36 @@ export function useChooseConversation({
         return;
       }
 
+      loadedPageCountRef.current = 0;
       setMessages(null);
       setContentActive(2);
-      setSelectedConversation(selectedConver);
+      setActiveConversation(selectedConver);
       setActiveConversationId(selectedConver.id);
+      resetConversationUnread(selectedConver.id);
     },
-    [contentActive, selectedConversation, setContentActive, setMessages, setActiveConversationId],
+    [
+      contentActive,
+      selectedConversation,
+      setContentActive,
+      setMessages,
+      setActiveConversation,
+      setActiveConversationId,
+      resetConversationUnread,
+    ],
   );
 
   const handleGoBack = useCallback(() => {
     setContentActive(0);
-    setSelectedConversation(null);
+    clearActiveConversation();
     setActiveConversationId(null);
-  }, [setContentActive, setActiveConversationId]);
+  }, [setContentActive, clearActiveConversation, setActiveConversationId]);
 
-  return { selectedConversation, handleChooseConversation, handleGoBack };
+  return {
+    selectedConversation,
+    handleChooseConversation,
+    handleGoBack,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  };
 }

@@ -5,6 +5,7 @@ import { useCallback, useState } from "react";
 
 export function useSendMessage(conversationId: string | undefined) {
   const [content, setContent] = useState("");
+  const [resetKey, setResetKey] = useState(0);
   const sendMessage = useMessageStore((state) => state.sendMessage);
 
   const handleSend = useCallback(() => {
@@ -12,7 +13,8 @@ export function useSendMessage(conversationId: string | undefined) {
     if (!trimmed || !conversationId) return;
     sendMessage(conversationId, trimmed);
     setContent("");
+    setResetKey((key) => key + 1);
   }, [content, conversationId, sendMessage]);
 
-  return { content, setContent, handleSend };
+  return { content, setContent, handleSend, resetKey };
 }

@@ -275,7 +275,7 @@ export default function CreatePostForm() {
                   </div>
                 </div>
 
-                <div className="shrink-0 bg-white">
+                <div className="shrink-0 bg-background">
                   <div className="flex justify-between items-center mx-3 my-1 p-4 h-10 border ">
                     <span>Thêm vào bài viết của bạn</span>
                     <label htmlFor="create-post-file-upload" className="cursor-pointer">

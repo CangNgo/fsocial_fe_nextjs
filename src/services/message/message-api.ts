@@ -6,13 +6,16 @@ export const getConversations = async (): Promise<ApiResponse<Conversation[]> | 
   return apiGet<Conversation[]>("/conversations");
 };
 
+// Backend trả data dạng mảng phẳng (không có items/hasMore/nextCursor) — xem ConversationController#getMessages
 export const getMessages = async (
   conversationId: string,
   cursor?: string,
   signal?: AbortSignal,
 ): Promise<ApiResponse<Message[]> | null> => {
-  const query = cursor ? `?cursor=${encodeURIComponent(cursor)}` : "";
-  return apiGet<Message[]>(`/conversations/${conversationId}/messages${query}`, signal ? { signal } : undefined);
+  return apiGet<Message[]>(`/conversations/${conversationId}/messages`, {
+    params: { cursor },
+    signal,
+  });
 };
 
 export const createConversation = async (

@@ -1,18 +1,18 @@
 "use client";
 
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { createConversation } from "@/services/message/message-api";
-import { messageKeys } from "@/services/message/message.key";
-import { ownerAccountStore } from "@/shared/stores/owner-account-store";
+import { useConversationStore } from "@/shared/stores/use-conversation-store";
 
 export function useCreateConversation() {
-  const queryClient = useQueryClient();
-  const userId = ownerAccountStore((state) => state.user.id);
+  const addConversation = useConversationStore((state) => state.addConversation);
 
   return useMutation({
     mutationFn: (memberId: string) => createConversation([memberId]),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: messageKeys.conversations(userId ?? "") });
+    onSuccess: (resp) => {
+      if (resp?.statusCode === 200 && resp.data) {
+        addConversation(resp.data);
+      }
     },
   });
 }

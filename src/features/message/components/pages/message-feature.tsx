@@ -1,61 +1,83 @@
 "use client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar";
 import { Button } from "@/shared/components/ui/button";
-import { Input } from "@/shared/components/ui/input";
-import { Skeleton } from "@/shared/components/ui/skeleton";
 import { cn } from "@/shared/lib/utils";
 import { useMessageStore } from "@/shared/stores/message-store";
 import { ownerAccountStore } from "@/shared/stores/owner-account-store";
 import { getInitialsFromDisplayName } from "@/shared/utils/combine-name";
-import { dateTimeToMessageTime } from "@/shared/utils/convert-date-time";
-import { CirclePlus, Image, SearchIcon, SendHorizonal } from "lucide-react";
-import type { KeyboardEvent } from "react";
+import { Image, SendHorizonal } from "lucide-react";
+import { useEffect, useLayoutEffect, useRef, type UIEvent } from "react";
 import { useChooseConversation } from "../../hooks/use-choose-conversation";
 import { useConversations } from "../../hooks/use-conversations";
-import { useCreateConversation } from "../../hooks/use-create-conversation";
 import { useMessageSubscription } from "../../hooks/use-message-subscription";
 import { useSendMessage } from "../../hooks/use-send-message";
-import { useUserSearch } from "../../hooks/use-user-search";
 import { conversationAvatar, conversationDisplayName } from "../../utils/conversation-display";
+import { ConversationList } from "../molecules/conversation-list";
+import ConversationSearch from "../molecules/conversation-search";
+import { MessageComposer, type MessageComposerHandle } from "../molecules/message-composer";
 import { MessageThread } from "../molecules/message-thread";
-import { UserSearchResult } from "../molecules/user-search-result";
 
 export default function MessageFeature() {
   const userId = ownerAccountStore((state) => state.user.id);
   const messages = useMessageStore((state) => state.messages);
 
-  const { contentActive, setContentActive, conversations, handleOpenCreateConversation } =
-    useConversations();
-  const { selectedConversation, handleChooseConversation, handleGoBack } = useChooseConversation({
+  const { contentActive, setContentActive, conversations } = useConversations();
+  const {
+    selectedConversation,
+    handleChooseConversation,
+    handleGoBack,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useChooseConversation({
     contentActive,
     setContentActive,
   });
-  const { content, setContent, handleSend } = useSendMessage(selectedConversation?.id);
-  const { keyword, setKeyword, users, isSearching } = useUserSearch();
-  const createConversation = useCreateConversation();
+  const { setContent, handleSend, resetKey } = useSendMessage(selectedConversation?.id);
+  const composerRef = useRef<MessageComposerHandle>(null);
+  const messageListRef = useRef<HTMLDivElement>(null);
+  const lastMessageIdRef = useRef<string | undefined>(undefined);
+  const prevScrollHeightRef = useRef<number | null>(null);
 
   useMessageSubscription();
 
-  const handleSelectUser = (user: { id: string }) => {
-    createConversation.mutate(user.id, {
-      onSuccess: (resp) => {
-        if (resp?.statusCode === 200 && resp.data) {
-          handleChooseConversation(resp.data);
-        }
-      },
-    });
-  };
+  useEffect(() => {
+    if (selectedConversation) composerRef.current?.focus();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- refocus only when the selected conversation switches, not on every cache update
+  }, [selectedConversation?.id]);
 
-  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") handleSend();
+  useEffect(() => {
+    const lastMessage = messages?.[messages.length - 1];
+    // So sánh id tin nhắn cuối để chỉ scroll khi có tin mới ở cuối (gửi/nhận),
+    // không scroll khi load thêm tin nhắn cũ ở đầu danh sách (fetchNextPage).
+    if (!lastMessage || lastMessage.id === lastMessageIdRef.current) return;
+    lastMessageIdRef.current = lastMessage.id;
+    messageListRef.current?.scroll({ top: messageListRef.current.scrollHeight, behavior: "smooth" });
+  }, [messages]);
+
+  // Giữ nguyên vị trí xem khi tin nhắn cũ được nối vào đầu danh sách (load thêm lúc scroll up),
+  // tránh giật màn hình do scrollHeight tăng lên sau khi prepend.
+  useLayoutEffect(() => {
+    const el = messageListRef.current;
+    const prevScrollHeight = prevScrollHeightRef.current;
+    if (!el || prevScrollHeight === null) return;
+    el.scrollTop = el.scrollHeight - prevScrollHeight;
+    prevScrollHeightRef.current = null;
+  }, [messages]);
+
+  const handleThreadScroll = (e: UIEvent<HTMLDivElement>) => {
+    const el = e.currentTarget;
+    if (el.scrollTop > 0 || !hasNextPage || isFetchingNextPage) return;
+    prevScrollHeightRef.current = el.scrollHeight;
+    fetchNextPage();
   };
 
   return (
     <div
       className={cn(
         "h-full grow sm:flex bg-background transition",
-        [1, 2].includes(contentActive) && "sm:relative fixed top-0 sm:z-0 z-10",
-        ![1, 2].includes(contentActive) && "overflow-hidden",
+        contentActive === 2 && "sm:relative fixed top-0 sm:z-0 z-10",
+        contentActive !== 2 && "overflow-hidden",
       )}
     >
       <div
@@ -65,122 +87,28 @@ export default function MessageFeature() {
           w-screen gap-2 transition"
       >
         <div className="px-4 flex items-center justify-between">
-          <h2>Tin nhắn</h2>
-          <Button
-            type="button"
-            variant="ghost"
-            className="btn-transparent w-fit! p-1"
-            onClick={handleOpenCreateConversation}
-          >
-            <CirclePlus />
-          </Button>
+          <h2 className="text-xl font-bold">Tin nhắn</h2>
         </div>
-
-        <label
-          htmlFor="search-message"
-          className="flex gap-2 p-2 mx-4 border rounded-full hover:border-gray transition"
-        >
-          <SearchIcon className="size-5 ms-1 my-auto text-gray" />
-          <Input
-            type="text"
-            id="search-message"
-            placeholder="Tìm cuộc trò chuyện"
-            className="h-auto border-0 bg-transparent p-0 shadow-none focus-visible:ring-0"
-          />
-        </label>
-
-        <div className="h-full px-2 grow overflow-auto">
-          {!conversations &&
-            [0, 1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-              <div key={i} className="px-3 py-2.5 h-16 flex items-center gap-3">
-                <Skeleton className="size-11 rounded-full" />
-                <div className="grow space-y-2">
-                  <Skeleton className="w-1/2 h-4 rounded-sm" />
-                  <Skeleton className="h-4 rounded-sm" />
-                </div>
-              </div>
-            ))}
-
-          {conversations?.length === 0 && (
-            <p className="px-3 py-2.5">Bắt đầu tạo cuộc trò chuyện mới nào</p>
-          )}
-
-          {conversations?.map((conver) => (
-            <Button
-              variant={"outline"}
-              key={conver.id}
-              className={cn(
-                "w-full text-left px-3 py-2.5 h-auto rounded-md flex items-center gap-3 hover:bg-gray-200 transition cursor-pointer",
-                conver.id === selectedConversation?.id && "bg-gray-100",
-              )}
-              onClick={() => handleChooseConversation(conver)}
-            >
-              <Avatar className="size-11">
-                <AvatarImage src={conversationAvatar(conver, userId)} />
-                <AvatarFallback className="fs-xs">
-                  {getInitialsFromDisplayName(conversationDisplayName(conver, userId))}
-                </AvatarFallback>
-              </Avatar>
-
-              <div className="grow min-w-0">
-                <span className="font-medium">{conversationDisplayName(conver, userId)}</span>
-                {conver.lastMessage && (
-                  <div className="flex gap-2 items-end justify-between">
-                    <div className="line-clamp-1 text-gray">{conver.lastMessage.content}</div>
-                    <span className="text-gray fs-xs text-nowrap">
-                      {dateTimeToMessageTime(conver.lastMessage.createdAt)}
-                    </span>
-                  </div>
-                )}
-              </div>
-            </Button>
-          ))}
-        </div>
+        {/* search */}
+        <ConversationSearch />
+        {/* list conversation  */}
+        <ConversationList
+          userId={userId}
+          conversations={conversations}
+          selectedConversationId={selectedConversation?.id}
+          onSelect={handleChooseConversation}
+        />
       </div>
 
       <div
         className={cn(
           "size-full bg-background transition",
-          [1, 2].includes(contentActive) ? "sm:translate-y-0 -translate-y-full" : "",
+          contentActive === 2 ? "sm:translate-y-0 -translate-y-full" : "",
         )}
       >
         {contentActive === 0 && (
           <div className="size-full place-content-center sm:grid hidden">
             Cùng bắt đầu trò chuyện với người theo dõi của bạn
-          </div>
-        )}
-
-        {contentActive === 1 && (
-          <div className="size-full flex flex-col">
-            <div className="px-4 py-3 border-b flex items-center gap-3">
-              <Button type="button" onClick={handleGoBack} className="btn-transparent p-1">
-                ←
-              </Button>
-              <h4>Tạo cuộc trò chuyện mới</h4>
-            </div>
-            <div className="px-4 py-3">
-              <Input
-                type="text"
-                placeholder="Tìm theo tên hiển thị"
-                value={keyword}
-                onChange={(e) => setKeyword(e.target.value)}
-                autoFocus
-              />
-            </div>
-            <div className="grow overflow-auto px-2">
-              {isSearching && <p className="px-3 py-2.5 text-gray">Đang tìm...</p>}
-              {!isSearching && keyword.trim().length > 0 && users.length === 0 && (
-                <p className="px-3 py-2.5 text-gray">Không tìm thấy người dùng</p>
-              )}
-              {users.map((user) => (
-                <UserSearchResult
-                  key={user.id}
-                  user={user}
-                  onSelect={handleSelectUser}
-                  disabled={createConversation.isPending}
-                />
-              ))}
-            </div>
           </div>
         )}
 
@@ -204,20 +132,29 @@ export default function MessageFeature() {
                 {conversationDisplayName(selectedConversation, userId)}
               </span>
             </div>
-            <div className="grow overflow-y-auto scrollable-div p-4 flex flex-col gap-2">
+            <div
+              ref={messageListRef}
+              className="grow min-h-0 overflow-y-auto scrollable-div p-4 flex flex-col gap-2"
+              onScroll={handleThreadScroll}
+            >
               <MessageThread messages={messages} selfId={userId} />
             </div>
-            <div className="px-4 py-3 border-t flex items-center gap-2 max-w-200">
-              <Image size={40} />
-              <Input
-                type="text"
+            <div className="px-4 py-3 border-t flex items-end gap-2 w-full">
+              <Image size={30} className="shrink-0" />
+              <MessageComposer
+                ref={composerRef}
+                resetKey={resetKey}
+                onChange={setContent}
+                onSend={handleSend}
                 placeholder="Nhắn tin..."
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                onKeyDown={handleKeyDown}
+                className="grow min-w-0 max-h-52 overflow-y-auto"
               />
-              <Button type="button" className="btn-transparent p-2 rounded-2xl w-13" onClick={handleSend}>
-                <SendHorizonal className="size-5" />
+              <Button
+                type="button"
+                className="btn-transparent p-2 rounded-2xl w-10 shrink-0"
+                onClick={handleSend}
+              >
+                <SendHorizonal size={30} />
               </Button>
             </div>
           </div>

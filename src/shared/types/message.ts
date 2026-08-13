@@ -2,6 +2,9 @@ export type ConversationType = "DIRECT" | "GROUP";
 
 export type MessageType = "TEXT" | "IMAGE" | "VIDEO" | "FILE" | "SYSTEM";
 
+// Chỉ set ở client cho optimistic UI; message thật từ server không có field này.
+export type MessageStatus = "sending" | "failed";
+
 export interface ConversationMemberSnapshot {
   userId: string;
   displayName?: string;
@@ -16,6 +19,8 @@ export interface Message {
   messageType: MessageType;
   replyToId?: string;
   createdAt: string;
+  actorSnapshotDTO?: ConversationMemberSnapshot;
+  status?: MessageStatus;
 }
 
 export interface Conversation {
@@ -25,4 +30,5 @@ export interface Conversation {
   avatarUrl?: string;
   members: ConversationMemberSnapshot[];
   lastMessage?: Message;
+  unreadCount: number;
 }

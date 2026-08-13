@@ -1,4 +1,5 @@
 "use client";
+import { useConversations } from "@/features/message/hooks/use-conversations";
 import { useUnreadNotification } from "@/features/notifications/hooks/use-notification";
 import {
   Bell,
@@ -14,7 +15,7 @@ import { Button } from "@/shared/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/shared/components/ui/popover";
 import { ROUTES } from "@/shared/config/routes";
 import { cn } from "@/shared/lib/utils";
-import { useMessageStore } from "@/shared/stores/message-store";
+import { useConversationStore } from "@/shared/stores/use-conversation-store";
 import { ownerAccountStore } from "@/shared/stores/owner-account-store";
 import { popupNotificationtStore, usePopupStore } from "@/shared/stores/popup-store";
 import { SearchIcon } from "lucide-react";
@@ -47,8 +48,8 @@ export function Sidebar() {
 
   const [menuOpen, setMenuOpen] = useState(false);
   const { showPopup } = usePopupStore();
-  const newMessage = useMessageStore((s) => s.incomingMessage);
-  const countNewMessage = useMessageStore((s) => s.countIncomingMessage)
+  useConversations();
+  const totalUnreadMessage = useConversationStore((state) => state.unreadCount);
   const { data: unReadNotification } = useUnreadNotification();
 
   const handleNavigate = (href: string) => {
@@ -147,7 +148,7 @@ export function Sidebar() {
             <IconSlot>
               <span className="relative">
                 <MessageNavIcon compareVar={pathname.startsWith(ROUTES.MESSAGE)} />
-                {<DotBage count={Number(countNewMessage)} />}
+                <DotBage count={totalUnreadMessage} />
               </span>
             </IconSlot>
             <span className={cn(LABEL, pathname.startsWith(ROUTES.MESSAGE) && "font-semibold")}>
@@ -247,7 +248,14 @@ export function Sidebar() {
           },
           {
             href: ROUTES.MESSAGE,
-            icon: <MessageNavIcon compareVar={pathname.startsWith(ROUTES.MESSAGE)} />,
+            icon: (
+              <span className="relative">
+                <MessageNavIcon compareVar={pathname.startsWith(ROUTES.MESSAGE)} />
+                {totalUnreadMessage > 0 && (
+                  <span className="absolute top-0 right-0 size-2.5 rounded-full bg-linear-to-br from-pink-500 to-orange-400" />
+                )}
+              </span>
+            ),
           },
         ].map(({ href, icon }) => (
           <Button

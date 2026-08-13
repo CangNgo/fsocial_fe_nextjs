@@ -1,32 +1,24 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
-import { useCallback, useState } from "react";
-import { getConversations } from "@/services/message/message-api";
-import { messageKeys } from "@/services/message/message.key";
+import { useConversationStore } from "@/shared/stores/use-conversation-store";
 import { ownerAccountStore } from "@/shared/stores/owner-account-store";
+import { useEffect } from "react";
 
 export function useConversations() {
   const userId = ownerAccountStore((state) => state.user.id);
-  const [contentActive, setContentActive] = useState(0);
+  const contentActive = useConversationStore((state) => state.contentActive);
+  const setContentActive = useConversationStore((state) => state.setContentActive);
+  const conversations = useConversationStore((state) => state.conversations);
+  const fetchConversations = useConversationStore((state) => state.fetchConversations);
 
-  const query = useQuery({
-    queryKey: messageKeys.conversations(userId ?? ""),
-    queryFn: () => getConversations(),
-    enabled: Boolean(userId),
-    select: (resp) => (resp?.statusCode === 200 ? (resp.data ?? []) : []),
-  });
-
-  const conversations = query.data ?? null;
-
-  const handleOpenCreateConversation = useCallback(() => {
-    setContentActive(1);
-  }, [setContentActive]);
+  useEffect(() => {
+    if (!userId) return;
+    fetchConversations();
+  }, [userId, fetchConversations]);
 
   return {
     contentActive,
     setContentActive,
     conversations,
-    handleOpenCreateConversation,
   };
 }

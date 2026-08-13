@@ -5,10 +5,10 @@ import { GlobalPopup } from "@/shared/components/organisms/global-popup";
 import { Header } from "@/shared/components/organisms/header";
 import { Sidebar } from "@/shared/components/organisms/sidebar";
 import { ROUTES } from "@/shared/config/routes";
+import { useMessageStore } from "@/shared/stores/message-store";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { useMessageStore } from "@/shared/stores/message-store";
 // import { useNotificationStore } from "@/shared/stores/notification-store";
 import { ownerAccountStore } from "@/shared/stores/owner-account-store";
 import { validRefreshTokenStore } from "@/shared/stores/valid-refresh-token-store";
@@ -52,7 +52,6 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
     if (!hasToken || !user.id) return;
     connectMessageWebSocket();
     return () => cleanMessageWebSocket();
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- connect/clean fns are stable zustand actions
   }, [hasToken, user.id]);
 
   return (

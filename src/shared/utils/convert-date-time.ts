@@ -1,4 +1,10 @@
 const addPadStart = (number: number) => number.toString().padStart(2, "0");
+const seconds = 1;
+const minutes = seconds * 60;
+const hours = minutes * 60;
+const days = hours * 24;
+const months = days * 30;
+const years = months * 12;
 
 function adjustTimezone(time: string | Date): Date {
   const date = new Date(time);
@@ -102,4 +108,30 @@ export function formatDate(dateString: string): string {
 export function formatDateTime(dateString: string): string {
   const date = new Date(dateString);
   return `${addPadStart(date.getHours())}:${addPadStart(date.getMinutes())} ${addPadStart(date.getDate())}/${addPadStart(date.getMonth() + 1)}/${date.getFullYear()}`;
+}
+
+export function formatDateSpaceTime(time: string): string {
+  const spaceTime = (new Date().getTime() - adjustTimezone(time).getTime()) / 1000;
+
+  if (spaceTime < minutes) {
+    return "Vài giây";
+  }
+
+  if (spaceTime < hours) {
+    return Math.floor(spaceTime / minutes) + " Phút";
+  }
+
+  if (spaceTime < days) {
+    return Math.floor(spaceTime / hours) + " Giờ";
+  }
+
+  if (spaceTime < months) {
+    return Math.floor(spaceTime / days) + " Ngày";
+  }
+
+  if (spaceTime < years) {
+    return Math.floor(spaceTime / months) + " Tháng";
+  }
+
+  return Math.floor(spaceTime / years) + " Năm";
 }

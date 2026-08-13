@@ -2,8 +2,8 @@
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar";
 import { Button } from "@/shared/components/ui/button";
-import { getInitialsFromDisplayName } from "@/shared/utils/combine-name";
 import type { UserResult } from "@/shared/types/search";
+import { getInitialsFromDisplayName } from "@/shared/utils/combine-name";
 
 interface UserSearchResultProps {
   user: UserResult;
@@ -17,7 +17,7 @@ export function UserSearchResult({ user, onSelect, disabled }: UserSearchResultP
       type="button"
       variant="ghost"
       disabled={disabled}
-      className="w-full text-left px-3 py-2.5 h-auto rounded-md flex items-center gap-3 hover:bg-gray-2light transition cursor-pointer"
+      className="w-full text-left px-3 py-2.5 h-auto rounded-md flex justify-start items-center gap-3 hover:bg-gray-2light transition cursor-pointer"
       onClick={() => onSelect(user)}
     >
       <Avatar className="size-11">

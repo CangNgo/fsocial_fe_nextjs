@@ -1,9 +1,9 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
 import { searchUsers } from "@/services/search/search-api";
 import { searchKeys } from "@/services/search/search.key";
+import { useQuery } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 
 const SEARCH_DEBOUNCE_MS = 500;
 
@@ -26,7 +26,7 @@ export function useUserSearch() {
   return {
     keyword,
     setKeyword,
-    users: debouncedKeyword.length > 0 ? (query.data ?? []) : [],
+    users: debouncedKeyword.length > 0 ? (query.data ?? []) : undefined,
     isSearching: query.isFetching,
   };
 }
