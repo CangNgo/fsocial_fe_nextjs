@@ -8,9 +8,6 @@ import { useCreateConversation } from '../../hooks/use-create-conversation'
 import { useUserSearch } from '../../hooks/use-user-search'
 import { UserSearchResult } from './user-search-result'
 
-interface ConversationSearchProps {
-
-}
 export default function ConversationSearch() {
   const { keyword, setKeyword, users, isSearching } = useUserSearch();
   const createConversation = useCreateConversation();

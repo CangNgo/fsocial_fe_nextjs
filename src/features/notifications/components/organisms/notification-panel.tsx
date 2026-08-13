@@ -8,7 +8,7 @@ import { NotificationsItem } from "../molecules/notification-item";
 
 export default function NotificationPanel() {
 
-  const { data, isLoading } = useUnreadNotification()
+  const { data } = useUnreadNotification()
   const { data: notifications, isLoading: isLoadingFetchNotification, fetchNextPage, isFetching, hasNextPage }
     = useNotifications()
 

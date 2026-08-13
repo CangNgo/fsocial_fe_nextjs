@@ -17,10 +17,6 @@ const safeStorage =
       removeItem: () => { },
     }));
 
-const initialState = { 
-  theme: "system" as Theme
-}
-
 export const useThemeStore = create<ThemeStore>()(
   persist(
     (set) => ({

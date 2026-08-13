@@ -5,7 +5,7 @@ import { cn } from "@/shared/lib/utils";
 import { useMessageStore } from "@/shared/stores/message-store";
 import { ownerAccountStore } from "@/shared/stores/owner-account-store";
 import { getInitialsFromDisplayName } from "@/shared/utils/combine-name";
-import { Image, SendHorizonal } from "lucide-react";
+import { Image as ImageIcon, SendHorizonal } from "lucide-react";
 import { useEffect, useLayoutEffect, useRef, type UIEvent } from "react";
 import { useChooseConversation } from "../../hooks/use-choose-conversation";
 import { useConversations } from "../../hooks/use-conversations";
@@ -140,7 +140,7 @@ export default function MessageFeature() {
               <MessageThread messages={messages} selfId={userId} />
             </div>
             <div className="px-4 py-3 border-t flex items-end gap-2 w-full">
-              <Image size={30} className="shrink-0" />
+              <ImageIcon size={30} className="shrink-0" />
               <MessageComposer
                 ref={composerRef}
                 resetKey={resetKey}
