@@ -1,5 +1,5 @@
 import { PostList } from "@/features/post";
-import type { PostCardPost, PostCardStore } from "@/features/post/hooks/use-post-card-actions";
+import type { PostCardStore } from "@/features/post/hooks/use-post-card-actions";
 import {
   FollowerProfileTabIcon,
   PictureProfileTabIcon,
@@ -15,6 +15,7 @@ import {
   CarouselItem,
 } from "@/shared/components/ui/carousel";
 import type { AttachmentMediaResponse } from "@/shared/types/attachments";
+import { PostResponse } from "@/shared/types/post";
 import type { ProfileFollower } from "../../types/profile-tabs";
 import { ProfileFollowerGrid } from "../molecules/profile-follower-grid";
 import { ProfilePictureGrid } from "../molecules/profile-picture-grid";
@@ -32,7 +33,7 @@ interface ProfileTabsProps {
   currentTab: number | null;
   onTabClick: (index: number) => void;
   setCarouselApi: (api: CarouselApi) => void;
-  postsUser: PostCardPost[] | null;
+  postsUser: PostResponse[] | null;
   fetchPostsUser: () => void;
   hasMorePosts?: boolean;
   postListStore?: PostCardStore;
