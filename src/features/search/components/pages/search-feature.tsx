@@ -1,18 +1,18 @@
 "use client";
 
-import Link from "next/link";
-import { Virtuoso } from "react-virtuoso";
 import { PostList } from "@/features/post";
-import type { PostCardPost } from "@/features/post/hooks/use-post-card-actions";
 import { LoadingIcon } from "@/shared/components/atoms/icon/icon";
 import { UserAvatar } from "@/shared/components/molecules/user-avatar";
-import { ROUTES } from "@/shared/config/routes";
 import { Input } from "@/shared/components/ui/input";
 import { Skeleton } from "@/shared/components/ui/skeleton";
-import { SearchIcon } from "lucide-react";
-import { useEffect, useState } from "react";
-import { useSearch } from "../../hooks/use-search";
+import { ROUTES } from "@/shared/config/routes";
+import { PostResponse } from "@/shared/types/post";
 import type { SearchTab, UserResult } from "@/shared/types/search";
+import { SearchIcon } from "lucide-react";
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import { Virtuoso } from "react-virtuoso";
+import { useSearch } from "../../hooks/use-search";
 import { messageNotFoundPost, messageNotFoundUser } from "../../utils/search-messages";
 
 const searchTabs: Array<{ key: SearchTab; label: string }> = [
@@ -78,7 +78,7 @@ export default function SearchFeature() {
     }
   }, []);
 
-  const postCards = (posts ?? null) as PostCardPost[] | null;
+  const postCards = (posts ?? null) as PostResponse[] | null;
   const showEmptyHint = debouncedQuery.length === 0;
 
   return (
@@ -108,9 +108,8 @@ export default function SearchFeature() {
             <button
               type="button"
               key={item.key}
-              className={`py-2 w-full rounded-t-sm border-b hover:border-primary hover:text-primary active:bg-gray-3light ${
-                tab === item.key ? "border-primary text-primary" : "border-transparent text-gray"
-              } transition`}
+              className={`py-2 w-full rounded-t-sm border-b hover:border-primary hover:text-primary active:bg-gray-3light ${tab === item.key ? "border-primary text-primary" : "border-transparent text-gray"
+                } transition`}
               onClick={() => setTab(item.key)}
             >
               {item.label}
