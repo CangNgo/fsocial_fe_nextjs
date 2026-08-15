@@ -16,23 +16,22 @@ export function useChooseConversation({
   setContentActive,
 }: UseChooseConversationOptions) {
   const { setMessages, prependMessages, setActiveConversationId } = useMessageStore();
-  const selectedConversation = useConversationStore((state) => state.activeConversation);
-  const setActiveConversation = useConversationStore((state) => state.setActiveConversation);
-  const clearActiveConversation = useConversationStore((state) => state.clearActiveConversation);
-  const resetConversationUnread = useConversationStore((state) => state.resetConversationUnread);
+  const {
+    activeConversation,
+    setActiveConversation,
+    clearActiveConversation,
+    resetConversationUnread
+  }
+    = useConversationStore();
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage } = useMessages(
-    selectedConversation?.id,
+    activeConversation?.id,
   );
 
   const loadedPageCountRef = useRef(0);
 
-  // Trang đầu (đổi conversation, loadedPageCountRef reset về 0 ở handleChooseConversation)
-  // -> reset toàn bộ messages. Các trang sau (fetchNextPage, tức load tin cũ hơn khi scroll up)
-  // -> chỉ nối thêm trang mới vào đầu, không đụng tin nhắn realtime/optimistic đang có trong
-  // store (chúng không nằm trong cache react-query).
   useEffect(() => {
-    if (!selectedConversation || !data) return;
+    if (!activeConversation || !data) return;
 
     if (loadedPageCountRef.current === 0) {
       const items = data.pages.flatMap((page) => page?.data ?? []);
@@ -42,11 +41,11 @@ export function useChooseConversation({
       prependMessages([...(olderPage?.data ?? [])].reverse());
     }
     loadedPageCountRef.current = data.pages.length;
-  }, [data, selectedConversation, setMessages, prependMessages]);
+  }, [data, activeConversation, setMessages, prependMessages]);
 
   const handleChooseConversation = useCallback(
     (selectedConver: Conversation) => {
-      if (selectedConversation?.id === selectedConver.id && contentActive === 2) {
+      if (activeConversation?.id === selectedConver.id && contentActive === 2) {
         return;
       }
 
@@ -59,7 +58,7 @@ export function useChooseConversation({
     },
     [
       contentActive,
-      selectedConversation,
+      activeConversation,
       setContentActive,
       setMessages,
       setActiveConversation,
@@ -75,7 +74,7 @@ export function useChooseConversation({
   }, [setContentActive, clearActiveConversation, setActiveConversationId]);
 
   return {
-    selectedConversation,
+    activeConversation,
     handleChooseConversation,
     handleGoBack,
     fetchNextPage,

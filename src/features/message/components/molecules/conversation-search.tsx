@@ -1,9 +1,10 @@
 import { Input } from '@/shared/components/ui/input'
 import { Skeleton } from '@/shared/components/ui/skeleton'
+import { useConversationStore } from '@/shared/stores/use-conversation-store'
 import { SearchIcon } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
 import { Virtuoso } from 'react-virtuoso'
 import { useChooseConversation } from '../../hooks/use-choose-conversation'
-import { useConversations } from '../../hooks/use-conversations'
 import { useCreateConversation } from '../../hooks/use-create-conversation'
 import { useUserSearch } from '../../hooks/use-user-search'
 import { UserSearchResult } from './user-search-result'
@@ -11,25 +12,43 @@ import { UserSearchResult } from './user-search-result'
 export default function ConversationSearch() {
   const { keyword, setKeyword, users, isSearching } = useUserSearch();
   const createConversation = useCreateConversation();
-  const { contentActive, setContentActive } = useConversations();
+  const { contentActive, setContentActive } = useConversationStore();
   const {
     handleChooseConversation,
   } = useChooseConversation({
     contentActive,
     setContentActive,
   });
+  const [isOpen, setIsOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   const handleSelectUser = (user: { id: string }) => {
+
+
+    
     createConversation.mutate(user.id, {
       onSuccess: (resp) => {
         if (resp?.statusCode === 200 && resp.data) {
           handleChooseConversation(resp.data);
           setKeyword("");
+          setIsOpen(false);
         }
       },
     });
   };
+  const showDropdown = isOpen && keyword.trim().length > 0;
   return (
-    <div className="relative mx-4">
+    <div className="relative mx-4" ref={containerRef}>
       <label
         htmlFor="search-message"
         className="flex gap-2 p-2 border rounded-full hover:border-primary transition"
@@ -41,11 +60,12 @@ export default function ConversationSearch() {
           placeholder="Tìm theo tên hiển thị"
           value={keyword}
           onChange={(e) => setKeyword(e.target.value)}
+          onFocus={() => setIsOpen(true)}
           className="h-auto border-0 p-0 px-1 shadow-none bg-background"
         />
       </label>
 
-      {keyword.trim().length > 0 && (
+      {showDropdown && (
         <div className="absolute left-0 right-0 top-full z-20 mt-1 max-h-80 overflow-auto rounded-lg border bg-background shadow-lg">
           {isSearching && (
             [0, 1, 2].map((i) => (

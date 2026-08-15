@@ -2,53 +2,21 @@
 
 import { PostList } from "@/features/post";
 import { LoadingIcon } from "@/shared/components/atoms/icon/icon";
-import { UserAvatar } from "@/shared/components/molecules/user-avatar";
+import { UserListSkeleton } from "@/shared/components/skeletons/user-list-skeleton";
 import { Input } from "@/shared/components/ui/input";
-import { Skeleton } from "@/shared/components/ui/skeleton";
-import { ROUTES } from "@/shared/config/routes";
 import { PostResponse } from "@/shared/types/post";
-import type { SearchTab, UserResult } from "@/shared/types/search";
+import type { SearchTab } from "@/shared/types/search";
 import { SearchIcon } from "lucide-react";
-import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Virtuoso } from "react-virtuoso";
 import { useSearch } from "../../hooks/use-search";
 import { messageNotFoundPost, messageNotFoundUser } from "../../utils/search-messages";
+import { UserResultItem } from "../user-result-item";
 
 const searchTabs: Array<{ key: SearchTab; label: string }> = [
   { key: "posts", label: "Bài viết" },
   { key: "users", label: "Mọi người" },
 ];
-
-function UserListSkeleton() {
-  return [0, 1, 2, 3, 4].map((item) => (
-    <div key={item} className="py-3 flex items-center gap-3 border-b">
-      <Skeleton className="size-12 rounded-full" />
-      <div className="space-y-1 flex-grow">
-        <Skeleton className="w-32 h-4 rounded-sm" />
-        <Skeleton className="w-24 h-4 rounded-sm" />
-      </div>
-    </div>
-  ));
-}
-
-function UserResultItem({ user }: { user: UserResult }) {
-  const followerCount = user.follower?.length ?? 0;
-
-  return (
-    <Link
-      href={ROUTES.PROFILE(user.id)}
-      className="flex items-center gap-3 border-b py-3 transition hover:bg-muted/30"
-    >
-      <UserAvatar src={user.avatar} displayName={user.displayName} className="size-12" />
-      <div className="min-w-0 flex-1">
-        <p className="font-semibold truncate">{user.displayName ?? user.username}</p>
-        {user.username && <p className="text-sm text-gray truncate">@{user.username}</p>}
-        {followerCount > 0 && <p className="fs-xs text-gray">{followerCount} người theo dõi</p>}
-      </div>
-    </Link>
-  );
-}
 
 export default function SearchFeature() {
   const {
@@ -89,14 +57,14 @@ export default function SearchFeature() {
       <div className="mx-auto flex h-full flex-col md:space-y-5 space-y-4 lg:max-w-[540px]">
         <label
           htmlFor="search"
-          className="mx-3 xl:mx-0 bg-background flex items-center gap-2 py-2 px-3 border rounded-full border-gray-2light hover:drop-shadow hover:border-gray"
+          className="mx-3 xl:mx-0 bg-background flex items-center gap-2 px-3 border rounded-full border-gray-2light hover:drop-shadow hover:border-gray"
         >
           <SearchIcon className="size-5 text-gray flex-shrink-0" />
           <Input
             id="search"
             type="text"
             placeholder="Tìm kiếm..."
-            className="h-auto border-0 bg-transparent p-0 shadow-none focus-visible:ring-0"
+            className="h-auto border-0 bg-background p-0 shadow-none focus-visible:ring-0"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
           />

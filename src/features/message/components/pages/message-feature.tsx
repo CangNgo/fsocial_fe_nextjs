@@ -4,11 +4,11 @@ import { Button } from "@/shared/components/ui/button";
 import { cn } from "@/shared/lib/utils";
 import { useMessageStore } from "@/shared/stores/message-store";
 import { ownerAccountStore } from "@/shared/stores/owner-account-store";
+import { useConversationStore } from "@/shared/stores/use-conversation-store";
 import { getInitialsFromDisplayName } from "@/shared/utils/combine-name";
 import { Image as ImageIcon, SendHorizonal } from "lucide-react";
 import { useEffect, useLayoutEffect, useRef, type UIEvent } from "react";
 import { useChooseConversation } from "../../hooks/use-choose-conversation";
-import { useConversations } from "../../hooks/use-conversations";
 import { useMessageSubscription } from "../../hooks/use-message-subscription";
 import { useSendMessage } from "../../hooks/use-send-message";
 import { conversationAvatar, conversationDisplayName } from "../../utils/conversation-display";
@@ -21,9 +21,10 @@ export default function MessageFeature() {
   const userId = ownerAccountStore((state) => state.user.id);
   const messages = useMessageStore((state) => state.messages);
 
-  const { contentActive, setContentActive, conversations } = useConversations();
+  const { contentActive, setContentActive, conversations, fetchConversations, isLoading } =
+    useConversationStore();
   const {
-    selectedConversation,
+    activeConversation,
     handleChooseConversation,
     handleGoBack,
     fetchNextPage,
@@ -33,7 +34,7 @@ export default function MessageFeature() {
     contentActive,
     setContentActive,
   });
-  const { setContent, handleSend, resetKey } = useSendMessage(selectedConversation?.id);
+  const { setContent, handleSend, resetKey } = useSendMessage(activeConversation?.id);
   const composerRef = useRef<MessageComposerHandle>(null);
   const messageListRef = useRef<HTMLDivElement>(null);
   const lastMessageIdRef = useRef<string | undefined>(undefined);
@@ -42,9 +43,13 @@ export default function MessageFeature() {
   useMessageSubscription();
 
   useEffect(() => {
-    if (selectedConversation) composerRef.current?.focus();
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- refocus only when the selected conversation switches, not on every cache update
-  }, [selectedConversation?.id]);
+    if (!userId) return;
+    fetchConversations();
+  }, [userId, fetchConversations]);
+
+  useEffect(() => {
+    if (activeConversation) composerRef.current?.focus();
+  }, [activeConversation?.id]);
 
   useEffect(() => {
     const lastMessage = messages?.[messages.length - 1];
@@ -95,7 +100,8 @@ export default function MessageFeature() {
         <ConversationList
           userId={userId}
           conversations={conversations}
-          selectedConversationId={selectedConversation?.id}
+          selectedConversationId={activeConversation?.id}
+          isLoading={isLoading}
           onSelect={handleChooseConversation}
         />
       </div>
@@ -106,30 +112,23 @@ export default function MessageFeature() {
           contentActive === 2 ? "sm:translate-y-0 -translate-y-full" : "",
         )}
       >
-        {contentActive === 0 && (
+        {!activeConversation && (
           <div className="size-full place-content-center sm:grid hidden">
             Cùng bắt đầu trò chuyện với người theo dõi của bạn
           </div>
         )}
 
-        {contentActive === 2 && selectedConversation && (
+        {activeConversation && (
           <div className="size-full flex flex-col">
             <div className="px-4 py-3 border-b flex items-center gap-3">
-              <Button
-                type="button"
-                onClick={handleGoBack}
-                className="btn-transparent p-1 sm:hidden"
-              >
-                ←
-              </Button>
               <Avatar className="size-9">
-                <AvatarImage src={conversationAvatar(selectedConversation, userId)} />
+                <AvatarImage src={conversationAvatar(activeConversation, userId)} />
                 <AvatarFallback>
-                  {getInitialsFromDisplayName(conversationDisplayName(selectedConversation, userId))}
+                  {getInitialsFromDisplayName(conversationDisplayName(activeConversation, userId))}
                 </AvatarFallback>
               </Avatar>
               <span className="font-semibold">
-                {conversationDisplayName(selectedConversation, userId)}
+                {conversationDisplayName(activeConversation, userId)}
               </span>
             </div>
             <div

@@ -3,9 +3,12 @@ import { startOnlineHeartbeat, stopOnlineHeartbeat } from "@/services/online/onl
 import { ownerAccountStore } from "@/shared/stores/owner-account-store";
 import { useWebSocketStore } from "@/shared/stores/websocket-store";
 import type { Message, MessageStatus } from "@/shared/types/message";
+import type { StompSubscription } from "@stomp/stompjs";
 import { create } from "zustand";
 
 let unsubscribeConnect: (() => void) | null = null;
+let messageSub: StompSubscription | null = null;
+let errorSub: StompSubscription | null = null;
 
 interface MessageStore {
   messages: Message[] | null;
@@ -94,7 +97,13 @@ export const useMessageStore = create<MessageStore>()((set, get) => ({
     unsubscribeConnect = onConnect(() => {
       startOnlineHeartbeat();
 
-      client.subscribe("/user/queue/messages", (frame) => {
+      // Reconnect (mất mạng/máy sleep) gọi lại onConnect trên cùng client, nên phải huỷ
+      // subscription cũ trước khi tạo mới — nếu không, mỗi lần reconnect sẽ cộng dồn
+      // subscription mới vào client mà không bao giờ được giải phóng.
+      messageSub?.unsubscribe();
+      errorSub?.unsubscribe();
+
+      messageSub = client.subscribe("/user/queue/messages", (frame) => {
         const receivedMessage = JSON.parse(frame.body) as Message;
 
         const { activeConversationId } = get();
@@ -105,7 +114,7 @@ export const useMessageStore = create<MessageStore>()((set, get) => ({
         get().setIncomingMessage(receivedMessage);
       });
 
-      client.subscribe("/user/queue/errors", (frame) => {
+      errorSub = client.subscribe("/user/queue/errors", (frame) => {
         console.error("[WS] server error:", frame.body);
       });
     });
@@ -115,6 +124,8 @@ export const useMessageStore = create<MessageStore>()((set, get) => ({
     stopOnlineHeartbeat();
     unsubscribeConnect?.();
     unsubscribeConnect = null;
+    messageSub = null;
+    errorSub = null;
     useWebSocketStore.getState().disconnect();
     set({
       messages: null,

@@ -5,16 +5,17 @@ import { create } from "zustand";
 import { useWebSocketStore } from "./websocket-store";
 
 interface ConversationState {
-  conversations: Conversation[] | null;
+  conversations: Conversation[] | [];
   activeConversation: Conversation | null;
   unreadCount: number;
   contentActive: number;
   isLoading: boolean;
+  hasFetched: boolean;
 }
 
 interface ConversationActions {
   fetchConversations: () => Promise<void>;
-  setConversations: (conversations: Conversation[] | null) => void;
+  setConversations: (conversations: Conversation[] | []) => void;
   addConversation: (conversation: Conversation) => void;
   updateConversation: (id: string, patch: Partial<Conversation>) => void;
   removeConversation: (id: string) => void;
@@ -29,11 +30,12 @@ interface ConversationActions {
 type ConversationStore = ConversationState & ConversationActions;
 
 const initialState: ConversationState = {
-  conversations: null,
+  conversations: [],
   activeConversation: null,
   unreadCount: 0,
   contentActive: 0,
   isLoading: false,
+  hasFetched: false,
 };
 
 const sumUnread = (conversations: Conversation[]) =>
@@ -43,11 +45,16 @@ export const useConversationStore = create<ConversationStore>()((set, get) => ({
   ...initialState,
 
   fetchConversations: async () => {
-    if (get().isLoading || get().conversations) return;
+    if (get().isLoading || get().hasFetched) return;
     set({ isLoading: true });
     const resp = await getConversations();
     const conversations = resp?.statusCode === 200 ? (resp.data ?? []) : [];
-    set({ conversations, unreadCount: sumUnread(conversations), isLoading: false });
+    set({
+      conversations,
+      unreadCount: sumUnread(conversations),
+      isLoading: false,
+      hasFetched: true,
+    });
   },
 
   setConversations: (conversations) =>

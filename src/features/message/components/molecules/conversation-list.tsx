@@ -7,8 +7,9 @@ import { ConversationItem } from "./conversation-item";
 
 interface ConversationListProps {
   userId?: string;
-  conversations: Conversation[] | null;
+  conversations: Conversation[] | [];
   selectedConversationId?: string;
+  isLoading: boolean;
   onSelect: (conversation: Conversation) => void;
 }
 
@@ -16,9 +17,10 @@ export function ConversationList({
   userId,
   conversations,
   selectedConversationId,
+  isLoading,
   onSelect,
 }: ConversationListProps) {
-  if (!conversations) {
+  if (isLoading) {
     return (
       <div className="h-full grow overflow-auto">
         {[0, 1, 2, 3, 4, 5, 6, 7, 8].map((i) => (

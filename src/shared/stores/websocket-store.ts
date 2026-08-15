@@ -22,13 +22,11 @@ export const useWebSocketStore = create<WebSocketStore>()((set, get) => ({
     const existing = get().client;
     if (existing) return existing;
 
-    const wsHost = process.env.NEXT_PUBLIC_WS_HOST_MESSAGE ?? process.env.NEXT_PUBLIC_WS_HOST;
-    const wsProtocol = process.env.NEXT_PUBLIC_WS_PROTOCOL;
+    const wsHost = process.env.NEXT_PUBLIC_WS_HOST;
     const apiVersion = process.env.NEXT_PUBLIC_API_VERSION;
     const token = getCookie("access-token");
-
     const client = new Client({
-      brokerURL: `${wsProtocol}://${wsHost}/${apiVersion}/ws`,
+      brokerURL: `${wsHost}/${apiVersion}/ws`,
       connectHeaders: token ? { Authorization: `Bearer ${token}` } : {},
       reconnectDelay: 10000,
       onConnect: () => {
