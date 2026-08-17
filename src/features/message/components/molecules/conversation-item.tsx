@@ -4,9 +4,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avat
 import { Button } from "@/shared/components/ui/button";
 import { cn } from "@/shared/lib/utils";
 import type { Conversation } from "@/shared/types/message";
-import { getInitialsFromDisplayName } from "@/shared/utils/combine-name";
 import { formatDateSpaceTime } from "@/shared/utils/convert-date-time";
-import { conversationAvatar, conversationDisplayName } from "../../utils/conversation-display";
+import { conversationDisplayName } from "../../utils/conversation-display";
 
 interface ConversationItemProps {
   userId?: string;
@@ -25,12 +24,17 @@ export function ConversationItem({ userId, conversation, isSelected, onSelect }:
       )}
       onClick={() => onSelect(conversation)}
     >
-      <Avatar className="size-11">
-        <AvatarImage src={conversationAvatar(conversation, userId)} />
-        <AvatarFallback className="fs-xs">
-          {getInitialsFromDisplayName(conversationDisplayName(conversation, userId))}
-        </AvatarFallback>
-      </Avatar>
+      <div className="relative shrink-0">
+        <Avatar className="size-11">
+          <AvatarImage src={conversation.avatarUrl} />
+          <AvatarFallback className="fs-xs">
+            {conversation.name}
+          </AvatarFallback>
+        </Avatar>
+        {conversation.type === "DIRECT" && conversation.online && (
+          <span className="absolute bottom-0 right-0 size-2.5 rounded-full bg-green-500 border-2 border-background" />
+        )}
+      </div>
 
       <div className="grow min-w-0">
         <div className="flex justify-between">

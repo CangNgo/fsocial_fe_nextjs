@@ -53,15 +53,11 @@ export default function MessageFeature() {
 
   useEffect(() => {
     const lastMessage = messages?.[messages.length - 1];
-    // So sánh id tin nhắn cuối để chỉ scroll khi có tin mới ở cuối (gửi/nhận),
-    // không scroll khi load thêm tin nhắn cũ ở đầu danh sách (fetchNextPage).
     if (!lastMessage || lastMessage.id === lastMessageIdRef.current) return;
     lastMessageIdRef.current = lastMessage.id;
     messageListRef.current?.scroll({ top: messageListRef.current.scrollHeight, behavior: "smooth" });
   }, [messages]);
 
-  // Giữ nguyên vị trí xem khi tin nhắn cũ được nối vào đầu danh sách (load thêm lúc scroll up),
-  // tránh giật màn hình do scrollHeight tăng lên sau khi prepend.
   useLayoutEffect(() => {
     const el = messageListRef.current;
     const prevScrollHeight = prevScrollHeightRef.current;

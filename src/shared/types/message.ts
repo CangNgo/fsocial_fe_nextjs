@@ -31,4 +31,5 @@ export interface Conversation {
   members: ConversationMemberSnapshot[];
   lastMessage?: Message;
   unreadCount: number;
+  online?: boolean
 }
