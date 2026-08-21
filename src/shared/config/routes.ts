@@ -1,3 +1,5 @@
+import type { FaqType } from "@/shared/types/faq";
+
 export const ROUTES = {
   ROOT: "/",
   HOME: "/home",
@@ -27,6 +29,9 @@ export const ROUTES = {
     REPORTS: "/admin/reports",
     POLICY_SETTING: "/admin/policy-setting",
     PROFILE: "/admin/profile",
+    FAQS: "/admin/faqs",
+    FAQ_CREATE: (type?: FaqType) => `/admin/faqs/create${type ? `?type=${type}` : ""}`,
+    FAQ_EDIT: (faqId: string) => `/admin/faqs/${faqId}/edit`,
   },
 } as const;
 

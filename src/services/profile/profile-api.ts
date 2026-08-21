@@ -1,5 +1,6 @@
 import { apiDelete, apiGet } from "@/services/core/api-service";
 import type { ApiResponse } from "@/shared/types/api-response";
+import { PostResponse } from "@/shared/types/post";
 import type { AccountResponse } from "@/shared/types/profile";
 
 export async function getOwnerProfile(): Promise<ApiResponse<AccountResponse> | null> {
@@ -24,4 +25,8 @@ export async function getFollowers(): Promise<ApiResponse<AccountResponse> | nul
 
 export async function getFollowing(): Promise<ApiResponse<AccountResponse> | null> {
   return apiGet("/profile/follow/following");
+}
+
+export async function getProfilePost(): Promise<ApiResponse<PostResponse[]> | null> {
+  return apiGet("/profile/post");
 }

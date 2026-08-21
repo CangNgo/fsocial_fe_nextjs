@@ -12,12 +12,16 @@ interface ExpiredDialogProps {
 
 export function ExpiredDialog({ open }: ExpiredDialogProps) {
   const setRefreshToken = validRefreshTokenStore((state) => state.setRefreshToken);
+  const setSessionExpired = validRefreshTokenStore((state) => state.setSessionExpired);
 
   useEffect(() => {
-    const handleExpired = () => setRefreshToken(null);
+    const handleExpired = () => {
+      setRefreshToken(null);
+      setSessionExpired(true);
+    };
     window.addEventListener("auth:expired", handleExpired);
     return () => window.removeEventListener("auth:expired", handleExpired);
-  }, [setRefreshToken]);
+  }, [setRefreshToken, setSessionExpired]);
 
   return (
     <Dialog open={open} onOpenChange={() => {}}>
@@ -41,7 +45,10 @@ export function ExpiredDialog({ open }: ExpiredDialogProps) {
         <Link
           className="btn-primary py-2.5 block text-center mt-4"
           href={ROUTES.LOGIN}
-          onClick={() => setRefreshToken(null)}
+          onClick={() => {
+            setRefreshToken(null);
+            setSessionExpired(false);
+          }}
         >
           Xác nhận
         </Link>

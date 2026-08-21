@@ -5,26 +5,27 @@ import { create } from "zustand";
 import { ownerAccountStore } from "./owner-account-store";
 import { useWebSocketStore } from "./websocket-store";
 
+type FetchStatus = "idle" | "loading" | "ready";
+
 interface ConversationState {
-  conversations: Conversation[] | [];
-  activeConversation: Conversation | null;
-  unreadCount: number;
-  contentActive: number;
-  isLoading: boolean;
-  hasFetched: boolean;
+  conversations: Conversation[];
+  // Chỉ giữ id, object lấy từ `conversations` qua selectActiveConversation — tránh 2 bản
+  // sao lệch nhau (online/unread/lastMessage cập nhật trên list sẽ không tới được header).
+  activeConversationId: string | null;
+  isThreadOpen: boolean;
+  status: FetchStatus;
 }
 
 interface ConversationActions {
   fetchConversations: () => Promise<void>;
-  setConversations: (conversations: Conversation[] | []) => void;
   addConversation: (conversation: Conversation) => void;
-  updateConversation: (id: string, patch: Partial<Conversation>) => void;
+  addDraftConversation: (conversation: Conversation) => void;
+  removeDraftConversations: () => void;
   removeConversation: (id: string) => void;
   applyIncomingMessage: (message: Message) => void;
   resetConversationUnread: (id: string) => void;
-  setActiveConversation: (conversation: Conversation | null) => void;
-  clearActiveConversation: () => void;
-  setContentActive: (contentActive: number) => void;
+  setActiveConversation: (id: string | null) => void;
+  setThreadOpen: (isThreadOpen: boolean) => void;
   getDirectPartnerIds: () => string[];
   setOnlineStatuses: (online: Record<string, boolean>) => void;
   reset: () => void;
@@ -34,15 +35,10 @@ type ConversationStore = ConversationState & ConversationActions;
 
 const initialState: ConversationState = {
   conversations: [],
-  activeConversation: null,
-  unreadCount: 0,
-  contentActive: 0,
-  isLoading: false,
-  hasFetched: false,
+  activeConversationId: null,
+  isThreadOpen: false,
+  status: "idle",
 };
-
-const sumUnread = (conversations: Conversation[]) =>
-  conversations.reduce((sum, c) => sum + c.unreadCount, 0);
 
 // Với conversation DIRECT: nhóm >1 member -> lấy member khác mình; tự chat (1 member) -> lấy chính mình.
 const directPartner = (conversation: Conversation, selfId?: string) =>
@@ -50,102 +46,88 @@ const directPartner = (conversation: Conversation, selfId?: string) =>
     ? conversation.members.find((member) => member.userId !== selfId)
     : conversation.members.find((member) => member.userId === selfId);
 
+// Conversation từ API (fetch list hoặc create) chưa có name/avatarUrl ở top-level, phải suy ra từ partner.
+const enrichConversation = (conversation: Conversation, selfId?: string): Conversation => {
+  if (conversation.type !== "DIRECT") return conversation;
+  const partner = directPartner(conversation, selfId);
+  return { ...conversation, name: partner?.displayName, avatarUrl: partner?.avatar };
+};
+
 export const useConversationStore = create<ConversationStore>()((set, get) => ({
   ...initialState,
 
   fetchConversations: async () => {
-    if (get().isLoading || get().hasFetched) return;
-    set({ isLoading: true });
+    if (get().status !== "idle") return;
+    set({ status: "loading" });
     const resp = await getConversations();
     const conversations = resp?.statusCode === 200 ? (resp.data ?? []) : [];
     const userId = ownerAccountStore.getState().user.id;
-    const data = conversations.map((item) => {
-      if (item.type !== "DIRECT") return item;
-
-      if (item.members.length > 1) {
-        const sender = item.members.find((member) => member.userId !== userId);
-        return {
-          ...item,
-          name: sender?.displayName,
-          avatarUrl: sender?.avatar,
-        };
-      } else {
-        const sender = item.members.find((member) => member.userId === userId);
-        return {
-          ...item,
-          name: sender?.displayName,
-          avatarUrl: sender?.avatar,
-        }
-      }
-    });
 
     set({
-      conversations: data,
-      unreadCount: sumUnread(conversations),
-      isLoading: false,
-      hasFetched: true,
+      conversations: conversations.map((item) => enrichConversation(item, userId)),
+      status: "ready",
     });
   },
 
-  setConversations: (conversations) =>
-    set({ conversations, unreadCount: conversations ? sumUnread(conversations) : 0 }),
-
   addConversation: (conversation) =>
     set((state) => {
-      const conversations = [conversation, ...(state.conversations ?? [])];
-      return { conversations, unreadCount: sumUnread(conversations) };
+      const userId = ownerAccountStore.getState().user.id;
+      return { conversations: [enrichConversation(conversation, userId), ...state.conversations] };
     }),
 
-  updateConversation: (id, patch) =>
-    set((state) => {
-      if (!state.conversations) return state;
-      const conversations = state.conversations.map((c) => (c.id === id ? { ...c, ...patch } : c));
-      return { conversations, unreadCount: sumUnread(conversations) };
-    }),
+  // Chỉ cho phép 1 draft tồn tại cùng lúc — chọn user mới thay thế draft cũ chưa gửi.
+  addDraftConversation: (conversation) =>
+    set((state) => ({
+      conversations: [conversation, ...state.conversations.filter((c) => !c.isDraft)],
+    })),
+
+  removeDraftConversations: () =>
+    set((state) =>
+      state.conversations.some((c) => c.isDraft)
+        ? { conversations: state.conversations.filter((c) => !c.isDraft) }
+        : state,
+    ),
 
   removeConversation: (id) =>
-    set((state) => {
-      if (!state.conversations) return state;
-      const conversations = state.conversations.filter((c) => c.id !== id);
-      return { conversations, unreadCount: sumUnread(conversations) };
-    }),
+    set((state) => ({ conversations: state.conversations.filter((c) => c.id !== id) })),
 
-  // per-conversation unread bump + move-to-top on a new realtime message, same behavior use-message-subscription.ts used to do via queryClient.setQueryData
+  // per-conversation unread bump + move-to-top khi có tin nhắn realtime.
   applyIncomingMessage: (message) =>
     set((state) => {
-      if (!state.conversations) return state;
       const existing = state.conversations.find((c) => c.id === message.conversationId);
       if (!existing) return state;
-      const isActive = state.activeConversation?.id === existing.id;
+      const isActive = state.activeConversationId === existing.id;
       const updated: Conversation = {
         ...existing,
         lastMessage: message,
         unreadCount: isActive ? existing.unreadCount : existing.unreadCount + 1,
       };
-      const conversations = [updated, ...state.conversations.filter((c) => c.id !== existing.id)];
-      return { conversations, unreadCount: sumUnread(conversations) };
+      return {
+        conversations: [updated, ...state.conversations.filter((c) => c.id !== existing.id)],
+      };
     }),
 
   resetConversationUnread: (id) =>
-    set((state) => {
-      if (!state.conversations) return state;
-      const conversations = state.conversations.map((c) =>
+    set((state) => ({
+      conversations: state.conversations.map((c) =>
         c.id === id ? { ...c, unreadCount: 0 } : c,
-      );
-      return { conversations, unreadCount: sumUnread(conversations) };
-    }),
+      ),
+    })),
 
-  setActiveConversation: (activeConversation) => {
-    const { client } = useWebSocketStore.getState();
-    set({ activeConversation });
+  setActiveConversation: (activeConversationId) => {
+    set({ activeConversationId });
+    if (!activeConversationId) return;
 
-    client?.publish({
+    const conversation = get().conversations.find((c) => c.id === activeConversationId);
+    if (!conversation || conversation.isDraft) return;
+
+    useWebSocketStore.getState().client?.publish({
       destination: "/app/chat/mark-read",
-      body: JSON.stringify({ conversationId: activeConversation?.id }),
+      body: JSON.stringify({ conversationId: activeConversationId }),
     });
   },
-  clearActiveConversation: () => set({ activeConversation: null }),
-  setContentActive: (contentActive) => set({ contentActive }),
+
+  setThreadOpen: (isThreadOpen) => set({ isThreadOpen }),
 
   getDirectPartnerIds: () => {
     const userId = ownerAccountStore.getState().user.id;
@@ -158,16 +140,23 @@ export const useConversationStore = create<ConversationStore>()((set, get) => ({
   setOnlineStatuses: (online) =>
     set((state) => {
       const userId = ownerAccountStore.getState().user.id;
-      const conversations = state.conversations.map((c) => {
-        if (c.type !== "DIRECT") return c;
-        const partnerId = directPartner(c, userId)?.userId;
-        if (!partnerId || !(partnerId in online)) return c;
-        return { ...c, online: online[partnerId] };
-      });
-      return { conversations };
+      return {
+        conversations: state.conversations.map((c) => {
+          if (c.type !== "DIRECT") return c;
+          const partnerId = directPartner(c, userId)?.userId;
+          if (!partnerId || !(partnerId in online)) return c;
+          return { ...c, online: online[partnerId] };
+        }),
+      };
     }),
 
   reset: () => set(initialState),
 }));
+
+export const selectActiveConversation = (state: ConversationStore): Conversation | null =>
+  state.conversations.find((c) => c.id === state.activeConversationId) ?? null;
+
+export const selectTotalUnread = (state: ConversationStore): number =>
+  state.conversations.reduce((sum, c) => sum + c.unreadCount, 0);
 
 export const conversationStore = useConversationStore;

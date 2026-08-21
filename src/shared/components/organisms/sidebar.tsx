@@ -16,7 +16,7 @@ import { ROUTES } from "@/shared/config/routes";
 import { cn } from "@/shared/lib/utils";
 import { ownerAccountStore } from "@/shared/stores/owner-account-store";
 import { popupNotificationtStore, usePopupStore } from "@/shared/stores/popup-store";
-import { useConversationStore } from "@/shared/stores/use-conversation-store";
+import { selectTotalUnread, useConversationStore } from "@/shared/stores/use-conversation-store";
 import { SearchIcon } from "lucide-react";
 import dynamic from "next/dynamic";
 import Image from "next/image";
@@ -47,7 +47,7 @@ export function Sidebar() {
 
   const [menuOpen, setMenuOpen] = useState(false);
   const { showPopup } = usePopupStore();
-  const totalUnreadMessage = useConversationStore((state) => state.unreadCount);
+  const totalUnreadMessage = useConversationStore(selectTotalUnread);
   const { data: unReadNotification } = useUnreadNotification();
 
   const handleNavigate = (href: string) => {

@@ -1,84 +1,52 @@
 "use client";
 
 import { useMessageStore } from "@/shared/stores/message-store";
-import { useConversationStore } from "@/shared/stores/use-conversation-store";
+import {
+  selectActiveConversation,
+  useConversationStore,
+} from "@/shared/stores/use-conversation-store";
 import type { Conversation } from "@/shared/types/message";
-import { useCallback, useEffect, useRef } from "react";
-import { useMessages } from "./use-messages";
+import { useCallback } from "react";
 
-interface UseChooseConversationOptions {
-  contentActive: number;
-  setContentActive: (contentActive: number) => void;
-}
+/**
+ * Chọn conversation. Hook này cố ý KHÔNG fetch message — nó được dùng ở cả list và
+ * search box, fetch/sync thread nằm riêng ở useMessageThread để chỉ chạy một lần.
+ */
+export function useChooseConversation() {
+  const setMessages = useMessageStore((state) => state.setMessages);
 
-export function useChooseConversation({
-  contentActive,
-  setContentActive,
-}: UseChooseConversationOptions) {
-  const { setMessages, prependMessages, setActiveConversationId } = useMessageStore();
-  const {
-    activeConversation,
-    setActiveConversation,
-    clearActiveConversation,
-    resetConversationUnread
-  }
-    = useConversationStore();
-
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } = useMessages(
-    activeConversation?.id,
-  );
-
-  const loadedPageCountRef = useRef(0);
-
-  useEffect(() => {
-    if (!activeConversation || !data) return;
-
-    if (loadedPageCountRef.current === 0) {
-      const items = data.pages.flatMap((page) => page?.data ?? []);
-      setMessages([...items].reverse());
-    } else if (data.pages.length > loadedPageCountRef.current) {
-      const olderPage = data.pages[data.pages.length - 1];
-      prependMessages([...(olderPage?.data ?? [])].reverse());
-    }
-    loadedPageCountRef.current = data.pages.length;
-  }, [data, activeConversation, setMessages, prependMessages]);
+  const activeConversationId = useConversationStore((state) => state.activeConversationId);
+  const isThreadOpen = useConversationStore((state) => state.isThreadOpen);
+  const setActiveConversation = useConversationStore((state) => state.setActiveConversation);
+  const setThreadOpen = useConversationStore((state) => state.setThreadOpen);
+  const resetConversationUnread = useConversationStore((state) => state.resetConversationUnread);
+  const removeDraftConversations = useConversationStore((state) => state.removeDraftConversations);
 
   const handleChooseConversation = useCallback(
-    (selectedConver: Conversation) => {
-      if (activeConversation?.id === selectedConver.id && contentActive === 2) {
-        return;
-      }
+    (selected: Conversation) => {
+      if (activeConversationId === selected.id && isThreadOpen) return;
 
-      loadedPageCountRef.current = 0;
       setMessages(null);
-      setContentActive(2);
-      setActiveConversation(selectedConver);
-      setActiveConversationId(selectedConver.id);
-      resetConversationUnread(selectedConver.id);
+      setThreadOpen(true);
+      // Rời draft chưa gửi sang conversation khác thì dọn draft, tránh tồn đọng trong list.
+      if (!selected.isDraft) removeDraftConversations();
+      setActiveConversation(selected.id);
+      resetConversationUnread(selected.id);
     },
     [
-      contentActive,
-      activeConversation,
-      setContentActive,
+      activeConversationId,
+      isThreadOpen,
       setMessages,
+      setThreadOpen,
       setActiveConversation,
-      setActiveConversationId,
       resetConversationUnread,
+      removeDraftConversations,
     ],
   );
 
-  const handleGoBack = useCallback(() => {
-    setContentActive(0);
-    clearActiveConversation();
-    setActiveConversationId(null);
-  }, [setContentActive, clearActiveConversation, setActiveConversationId]);
+  return { activeConversationId, handleChooseConversation };
+}
 
-  return {
-    activeConversation,
-    handleChooseConversation,
-    handleGoBack,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-  };
+export function useActiveConversation() {
+  return useConversationStore(selectActiveConversation);
 }

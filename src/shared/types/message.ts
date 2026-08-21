@@ -31,5 +31,7 @@ export interface Conversation {
   members: ConversationMemberSnapshot[];
   lastMessage?: Message;
   unreadCount: number;
-  online?: boolean
+  online?: boolean;
+  // Conversation nháp tạo ở client khi chọn user từ kết quả search, chưa gọi API tạo thật.
+  isDraft?: boolean;
 }

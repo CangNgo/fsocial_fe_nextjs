@@ -16,7 +16,7 @@ import { getCookie } from "@/shared/utils/cookie";
 
 export default function UserLayout({ children }: { children: React.ReactNode }) {
   const { user, setUser } = ownerAccountStore();
-  const { refreshToken } = validRefreshTokenStore();
+  const { isSessionExpired } = validRefreshTokenStore();
   const { connectMessageWebSocket, cleanMessageWebSocket } = useMessageStore();
   const initialized = useRef(false);
   const router = useRouter();
@@ -70,7 +70,7 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
       </main>
 
       <GlobalPopup />
-      <ExpiredDialog open={mounted && !refreshToken} />
+      <ExpiredDialog open={mounted && isSessionExpired} />
     </div>
   );
 }

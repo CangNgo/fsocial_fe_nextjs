@@ -1,4 +1,4 @@
-import { BookMarked, ChartNoAxesCombined, MessageSquareWarning, UserRoundPen } from "lucide-react";
+import { BookMarked, ChartNoAxesCombined, CircleHelp, MessageSquareWarning, UserRoundPen } from "lucide-react";
 import { ROUTES } from "@/shared/config/routes";
 
 export interface NavRoute {
@@ -27,5 +27,10 @@ export const adminNavRoute: NavRoute[] = [
     name: "Cài đặt chính sách",
     to: ROUTES.ADMIN.POLICY_SETTING,
     icon: <BookMarked strokeWidth={1.6} />,
+  },
+  {
+    name: "Quản lý FAQ",
+    to: ROUTES.ADMIN.FAQS,
+    icon: <CircleHelp strokeWidth={1.6} />,
   },
 ];

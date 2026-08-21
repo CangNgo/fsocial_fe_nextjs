@@ -1,4 +1,5 @@
 "use client";
+import { ChatBotWidget } from "@/features/chatbox";
 import NotificationPanel from "@/features/notifications/components/organisms/notification-panel";
 
 export default function HomeLayout({ children }: { children: React.ReactNode }) {
@@ -10,6 +11,8 @@ export default function HomeLayout({ children }: { children: React.ReactNode }) 
       <div className="h-full">
         <NotificationPanel />
       </div>
+
+      <ChatBotWidget />
     </div>
   );
 }

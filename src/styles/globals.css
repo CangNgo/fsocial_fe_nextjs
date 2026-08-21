@@ -316,8 +316,8 @@
     cursor: pointer;
   }
 
-  .tiptap a:hover{ 
-    background: var(--color-secondary)
+  .tiptap a:hover {
+    background: var(--color-secondary);
   }
 
   @keyframes caret-blink {
@@ -340,6 +340,20 @@
     }
     100% {
       transform: translateX(0);
+    }
+  }
+
+  /* Biên độ nhỏ hơn animate-bounce của Tailwind — hợp với 3 chấm typing indicator. */
+  @keyframes chat-bounce {
+    0%,
+    80%,
+    100% {
+      transform: translateY(0);
+      opacity: 0.4;
+    }
+    40% {
+      transform: translateY(-4px);
+      opacity: 1;
     }
   }
 }

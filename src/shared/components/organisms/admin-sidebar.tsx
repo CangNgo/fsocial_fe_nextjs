@@ -47,7 +47,7 @@ export function AdminSidebar() {
           <Link
             key={route.to}
             href={route.to}
-            className={cn(btnClass, pathname === route.to && "bg-accent font-medium")}
+            className={cn(btnClass, pathname.startsWith(route.to) && "bg-accent font-medium")}
           >
             {route.icon}
             <span className={LABEL}>{route.name}</span>

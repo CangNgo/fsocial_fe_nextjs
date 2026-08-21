@@ -6,4 +6,5 @@ export const profileKeys = {
   following: (userId: string) => ["profile", "following", userId] as const,
   attachments: (userId: string) => ["profile", "attachments", userId] as const,
   attachmentImage: (resourceType: string) => ["profile", "attachmentImage", resourceType] as const,
+  profilePosts: (userId: string) => ["profile", "post", userId]
 } as const;

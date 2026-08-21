@@ -1,8 +1,8 @@
 "use client";
 
-import { useInfiniteQuery } from "@tanstack/react-query";
 import { postKeys } from "@/services/posts/post.key";
 import { getPosts } from "@/services/posts/posts-api";
+import { useInfiniteQuery } from "@tanstack/react-query";
 
 const POSTS_TAB_INDEX = 0;
 
